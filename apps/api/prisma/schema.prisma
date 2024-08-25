@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,46 +7,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// model Sample {
-//   id        Int      @id @default(autoincrement())
-//   name      String
-//   code      String   @unique
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   @@map("samples") // if you want to use snake_case format
-// }
-
 model User {
-  id                      Int                       @id @default(autoincrement())
-  email                   String                    @unique
-  password                String
-  roleId                  Int
-  role                    Role                      @relation(fields: [roleId], references: [id])
-  referralCode            String                    @unique
-  referredById            Int?
-  referredBy              User?                     @relation("UserToUser", fields: [referredById], references: [id])
-  referredUsers           User[]                    @relation("UserToUser")
-  profileId               Int
-  profile                 Profile?
-  storeId                 Int?
-  store                   Store?                    @relation("StoreAdmin", fields: [storeId], references: [id])
-  addresses               Address[]
-  isVerified              Boolean                   @default(false)
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @default(now())
-  ProductCategory         ProductCategory[]
-  ProductSubcategory      ProductSubcategory[]
-  Product                 Product[]
-  InventoryUpdate         InventoryUpdate[]
-  MutationStatusUpdate    MutationStatusUpdate[]
-  ProductDiscountPerStore ProductDiscountPerStore[]
-  FreeProductPerStore     FreeProductPerStore[]
-  Voucher                 Voucher[]
-  Order                   Order[]
-  OrderStatusUpdate       OrderStatusUpdate[]
-  Promotion               Promotion[]
-  Store                   Store[]                   @relation("StoreCreator")
+  id                       Int                       @id @default(autoincrement())
+  email                    String                    @unique
+  password                 String
+  roleId                   Int
+  role                     Role                      @relation(fields: [roleId], references: [id])
+  referralCode             String                    @unique
+  referredById             Int?
+  referredBy               User?                     @relation("UserToUser", fields: [referredById], references: [id])
+  referredUsers            User[]                    @relation("UserToUser")
+  profileId                Int
+  profile                  Profile?
+  storeId                  Int?
+  store                    Store?                    @relation("StoreAdmin", fields: [storeId], references: [id])
+  addresses                Address[]                 @relation("UserToAddress")
+  isVerified               Boolean                   @default(false)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @default(now())
+  productCategories        ProductCategory[]         @relation("CategoryCreator")
+  productSubcategories     ProductSubcategory[]      @relation("SubcategoryCreator")
+  products                 Product[]                 @relation("ProductCreator")
+  inventoryUpdates         InventoryUpdate[]         @relation("InventoryUpdateCreator")
+  mutationStatusUpdates    MutationStatusUpdate[]    @relation("MutationStatusUpdateCreator")
+  productDiscountPerStores ProductDiscountPerStore[] @relation("ProductDiscountCreator")
+  freeProductPerStores     FreeProductPerStore[]     @relation("FreeProductCreator")
+  vouchers                 Voucher[]                 @relation("CustomerToVoucher")
+  orders                   Order[]                   @relation("CustomerToOrder")
+  orderStatusUpdates       OrderStatusUpdate[]       @relation("OrderStatusUpdateCreator")
+  promotions               Promotion[]               @relation("PromotionCreator")
+  stores                   Store[]                   @relation("StoreCreator")
+  brands                   Brand[]                   @relation("BrandCreator")
 
   @@map("users")
 }
@@ -60,7 +48,8 @@ model Role {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
-  users       User[]
+
+  users User[]
 
   @@map("roles")
 }
@@ -73,11 +62,12 @@ model Address {
   latitude  String
   longitude String
   isMain    Boolean  @default(false)
+  deleted   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  user  User    @relation(fields: [userId], references: [id])
-  Order Order[]
+  users  User    @relation("UserToAddress", fields: [userId], references: [id])
+  orders Order[] @relation("DeliveryAddressOfOrder")
 
   @@map("addresses")
 }
@@ -91,7 +81,8 @@ model Profile {
   phone     String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id])
+
+  users User @relation(fields: [userId], references: [id])
 
   @@map("profiles")
 }
@@ -108,23 +99,36 @@ model Store {
   id         Int      @id @default(autoincrement())
   name       String   @unique
   creatorId  Int
-  address    String
-  latitude   String
-  longitude  String
   storeState State    @default(DRAFT)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now())
 
-  creator       User        @relation("StoreCreator", fields: [creatorId], references: [id])
-  admins        User[]      @relation("StoreAdmin")
-  inventories   Inventory[]
-  orders        Order[]
-  products      Product[]
-  mutationsFrom Mutation[]  @relation("MutationFromStore")
-  mutationsTo   Mutation[]  @relation("MutationToStore")
-  promotion     Promotion[]
+  creator       User                  @relation("StoreCreator", fields: [creatorId], references: [id])
+  admins        User[]                @relation("StoreAdmin")
+  inventories   Inventory[]           @relation("InventoryOfStore")
+  orders        Order[]               @relation("OrderOfStore")
+  mutationsFrom Mutation[]            @relation("MutationFromStore")
+  mutationsTo   Mutation[]            @relation("MutationToStore")
+  promotions    Promotion[]
+  addresses     StoreAddressHistory[]
 
   @@map("stores")
+}
+
+model StoreAddressHistory {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  address   String
+  latitude  String
+  longitude String
+  deleted   Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  stores Store   @relation(fields: [storeId], references: [id])
+  orders Order[]
+
+  @@map("store_address_histories")
 }
 
 model ProductCategory {
@@ -135,10 +139,8 @@ model ProductCategory {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now())
 
-  creator       User                 @relation(fields: [creatorId], references: [id])
+  creator       User                 @relation("CategoryCreator", fields: [creatorId], references: [id])
   subcategories ProductSubcategory[]
-  Product       Product?             @relation(fields: [productId], references: [id])
-  productId     Int?
 
   @@map("product_categories")
 }
@@ -152,7 +154,7 @@ model ProductSubcategory {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now())
 
-  creator         User            @relation(fields: [creatorId], references: [id])
+  creator         User            @relation("SubcategoryCreator", fields: [creatorId], references: [id])
   productCategory ProductCategory @relation(fields: [productCategoryId], references: [id])
   products        Product[]
 
@@ -163,24 +165,36 @@ model Product {
   id           Int      @id @default(autoincrement())
   creatorId    Int
   name         String   @unique
-  price        Float
   brandId      Int
   productState State    @default(DRAFT)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
 
-  creator      User                 @relation(fields: [creatorId], references: [id])
-  images       ProductImage[]
-  inventories  Inventory[]
-  descriptions Description[]
-  brand        Brand                @relation(fields: [brandId], references: [id])
-  category     ProductCategory[]
-  subcategory  ProductSubcategory[]
-  Store        Store?               @relation(fields: [storeId], references: [id])
-  storeId      Int?
-  OrderItem    OrderItem[]
+  creator       User                  @relation("ProductCreator", fields: [creatorId], references: [id])
+  prices        ProductPriceHistory[]
+  images        ProductImage[]
+  inventories   Inventory[]
+  descriptions  Description[]
+  brand         Brand                 @relation(fields: [brandId], references: [id])
+  subcategories ProductSubcategory[]
+  orderItems    OrderItem[]
 
   @@map("products")
+}
+
+model ProductPriceHistory {
+  id        Int       @id @default(autoincrement())
+  productId Int
+  price     Float
+  startDate DateTime
+  endDate   DateTime?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_price_histories")
 }
 
 model Description {
@@ -198,13 +212,14 @@ model Description {
 
 model Brand {
   id          Int      @id @default(autoincrement())
-  productId   Int
+  creatorId   Int
   name        String
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now())
 
-  product Product[]
+  creator  User      @relation("BrandCreator", fields: [creatorId], references: [id])
+  products Product[]
 
   @@map("brands")
 }
@@ -216,7 +231,8 @@ model ProductImage {
   productId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
+
+  product Product @relation(fields: [productId], references: [id])
 
   @@map("product_images")
 }
@@ -228,12 +244,11 @@ model Inventory {
   stock     Int      @default(0)
   createdAt DateTime @default(now())
 
-  product                 Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  store                   Store                     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  updates                 InventoryUpdate[]
-  productDiscountPerStore ProductDiscountPerStore[]
-  freeProductPerStore     FreeProductPerStore[]
-  OrderItem               OrderItem[]
+  product                  Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store                    Store                     @relation("InventoryOfStore", fields: [storeId], references: [id], onDelete: Cascade)
+  updates                  InventoryUpdate[]
+  productDiscountPerStores ProductDiscountPerStore[]
+  freeProductPerStores     FreeProductPerStore[]
 
   @@map("inventories")
 }
@@ -249,7 +264,7 @@ model InventoryUpdate {
   createdAt   DateTime              @default(now())
 
   inventory Inventory @relation(fields: [inventoryId], references: [id])
-  creator   User      @relation(fields: [creatorId], references: [id])
+  creator   User      @relation("InventoryUpdateCreator", fields: [creatorId], references: [id])
 
   @@map("inventory_updates")
 }
@@ -300,44 +315,46 @@ model MutationStatusUpdate {
   description    String?
   createdAt      DateTime       @default(now())
 
-  creator  User     @relation(fields: [creatorId], references: [id])
+  creator  User     @relation("MutationStatusUpdateCreator", fields: [creatorId], references: [id])
   mutation Mutation @relation(fields: [mutationId], references: [id])
 
   @@map("mutation_status_updates")
 }
 
 model ProductDiscountPerStore {
-  id            Int          @id @default(autoincrement())
-  creatorId     Int
-  inventoryId   Int
-  discountType  DiscountType
-  discountValue Float
-  startedAt     DateTime
-  finishedAt    DateTime
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @default(now())
+  id                   Int          @id @default(autoincrement())
+  creatorId            Int
+  productDiscountState State        @default(DRAFT)
+  inventoryId          Int
+  discountType         DiscountType
+  discountValue        Float
+  startedAt            DateTime
+  finishedAt           DateTime
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @default(now())
 
-  creator   User        @relation(fields: [creatorId], references: [id])
-  inventory Inventory   @relation(fields: [inventoryId], references: [id])
-  OrderItem OrderItem[]
+  creator    User        @relation("ProductDiscountCreator", fields: [creatorId], references: [id])
+  inventory  Inventory   @relation(fields: [inventoryId], references: [id])
+  orderItems OrderItem[]
 
   @@map("product_discounts_per_store")
 }
 
 model FreeProductPerStore {
-  id          Int      @id @default(autoincrement())
-  creatorId   Int
-  inventoryId Int
-  buy         Int
-  get         Int
-  startedAt   DateTime
-  finishedAt  DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  creatorId        Int
+  freeProductState State    @default(DRAFT)
+  inventoryId      Int
+  buy              Int
+  get              Int
+  startedAt        DateTime
+  finishedAt       DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
 
-  creator   User        @relation(fields: [creatorId], references: [id])
-  inventory Inventory   @relation(fields: [inventoryId], references: [id])
-  OrderItem OrderItem[]
+  creator    User        @relation("FreeProductCreator", fields: [creatorId], references: [id])
+  inventory  Inventory   @relation(fields: [inventoryId], references: [id])
+  orderItems OrderItem[]
 
   @@map("free_products_per_store")
 }
@@ -349,7 +366,7 @@ model Promotion {
   name                 String
   scope                PromotionScope
   source               PromotionSource
-  storeId              Int?
+  storeId              Int? // promotionScope = store
   description          String
   startedAt            DateTime
   finishedAt           DateTime
@@ -361,10 +378,10 @@ model Promotion {
   minPurchase          Float           @default(0)
   maxDeduction         Float           @default(0)
   minTransaction       Int?
-  vouchers             Voucher[]
+  vouchers             Voucher[]       @relation("VoucherOfPromotion")
 
   store   Store? @relation(fields: [storeId], references: [id])
-  creator User   @relation(fields: [creatorId], references: [id])
+  creator User   @relation("PromotionCreator", fields: [creatorId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
@@ -380,8 +397,8 @@ model Voucher {
   status      VoucherStatus @default(UNUSED)
   expiredAt   DateTime
 
-  promotion Promotion @relation(fields: [promotionId], references: [id])
-  customer  User      @relation(fields: [customerId], references: [id])
+  promotion Promotion @relation("VoucherOfPromotion", fields: [promotionId], references: [id])
+  customer  User      @relation("CustomerToVoucher", fields: [customerId], references: [id])
   order     Order?    @relation(fields: [orderId], references: [id])
 
   createdAt DateTime @default(now())
@@ -424,6 +441,7 @@ model Order {
   id                Int         @id @default(autoincrement())
   customerId        Int
   storeId           Int
+  storeAddressId    Int
   orderCode         String      @unique
   price             Float
   finalPrice        Float
@@ -434,36 +452,35 @@ model Order {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @default(now())
 
-  vouchers           Voucher[]
-  customer           User                @relation(fields: [customerId], references: [id])
-  store              Store               @relation(fields: [storeId], references: [id])
+  vouchers           Voucher[] // update applied voucher status to USED and orderId. Upon cancelled request, update to REVOKED then UNUSED after the request complete (also make orderId to null).
+  customer           User                @relation("CustomerToOrder", fields: [customerId], references: [id])
+  store              Store               @relation("OrderOfStore", fields: [storeId], references: [id])
   payment            Payment             @relation(fields: [paymentId], references: [id])
   shipping           Shipping?           @relation(fields: [shippingId], references: [id])
-  deliveryAddress    Address             @relation(fields: [deliveryAddressId], references: [id])
-  orderItems         OrderItem[]
+  storeAddress       StoreAddressHistory @relation(fields: [storeAddressId], references: [id])
+  deliveryAddress    Address             @relation("DeliveryAddressOfOrder", fields: [deliveryAddressId], references: [id])
+  orderItems         OrderItem[]         @relation("OrderItemsOfOrder")
   orderStatusUpdates OrderStatusUpdate[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id          Int      @id @default(autoincrement())
-  inventoryId Int
-  orderId     Int
-  qty         Int
-  price       Float
-  finalPrice  Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
-
-  inventory                 Inventory                @relation(fields: [inventoryId], references: [id])
-  order                     Order                    @relation(fields: [orderId], references: [id])
-  Product                   Product?                 @relation(fields: [productId], references: [id])
-  productId                 Int?
-  ProductDiscountPerStore   ProductDiscountPerStore? @relation(fields: [productDiscountPerStoreId], references: [id])
+  id                        Int      @id @default(autoincrement())
+  orderId                   Int
+  productId                 Int
+  qty                       Int // update inventory when order created or cancelled
+  price                     Float // search from active 'true' productPriceHistory
   productDiscountPerStoreId Int?
-  FreeProductPerStore       FreeProductPerStore?     @relation(fields: [freeProductPerStoreId], references: [id])
   freeProductPerStoreId     Int?
+  finalPrice                Float // calculate from discount relation
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now())
+
+  order                   Order                    @relation("OrderItemsOfOrder", fields: [orderId], references: [id])
+  product                 Product                  @relation(fields: [productId], references: [id])
+  productDiscountPerStore ProductDiscountPerStore? @relation(fields: [productDiscountPerStoreId], references: [id])
+  freeProductPerStore     FreeProductPerStore?     @relation(fields: [freeProductPerStoreId], references: [id])
 
   @@map("order_items")
 }
@@ -476,7 +493,7 @@ model OrderStatusUpdate {
   description String?
   createdAt   DateTime    @default(now())
 
-  user  User? @relation(fields: [userId], references: [id])
+  user  User? @relation("OrderStatusUpdateCreator", fields: [userId], references: [id])
   order Order @relation(fields: [orderId], references: [id])
 
   @@map("order_status_updates")
@@ -518,7 +535,7 @@ enum OrderStatus {
   DIPROSES // oleh admin atau sistem
   DIKIRIM // oleh admin
   DIKONFIRMASI // oleh customer atau sistem setelah 7 hari
-  DIBATALKAN // oleh customer, admin, atau sistem setelah jam 
+  DIBATALKAN // oleh customer, admin, atau sistem setelah jam
 }
 
 enum PaymentStatus {
