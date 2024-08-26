@@ -6,7 +6,7 @@
 
     Folder:
         •	routers: define url routes (export default class definition)
-        •	controllers: destructure request, send response (export default class definition)
+        •	controllers: destructure request, send response (export default class definition). format: res.status(xxx).json({message: 'message', data: result})
         •	actions: business logic and validation before posting to prisma (export default instance class)
         •	queries: prisma queries that return object for response body (export default instance class)
         •	libs: code for customizing library (nodemailer, multer uploader, etc)
