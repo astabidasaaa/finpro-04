@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { HttpException } from '@/errors/httpException';
+import { HttpStatus } from '@/types/error';
 // import { MulterError } from 'multer';
 // import { deletePhoto } from '@/utils/deletePhoto';
 
@@ -29,7 +30,8 @@ export function ErrorHandler(
     //       res.status(413).json({ message: 'File size limit exceeded', error: 'PAYLOAD TOO LARGE' });
     //     }
   } else {
-    console.log(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Internal Server Error' });
   }
 }
