@@ -1,9 +1,8 @@
 import App from './app';
+// insert routes class here
 
 const main = () => {
-  // init db here
-
-  const app = new App();
+  const app = new App([]);
   app.start();
 };
 
