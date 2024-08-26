@@ -166,6 +166,7 @@ model Product {
   creatorId    Int
   name         String   @unique
   brandId      Int
+  description  String   @db.Text
   productState State    @default(DRAFT)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
@@ -174,7 +175,6 @@ model Product {
   prices        ProductPriceHistory[]
   images        ProductImage[]
   inventories   Inventory[]
-  descriptions  Description[]
   brand         Brand                 @relation(fields: [brandId], references: [id])
   subcategories ProductSubcategory[]
   orderItems    OrderItem[]
@@ -195,19 +195,6 @@ model ProductPriceHistory {
   product Product @relation(fields: [productId], references: [id])
 
   @@map("product_price_histories")
-}
-
-model Description {
-  id          Int      @id @default(autoincrement())
-  productId   Int
-  title       String
-  description String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id])
-
-  @@map("descriptions")
 }
 
 model Brand {
