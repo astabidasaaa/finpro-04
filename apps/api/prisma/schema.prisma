@@ -10,19 +10,24 @@ datasource db {
 model User {
   id                       Int                       @id @default(autoincrement())
   email                    String                    @unique
-  password                 String
+  password                 String?
   roleId                   Int
   role                     Role                      @relation(fields: [roleId], references: [id])
   referralCode             String                    @unique
   referredById             Int?
   referredBy               User?                     @relation("UserToUser", fields: [referredById], references: [id])
   referredUsers            User[]                    @relation("UserToUser")
-  profileId                Int
   profile                  Profile?
   storeId                  Int?
   store                    Store?                    @relation("StoreAdmin", fields: [storeId], references: [id])
   addresses                Address[]                 @relation("UserToAddress")
   isVerified               Boolean                   @default(false)
+  verificationToken        String?
+  resetPasswordToken       String?
+  resetPasswordTokenExpiry DateTime?
+  googleId                 String?
+  facebookId               String?
+  twitterId                String?
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @default(now())
   productCategories        ProductCategory[]         @relation("CategoryCreator")
@@ -132,12 +137,11 @@ model StoreAddressHistory {
 }
 
 model ProductCategory {
-  id            Int      @id @default(autoincrement())
-  creatorId     Int
-  name          String   @unique
-  categoryState State    @default(DRAFT)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  creatorId Int
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   creator       User                 @relation("CategoryCreator", fields: [creatorId], references: [id])
   subcategories ProductSubcategory[]
@@ -150,7 +154,6 @@ model ProductSubcategory {
   creatorId         Int
   name              String   @unique
   productCategoryId Int
-  subCategoryState  State    @default(DRAFT)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now())
 
