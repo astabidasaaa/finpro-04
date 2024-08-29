@@ -71,7 +71,7 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  users  User    @relation("UserToAddress", fields: [userId], references: [id])
+  user   User    @relation("UserToAddress", fields: [userId], references: [id])
   orders Order[] @relation("DeliveryAddressOfOrder")
 
   @@map("addresses")
@@ -87,7 +87,7 @@ model Profile {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
 
-  users User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@map("profiles")
 }
@@ -130,7 +130,7 @@ model StoreAddressHistory {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  stores Store   @relation(fields: [storeId], references: [id])
+  store  Store   @relation(fields: [storeId], references: [id])
   orders Order[]
 
   @@map("store_address_histories")
@@ -165,22 +165,23 @@ model ProductSubcategory {
 }
 
 model Product {
-  id           Int      @id @default(autoincrement())
-  creatorId    Int
-  name         String   @unique
-  brandId      Int
-  description  String   @db.Text
-  productState State    @default(DRAFT)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  creatorId     Int
+  name          String   @unique
+  brandId       Int
+  subcategoryId Int
+  description   String   @db.Text
+  productState  State    @default(DRAFT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 
-  creator       User                  @relation("ProductCreator", fields: [creatorId], references: [id])
-  prices        ProductPriceHistory[]
-  images        ProductImage[]
-  inventories   Inventory[]
-  brand         Brand                 @relation(fields: [brandId], references: [id])
-  subcategories ProductSubcategory[]
-  orderItems    OrderItem[]
+  creator     User                  @relation("ProductCreator", fields: [creatorId], references: [id])
+  prices      ProductPriceHistory[]
+  images      ProductImage[]
+  inventories Inventory[]
+  brand       Brand                 @relation(fields: [brandId], references: [id])
+  subcategory ProductSubcategory    @relation(fields: [subcategoryId], references: [id])
+  orderItems  OrderItem[]
 
   @@map("products")
 }
@@ -438,7 +439,7 @@ model Order {
   paymentId         Int         @unique
   shippingId        Int?        @unique
   deliveryAddressId Int
-  orderStatus       OrderStatus
+  orderStatus       OrderStatus @default(MENUNGGU_PEMBAYARAN)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @default(now())
 
