@@ -23,6 +23,7 @@ model User {
   addresses                Address[]                 @relation("UserToAddress")
   isVerified               Boolean                   @default(false)
   verificationToken        String?
+  verificationTokenExpiry  DateTime?
   resetPasswordToken       String?
   resetPasswordTokenExpiry DateTime?
   googleId                 String?

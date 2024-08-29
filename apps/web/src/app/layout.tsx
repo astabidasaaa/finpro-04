@@ -4,6 +4,7 @@ import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import ReusableOrGlobalComponent from '@/components/feature-or-module/ReusableOrGlobalComponent';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,8 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         {/* <ExampleProvider> */}
-        <ReusableOrGlobalComponent />
+        {/* <ReusableOrGlobalComponent /> */}
         {children}
+        <Toaster />
         {/* </ExampleProvider> */}
       </body>
     </html>
