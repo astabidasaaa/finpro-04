@@ -1,6 +1,6 @@
 import express, { urlencoded, Express, json } from 'express';
 import { FRONTEND_URL, PORT } from './config';
-import type { RouteItems } from './interfaces/routesInterface';
+import type { Route } from './types/express';
 import { ErrorHandler } from './middlewares/errorHandler';
 import path from 'path';
 import cors from 'cors';
@@ -8,7 +8,7 @@ import cors from 'cors';
 export default class App {
   private readonly app: Express;
 
-  constructor(routes: Array<RouteItems>) {
+  constructor(routes: Array<Route>) {
     this.app = express();
     this.configure();
     this.routes(routes);
@@ -34,7 +34,7 @@ export default class App {
     this.app.use(ErrorHandler);
   }
 
-  private routes(routes: Array<RouteItems>): void {
+  private routes(routes: Array<Route>): void {
     routes.forEach((route) => {
       this.app.use('/api', route.router);
     });

@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { OrderController } from '@/controllers/orderController';
-import type { RouteItems } from '@/interfaces/routesInterface';
+import { Route } from '@/types/express';
 
-export class OrderRoute implements RouteItems {
+
+export class OrderRoute implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly orderController: OrderController;

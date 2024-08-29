@@ -1,9 +1,9 @@
 // src/routes/verifyStoreRoute.ts
 import { Router } from 'express';
 import { VerifyStoreController } from '@/controllers/verifyStoreController';
-import type { RouteItems } from '@/interfaces/routesInterface';
+import { Route } from '@/types/express';
 
-export class VerifyStoreRoute implements RouteItems {
+export class VerifyStoreRoute implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly verifyStoreController: VerifyStoreController;

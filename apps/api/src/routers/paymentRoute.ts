@@ -1,10 +1,10 @@
 // src/routes/paymentRoutes.ts
 import { Router } from 'express';
 import { PaymentController } from '../controllers/paymentController';
-import type { RouteItems } from '@/interfaces/routesInterface';
+import { Route } from '@/types/express';
 
 
-export class PaymentRoute implements RouteItems {
+export class PaymentRoute implements Route {
     readonly router: Router;
     readonly path: string;
     private readonly paymentController: PaymentController;
