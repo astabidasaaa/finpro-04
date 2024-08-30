@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import AuthHeader from '@/components/AuthHeader';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -9,9 +8,11 @@ export const metadata: Metadata = {
 
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
-      {/* <AuthHeader /> */}
-      <main>{children}</main>
+    <div className="relative flex flex-col items-center justify-center w-full">
+      <AuthHeader />
+      <main className="flex flex-col items-center justify-center min-h-screen w-full">
+        {children}
+      </main>
       {/* <AuthFooter /> */}
     </div>
   );
