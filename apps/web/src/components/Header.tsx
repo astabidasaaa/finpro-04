@@ -1,3 +1,74 @@
+'use client';
+
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { User } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from './ui/button';
+import Link from 'next/link';
+import { logout } from '@/_middlewares/auth.middleware';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
 export const Header = () => {
-  return <div>Header</div>;
+  const user = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  return (
+    <header className="flex justify-between items-center w-full h-12 sm:h-14 sm:py-4 px-4 md:px-12 lg:px-24 z-10">
+      <Link href="/">
+        <Image
+          src="/sigmart-logo-full-small.png"
+          alt="Logo Sigmart"
+          width={80}
+          height={24}
+        />
+      </Link>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="overflow-hidden rounded-full"
+          >
+            <Avatar>
+              <AvatarImage
+                src={`${process.env.AVATAR_API_URL}/${user.user.avatar}`}
+              />
+              <AvatarFallback>
+                <User />
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Link href="/pengaturan">Pengaturan</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>Support</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={async () => {
+              await logout()(dispatch);
+
+              router.refresh();
+            }}
+            className="hover:cursor-pointer"
+          >
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </header>
+  );
 };
