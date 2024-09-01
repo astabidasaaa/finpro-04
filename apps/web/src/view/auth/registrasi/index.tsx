@@ -12,15 +12,14 @@ import RegisterForm from './RegistrasiForm';
 import { BsTwitterX } from 'react-icons/bs';
 import { FaFacebook, FaGoogle } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 
-type Props = {};
-
-const RegistrasiPageView = (props: Props) => {
+const RegistrasiPageView = () => {
   return (
     <Card className="mx-auto w-max md:w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">Buat akun</CardTitle>
+        <CardTitle className="text-xl font-bold">
+          Selamat datang di Sigmart!
+        </CardTitle>
         <CardDescription>
           Buat akun sekarang untuk dapat kemudahan belanja
         </CardDescription>
@@ -29,8 +28,17 @@ const RegistrasiPageView = (props: Props) => {
         <RegisterForm />
       </CardContent>
       <CardFooter className="flex flex-col">
-        <Label>Registrasi menggunakan sosial</Label>
-        <div className="grid grid-cols-3 w-full gap-2 mt-2">
+        <div className="relative w-full">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              atau lanjutkan dengan
+            </span>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 w-full gap-2 mt-4">
           <Button variant="outline">
             <FaGoogle className="size-5" />
           </Button>

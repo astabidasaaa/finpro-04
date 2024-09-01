@@ -28,7 +28,7 @@ const formSchema = z.object({
     .min(3, {
       message: 'Email berisi minimal 3 karakter',
     })
-    .max(64, { message: 'Email berisi maksimal 64 karakter' }),
+    .max(48, { message: 'Email berisi maksimal 48 karakter' }),
 });
 
 const LupaPasswordForm = () => {

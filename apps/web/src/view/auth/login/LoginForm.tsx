@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -18,10 +18,9 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { toast } from '@/components/ui/use-toast';
-import axiosInstance from '@/lib/axiosInstance';
-
-type Props = {};
+import { useToast } from '@/components/ui/use-toast';
+import { login } from '@/_middlewares/auth.middleware';
+import { useAppDispatch } from '@/lib/hooks';
 
 const formSchema = z.object({
   email: z
@@ -31,16 +30,31 @@ const formSchema = z.object({
     .min(3, {
       message: 'Email berisi minimal 3 karakter',
     })
-    .max(64, { message: 'Email berisi maksimal 64 karakter' }),
+    .max(48, { message: 'Email berisi maksimal 48 karakter' }),
   password: z
     .string()
     .min(8, { message: 'Password harus berisi lebih dari 8 karakter' }),
 });
 
-const LoginForm = (props: Props) => {
+const LoginForm = () => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (searchParams?.has('redirect')) {
+      setTimeout(() => {
+        toast({
+          variant: 'default',
+          title: 'Login diperlukan',
+          description:
+            'Anda telah diarahkan ke halaman login. Silakan login untuk melanjutkan',
+        });
+      }, 100);
+    }
+  }, [toast, searchParams]);
 
   const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
 
@@ -56,26 +70,26 @@ const LoginForm = (props: Props) => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().post('/auth/login', {
+      const res = await login({
         email: values.email,
         password: values.password,
-      });
+      })(dispatch);
 
       setTimeout(() => {
         // setSubmitLoading((prev) => false);
 
-        if (res.status === 200) {
+        if (res) {
           form.reset();
-          router.refresh();
+          router.replace(redirect);
+
           toast({
             variant: 'default',
-            title: res.data.message,
+            title: 'Login berhasil',
             description: 'Selamat datang di Sigmart, selamat berbelanja',
           });
         }
       }, 1500);
     } catch (error: any) {
-      console.log(error);
       let message = '';
       if (error instanceof AxiosError) {
         message = error.response?.data.message;

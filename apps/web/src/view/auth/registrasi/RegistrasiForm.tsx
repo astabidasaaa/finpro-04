@@ -29,7 +29,7 @@ const formSchema = z.object({
     .min(3, {
       message: 'Email berisi minimal 3 karakter',
     })
-    .max(64, { message: 'Email berisi maksimal 64 karakter' }),
+    .max(48, { message: 'Email berisi maksimal 48 karakter' }),
 });
 
 const RegisterForm = () => {
@@ -48,7 +48,7 @@ const RegisterForm = () => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().post('/auth/register-mail', {
+      const res = await axiosInstance().post('/auth/register-request', {
         email: values.email,
       });
 
@@ -67,7 +67,6 @@ const RegisterForm = () => {
         }
       }, 1500);
     } catch (error: any) {
-      console.log(error);
       let message = '';
       if (error instanceof AxiosError) {
         message = error.response?.data.message;
@@ -104,18 +103,18 @@ const RegisterForm = () => {
                 />
               </FormControl>
               <FormMessage />
-              <FormDescription>
+              {/* <FormDescription>
                 Kami akan mengirimkan kode verifikasi melalui email
-              </FormDescription>
+              </FormDescription> */}
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isSubmitLoading}>
+        <Button type="submit" disabled={isSubmitLoading} className="min-w-36">
           {isSubmitLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
-            'Buat akun'
+            'Buat akun dengan email'
           )}
         </Button>
       </form>

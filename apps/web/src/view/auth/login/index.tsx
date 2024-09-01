@@ -3,9 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import LoginForm from './LoginForm';
 
-type Props = {};
-
-const LoginPageView = (props: Props) => {
+const LoginPageView = () => {
   return (
     <div className="w-full lg:grid lg:grid-cols-2 lg:h-screen">
       <div className="flex items-center justify-center py-12">
@@ -17,7 +15,7 @@ const LoginPageView = (props: Props) => {
             </p>
           </div>
           <LoginForm />
-          <div className="mt-4 text-center text-sm">
+          <div className="text-center text-sm">
             Belum memiliki akun?{' '}
             <Link href="/registrasi" className="underline hover:no-underline">
               Daftar

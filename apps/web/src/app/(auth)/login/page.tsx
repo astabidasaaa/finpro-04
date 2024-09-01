@@ -1,9 +1,7 @@
 import LoginPageView from '@/view/auth/login';
 import React from 'react';
 
-type Props = {};
-
-const LoginPage = (props: Props) => {
+const LoginPage = () => {
   return (
     <>
       <LoginPageView />
