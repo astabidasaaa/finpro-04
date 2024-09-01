@@ -100,7 +100,7 @@ class AuthAction {
     const isValid = await compare(password, user.password);
 
     if (!isValid)
-      throw new HttpException(HttpStatus.BAD_REQUEST, 'Password anda salah');
+      throw new HttpException(HttpStatus.BAD_REQUEST, 'Password Anda salah');
 
     const accessPayload = {
       id: user.id,
