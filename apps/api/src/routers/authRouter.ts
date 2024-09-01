@@ -2,6 +2,7 @@ import { AuthController } from '@/controllers/authController';
 import { PasswordController } from '@/controllers/passwordController';
 import { VerifyEmailController } from '@/controllers/verifyEmailController';
 import {
+  validateChangePassword,
   validateEmail,
   validateLogin,
   validatePassword,
@@ -37,7 +38,7 @@ export class AuthRouter implements Route {
     );
 
     this.router.post(
-      `${this.path}/register-mail`,
+      `${this.path}/register-request`,
       validateEmail,
       this.authController.initiateRegisterCredentials,
     );
@@ -49,9 +50,8 @@ export class AuthRouter implements Route {
       this.authController.registerCredentials,
     );
 
-    this.router.post(
+    this.router.get(
       `${this.path}/verify-email-request`,
-      validateEmail,
       this.guard.verifyAccessToken,
       this.verifyEmailController.emailVerificationRequest,
     );
@@ -76,6 +76,19 @@ export class AuthRouter implements Route {
 
     this.router.get(
       `${this.path}/refresh-token`,
+      this.guard.verifyAccessToken,
+      this.authController.refreshAccessToken,
+    );
+
+    this.router.patch(
+      `${this.path}/change-password`,
+      validateChangePassword,
+      this.guard.verifyAccessToken,
+      this.passwordController.changePassword,
+    );
+
+    this.router.patch(
+      `${this.path}/add-password`,
       this.guard.verifyAccessToken,
       this.authController.refreshAccessToken,
     );

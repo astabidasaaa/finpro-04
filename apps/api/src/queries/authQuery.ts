@@ -130,42 +130,6 @@ class AuthQuery {
         'Silakan ulangi permintaan verifikasi email',
       );
   }
-
-  public async findUserByResetPasswordToken(token: string) {
-    const user = await prisma.user.findFirst({
-      where: {
-        resetPasswordToken: token,
-        resetPasswordTokenExpiry: {
-          gt: new Date(),
-        },
-      },
-      select: {
-        id: true,
-        password: true,
-      },
-    });
-
-    return user;
-  }
-
-  public async resetPasswordAndRemoveToken(id: number, password: string) {
-    const isSuccess = await prisma.user.update({
-      where: {
-        id,
-      },
-      data: {
-        password,
-        resetPasswordToken: null,
-        resetPasswordTokenExpiry: null,
-      },
-    });
-
-    if (!isSuccess)
-      throw new HttpException(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        'Silakan ulangi permintaan atur ulang password',
-      );
-  }
 }
 
 export default new AuthQuery();

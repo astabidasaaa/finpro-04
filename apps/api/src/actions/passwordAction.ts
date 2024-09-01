@@ -1,10 +1,12 @@
 import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
 import authQuery from '@/queries/authQuery';
+import passwordQuery from '@/queries/passwordQuery';
 import { HttpStatus } from '@/types/error';
 import { hashingPassword } from '@/utils/password';
 import { generateRandomToken } from '@/utils/randomToken';
 import { resetPasswordMail } from '@/utils/sendMail';
+import { compare } from 'bcrypt';
 
 class PasswordAction {
   public async resetRequest(email: string) {
@@ -33,10 +35,10 @@ class PasswordAction {
   }
 
   public async reset(password: string, token: string) {
-    const user = await authQuery.findUserByResetPasswordToken(token);
+    const user = await passwordQuery.findUserByResetPasswordToken(token);
 
     // throw error when the returned user is not found or no password
-    if (!user || user.password === null)
+    if (!user)
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
         'User tidak ditemukan. Silakan ulangi permintaan atur ulang password',
@@ -44,7 +46,30 @@ class PasswordAction {
 
     const hashedPassword = await hashingPassword(password);
 
-    await authQuery.resetPasswordAndRemoveToken(user.id, hashedPassword);
+    await passwordQuery.resetPasswordAndRemoveToken(user.id, hashedPassword);
+  }
+
+  public async change(email: string, password: string, newPassword: string) {
+    const user = await authQuery.findUserByEmail(email);
+
+    if (!user || user.password === null) {
+      throw new HttpException(
+        HttpStatus.NOT_FOUND,
+        'Akun tidak ditemukan. Pastikan email Anda benar atau login menggunakan sosial',
+      );
+    }
+
+    const isValid = await compare(password, user.password);
+
+    if (!isValid)
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Password lama Anda salah',
+      );
+
+    const hashedPassword = await hashingPassword(newPassword);
+
+    await passwordQuery.changePassword(email, hashedPassword);
   }
 }
 
