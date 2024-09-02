@@ -10,19 +10,25 @@ datasource db {
 model User {
   id                       Int                       @id @default(autoincrement())
   email                    String                    @unique
-  password                 String
+  password                 String?
   roleId                   Int
   role                     Role                      @relation(fields: [roleId], references: [id])
   referralCode             String                    @unique
   referredById             Int?
   referredBy               User?                     @relation("UserToUser", fields: [referredById], references: [id])
   referredUsers            User[]                    @relation("UserToUser")
-  profileId                Int
   profile                  Profile?
   storeId                  Int?
   store                    Store?                    @relation("StoreAdmin", fields: [storeId], references: [id])
   addresses                Address[]                 @relation("UserToAddress")
   isVerified               Boolean                   @default(false)
+  verificationToken        String?
+  verificationTokenExpiry  DateTime?
+  resetPasswordToken       String?
+  resetPasswordTokenExpiry DateTime?
+  googleId                 String?
+  facebookId               String?
+  twitterId                String?
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @default(now())
   productCategories        ProductCategory[]         @relation("CategoryCreator")
@@ -66,7 +72,7 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  users  User    @relation("UserToAddress", fields: [userId], references: [id])
+  user   User    @relation("UserToAddress", fields: [userId], references: [id])
   orders Order[] @relation("DeliveryAddressOfOrder")
 
   @@map("addresses")
@@ -82,7 +88,7 @@ model Profile {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now())
 
-  users User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@map("profiles")
 }
@@ -125,19 +131,18 @@ model StoreAddressHistory {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  stores Store   @relation(fields: [storeId], references: [id])
+  store  Store   @relation(fields: [storeId], references: [id])
   orders Order[]
 
   @@map("store_address_histories")
 }
 
 model ProductCategory {
-  id            Int      @id @default(autoincrement())
-  creatorId     Int
-  name          String   @unique
-  categoryState State    @default(DRAFT)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  creatorId Int
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   creator       User                 @relation("CategoryCreator", fields: [creatorId], references: [id])
   subcategories ProductSubcategory[]
@@ -150,7 +155,6 @@ model ProductSubcategory {
   creatorId         Int
   name              String   @unique
   productCategoryId Int
-  subCategoryState  State    @default(DRAFT)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now())
 
@@ -162,22 +166,23 @@ model ProductSubcategory {
 }
 
 model Product {
-  id           Int      @id @default(autoincrement())
-  creatorId    Int
-  name         String   @unique
-  brandId      Int
-  description  String   @db.Text
-  productState State    @default(DRAFT)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  creatorId     Int
+  name          String   @unique
+  brandId       Int
+  subcategoryId Int
+  description   String   @db.Text
+  productState  State    @default(DRAFT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
 
-  creator       User                  @relation("ProductCreator", fields: [creatorId], references: [id])
-  prices        ProductPriceHistory[]
-  images        ProductImage[]
-  inventories   Inventory[]
-  brand         Brand                 @relation(fields: [brandId], references: [id])
-  subcategories ProductSubcategory[]
-  orderItems    OrderItem[]
+  creator     User                  @relation("ProductCreator", fields: [creatorId], references: [id])
+  prices      ProductPriceHistory[]
+  images      ProductImage[]
+  inventories Inventory[]
+  brand       Brand                 @relation(fields: [brandId], references: [id])
+  subcategory ProductSubcategory    @relation(fields: [subcategoryId], references: [id])
+  orderItems  OrderItem[]
 
   @@map("products")
 }
@@ -435,7 +440,7 @@ model Order {
   paymentId         Int         @unique
   shippingId        Int?        @unique
   deliveryAddressId Int
-  orderStatus       OrderStatus
+  orderStatus       OrderStatus @default(MENUNGGU_PEMBAYARAN)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @default(now())
 
