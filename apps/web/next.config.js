@@ -2,7 +2,7 @@
 const nextConfig = {
   env: {
     PORT: '3000',
-    THUMBNAIL_API_URL: 'http://localhost:8000/thumbnail',
+    AVATAR_API_URL: 'http://localhost:8000/images/avatar',
     API_URL: 'http://localhost:8000/api',
     BASE_URL: 'http://localhost:3000',
     ACCESS_TOKEN_SECRET: '1234567890qwertyuiop',

@@ -3,15 +3,17 @@ import App from './app';
 import { OrderRoute } from './routers/orderRoute';
 import { VerifyStoreRoute } from './routers/verifyRoute';
 import { PaymentRoute } from './routers/paymentRoute';
-
+import { AuthRouter } from './routers/authRouter';
+import { UserRouter } from './routers/userRouter';
 
 function main() {
   // Initialize the app with all the routes
   const app = new App([
-   
-    new OrderRoute(),  // Add the OrderRoute
+    new AuthRouter(),
+    new OrderRoute(), // Add the OrderRoute
     new VerifyStoreRoute(),
-    new PaymentRoute()
+    new PaymentRoute(),
+    new UserRouter(),
   ]);
 
   // Start the app
