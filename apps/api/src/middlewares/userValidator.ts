@@ -1,9 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { email_validator } from './authValidator';
 
 export const validateUserUpdate = [
-  email_validator,
+  body('email')
+    .trim()
+    .optional()
+    .isEmail()
+    .withMessage('Format email tidak sesuai')
+    .isLength({ min: 3, max: 48 })
+    .withMessage('Email harus berisi antara 3 hingga 48 karakter')
+    .toLowerCase(),
   body('name')
     .trim()
     .optional()
