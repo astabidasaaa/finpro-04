@@ -71,4 +71,26 @@ export class AuthMiddleware {
       next(error);
     }
   };
+
+  public verifyRole = (requiredRoles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const user = req.user as User;
+
+        if (!user)
+          throw new HttpException(
+            HttpStatus.FORBIDDEN,
+            'Silakan login untuk mengakses',
+          );
+
+        if (!requiredRoles.includes(user.role)) {
+          throw new HttpException(HttpStatus.UNAUTHORIZED, 'Akses ditolak');
+        }
+
+        next();
+      } catch (error) {
+        next(error);
+      }
+    };
+  };
 }

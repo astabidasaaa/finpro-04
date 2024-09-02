@@ -9,12 +9,14 @@ export const metadata: Metadata = {
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <div className="relative flex flex-col justify-start items-center min-h-screen">
       <Header />
-      <main>{children}</main>
+      <main className="w-full pt-14 pb-48 min-h-screen">{children}</main>
       <Footer />
     </div>
   );
 };
 
 export default MainLayout;
+
+// px-4 md:px-12 lg:px-24
