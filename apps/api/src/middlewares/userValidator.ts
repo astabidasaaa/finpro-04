@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { email_validator } from './authValidator';
 
 export const validateUserUpdate = [
   body('email')
