@@ -12,6 +12,7 @@ class UserQuery {
         id,
       },
       select: {
+        id: true,
         email: true,
         isVerified: true,
         referralCode: true,

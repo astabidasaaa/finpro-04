@@ -11,6 +11,7 @@ class UserAction {
       throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
 
     const payload = {
+      id: user.id,
       email: user.email,
       isVerified: user.isVerified,
       isPassword: !!user.password,
