@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-// import { MulterError } from 'multer';
-// import { deletePhoto } from '@/utils/deletePhoto';
+import { MulterError } from 'multer';
+import { deletePhoto } from '@/utils/deletePhoto';
 
 export function ErrorHandler(
   error: Error,
@@ -10,25 +10,28 @@ export function ErrorHandler(
   res: Response,
   next: NextFunction,
 ): void {
-  // // For deleting attached photo that are not processed
-  //   if (req.file !== undefined) {
-  //     const firstLetter = req.file.filename[0];
+  // For deleting attached photo(s) that are not processed
+  if (req.file !== undefined) {
+    deletePhoto(req.file.filename, req.file.fieldname);
+  }
 
-  //     if (firstLetter == 'a') {
-  //       deletePhoto(req.file.filename, 'avatars');
-  //     } else if (firstLetter == 'e') {
-  //       deletePhoto(req.file.filename, 'events');
-  //     }
-  //   }
+  if (Array.isArray(req.files)) {
+    for (const file of req.files) {
+      deletePhoto(file.filename, file.fieldname);
+    }
+  }
 
   if (error instanceof HttpException) {
     res
       .status(error.status)
       .json({ message: error.message, error: error.error });
-    //   } else if (error instanceof MulterError) {
-    //     if (error.code === 'LIMIT_FILE_SIZE') {
-    //       res.status(413).json({ message: 'File size limit exceeded', error: 'PAYLOAD TOO LARGE' });
-    //     }
+  } else if (error instanceof MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      res.status(HttpStatus.PAYLOAD_TOO_LARGE).json({
+        message: 'File size limit exceeded',
+        error: 'PAYLOAD TOO LARGE',
+      });
+    }
   } else {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
