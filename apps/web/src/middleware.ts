@@ -4,14 +4,6 @@ import { expiryChecker } from './lib/utils';
 import axiosInstance from './lib/axiosInstance';
 import { toast } from './components/ui/use-toast';
 
-type User = {
-  id: number;
-  email: string;
-  role: string;
-  avatar: string | null;
-  isVerified: boolean;
-};
-
 export async function middleware(request: NextRequest) {
   const ACCESS_TOKEN = request.cookies.get('access-token')?.value || '';
   const response = NextResponse.next();
@@ -106,11 +98,6 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(loginUrl);
     }
-    // toast({
-    //   variant: 'default',
-    //   title: 'Login untuk melanjutkan',
-    //   description: 'Maaf halaman yang anda akses',
-    // });
   }
   return response;
 }

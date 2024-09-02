@@ -27,6 +27,7 @@ export class UserRouter implements Route {
     this.router.get(
       `${this.path}/profile`,
       this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
       this.userController.getSelfProfile,
     );
 
@@ -34,6 +35,7 @@ export class UserRouter implements Route {
       `${this.path}/profile`,
       validateUserUpdate,
       this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
       uploader('avatar', '/avatar').single('file'),
       this.userController.updateSelfProfile,
     );
