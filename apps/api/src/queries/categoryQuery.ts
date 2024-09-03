@@ -37,7 +37,9 @@ class CategoryQuery {
 
   public async getAllCategory(): Promise<ProductCategory[]> {
     try {
-      const allCategory = await prisma.productCategory.findMany();
+      const allCategory = await prisma.productCategory.findMany({
+        include: { subcategories: { select: { id: true, name: true } } },
+      });
       return allCategory;
     } catch (err) {
       throw new HttpException(
