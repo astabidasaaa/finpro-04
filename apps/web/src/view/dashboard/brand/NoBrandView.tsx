@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { AddBrandButton } from './AddBrandButton';
 
 export default function NoBrandView() {
   return (
@@ -11,7 +12,7 @@ export default function NoBrandView() {
           <p className="text-sm text-muted-foreground">
             Create your brand below.
           </p>
-          <Button className="mt-4">Add Brand</Button>
+          <AddBrandButton />
         </div>
       </div>
     </>
