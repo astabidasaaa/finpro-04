@@ -86,9 +86,9 @@ class SubcategoryQuery {
           id: subcategoryId,
         },
         data: {
-          creatorId,
           name,
-          productCategoryId: parentCategoryId,
+          creatorId,
+          productCategoryId: Number(parentCategoryId),
           updatedAt: new Date(),
         },
       });

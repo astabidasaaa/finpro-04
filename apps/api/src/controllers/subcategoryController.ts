@@ -9,7 +9,8 @@ export class SubcategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { id } = req.user as User;
+      // const { id } = req.user as User;
+      const id = 4;
       const {
         name,
         parentCategoryId,
@@ -54,7 +55,7 @@ export class SubcategoryController {
   ): Promise<void> {
     try {
       // const { id } = req.user as User;
-      const id = 5;
+      const id = 3;
       const subcategoryId = parseInt(req.params.subcategoryId);
       const updatedProps = req.body;
 
