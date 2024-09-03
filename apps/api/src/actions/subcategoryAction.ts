@@ -52,7 +52,7 @@ class SubcategoryAction {
     if (currentSubcategory == null) {
       throw new HttpException(
         HttpStatus.BAD_REQUEST,
-        'ID kategori tidak ditemukan',
+        'ID subkategori tidak ditemukan',
       );
     }
 
@@ -60,13 +60,14 @@ class SubcategoryAction {
 
     if (name !== undefined) {
       const formattedName = capitalizeString(name);
-      await this.checkDuplicateSubcategoryName(formattedName);
-      updateData.name = formattedName;
+      if (currentSubcategory.name !== formattedName) {
+        updateData.name = formattedName;
+      }
     }
 
     if (
       parentCategoryId !== undefined &&
-      parentCategoryId !== currentSubcategory.productCategoryId
+      parentCategoryId != currentSubcategory.productCategoryId
     ) {
       updateData.parentCategoryId = parentCategoryId;
     }
@@ -77,6 +78,7 @@ class SubcategoryAction {
           ...updateData,
           creatorId,
           subcategoryId,
+          parentCategoryId,
         });
 
       return updatedSubcategory;
