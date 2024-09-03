@@ -31,12 +31,8 @@ const superAdminMenuList = [
     icon: <LayoutGrid className="h-4 w-4" />,
     href: '/dashboard/category',
     child: [
-      { label: 'Daftar Kategori', href: '/dashboard/category/list' },
-      { label: 'Tambah Kategori', href: '/dashboard/category/add-category' },
-      {
-        label: 'Tambah Subkategori',
-        href: '/dashboard/category/add-subcategory',
-      },
+      { label: 'Kategori', href: '/dashboard/category/list' },
+      { label: 'Subkategori', href: '/dashboard/category/subcategory' },
     ],
   },
   {
