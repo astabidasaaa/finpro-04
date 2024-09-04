@@ -169,7 +169,7 @@ model Product {
   id            Int      @id @default(autoincrement())
   creatorId     Int
   name          String   @unique
-  brandId       Int
+  brandId       Int?
   subcategoryId Int
   description   String   @db.Text
   productState  State    @default(DRAFT)
@@ -180,7 +180,7 @@ model Product {
   prices      ProductPriceHistory[]
   images      ProductImage[]
   inventories Inventory[]
-  brand       Brand                 @relation(fields: [brandId], references: [id])
+  brand       Brand?                @relation(fields: [brandId], references: [id])
   subcategory ProductSubcategory    @relation(fields: [subcategoryId], references: [id])
   orderItems  OrderItem[]
 
@@ -367,6 +367,8 @@ model Promotion {
   discountType         DiscountType
   discountValue        Float
   discountDurationSecs Int
+  banner               String?
+  isFeatured           Boolean         @default(false)
   minPurchase          Float           @default(0)
   maxDeduction         Float           @default(0)
   minTransaction       Int?
