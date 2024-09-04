@@ -63,8 +63,9 @@ class BrandAction {
 
     if (name !== undefined) {
       const formattedName = capitalizeString(name);
-      await this.checkDuplicateBrandName(formattedName);
-      updateData.name = formattedName;
+      if (currentBrand.name !== formattedName) {
+        updateData.name = formattedName;
+      }
     }
 
     if (
