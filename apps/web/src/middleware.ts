@@ -78,21 +78,14 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL(redirect, request.url));
     }
-    if (url.startsWith('/dashboard') && userState.role === 'user') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-    if (
-      url.startsWith('/cart') ||
-      (url.startsWith('/pengaturan') && userState.role !== 'user')
-    ) {
+    // if (url.startsWith('/dashboard') && userState.role === 'user') {
+    //   return NextResponse.redirect(new URL('/', request.url));
+    // }
+    if (url.startsWith('/pengaturan') && userState.role !== 'user') {
       return NextResponse.redirect(new URL('/', request.url));
     }
   } else {
-    if (
-      url.startsWith('/dashboard') ||
-      url.startsWith('/pengaturan') ||
-      url.startsWith('/cart')
-    ) {
+    if (url.startsWith('/pengaturan')) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', url);
 
