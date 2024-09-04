@@ -24,8 +24,8 @@ export const Header = () => {
   const router = useRouter();
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex justify-center items-center w-full py-2 bg-background z-10">
-      <div className="flex flex-row justify-between items-center w-full max-w-screen-2xl px-4 md:px-12 lg:px-24">
+    <header className="fixed top-0 left-0 right-0 flex justify-center items-center w-full py-2 md:py-4 bg-background z-10">
+      <div className="flex flex-row justify-between items-center w-full px-4 md:px-12 lg:px-24">
         <Link href="/">
           <Image
             src="/sigmart-logo-full-small.png"
@@ -34,15 +34,15 @@ export const Header = () => {
             height={24}
           />
         </Link>
-        {
+        {user.status.isLogin ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
-                className="overflow-hidden rounded-full"
+                className="overflow-hidden rounded-full size-4 md:size-8"
               >
-                <Avatar>
+                <Avatar className="size-4 md:size-8">
                   <AvatarImage
                     src={`${process.env.AVATAR_API_URL}/${user.user.avatar}`}
                   />
@@ -53,11 +53,13 @@ export const Header = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {user.user.name || user.user.email}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link href="/pengaturan">Pengaturan</Link>
-              </DropdownMenuItem>
+              <Link href="/pengaturan">
+                <DropdownMenuItem>Pengaturan</DropdownMenuItem>
+              </Link>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -72,7 +74,11 @@ export const Header = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        }
+        ) : (
+          <Button variant="outline" asChild>
+            <Link href="/login">Login</Link>
+          </Button>
+        )}
       </div>
     </header>
   );
