@@ -13,24 +13,38 @@ class ProductQuery {
   public async createProduct(props: CreateProductInput): Promise<Product> {
     const { price, images, ...inputWithoutPriceAndImages } = props;
     try {
-      const product = await prisma.product.create({
-        data: {
-          ...inputWithoutPriceAndImages,
-          prices: {
-            create: {
-              price,
-              startDate: new Date(),
+      const products = await prisma.$transaction(async (prisma) => {
+        const stores = await prisma.store.findMany({
+          select: {
+            id: true,
+          },
+        });
+
+        const product = await prisma.product.create({
+          data: {
+            ...inputWithoutPriceAndImages,
+            prices: {
+              create: {
+                price,
+                startDate: new Date(),
+              },
+            },
+            images: {
+              create: images.map((image) => ({
+                title: image,
+              })),
+            },
+            inventories: {
+              create: stores.map((store) => ({
+                storeId: store.id,
+              })),
             },
           },
-          images: {
-            create: images.map((image) => ({
-              title: image,
-            })),
-          },
-        },
-      });
+        });
 
-      return product;
+        return product;
+      });
+      return products;
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
