@@ -9,8 +9,6 @@ import { HttpStatus } from '@/types/error';
 type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
 
-export const upload = multer();
-
 export function uploader(filePrefix: string, folderName?: string): Multer {
   const defaultDir = join(__dirname, '../../public');
 
@@ -42,21 +40,22 @@ export function uploader(filePrefix: string, folderName?: string): Multer {
     file: Express.Multer.File,
     cb: FileFilterCallback,
   ): void {
-    const fileTypes = /jpeg|jpg|png/;
+    const fileTypes = /\.(jpeg|jpg|png)$/i;
     const extname = fileTypes.test(
       path.extname(file.originalname).toLowerCase(),
     );
-    const mimetype = fileTypes.test(file.mimetype);
+    // const mimetype = fileTypes.test(file.mimetype);
 
-    if (extname && mimetype) {
+    if (extname == true) {
       cb(null, true);
+    } else {
+      cb(
+        new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'File type not supported. Only JPEG, JPG, and PNG files are allowed.',
+        ),
+      );
     }
-    cb(
-      new HttpException(
-        HttpStatus.BAD_REQUEST,
-        'File type not supported. Only JPEG, JPG, and PNG files are allowed.',
-      ),
-    );
   }
 
   return multer({
