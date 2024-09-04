@@ -1,17 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import FieldNama from './FieldNama';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
@@ -20,6 +9,7 @@ import FieldNomorHP from './FieldNomorHP';
 import FieldTanggalLahir from './FieldTanggalLahir';
 import VerifikasiEmailBadge from './VerifikasiEmailBadge';
 import SalinKodeReferral from './SalinKodeReferral';
+import { useAppSelector } from '@/lib/hooks';
 
 type TUserData = {
   email: string;
@@ -45,6 +35,8 @@ const ProfilForm = ({
   const { email, isVerified, referralCode, name, phone, dob, isPassword } =
     profile;
 
+  const user = useAppSelector((state) => state.auth);
+
   const dobConverted = new Date(dob).toLocaleString('id-ID', {
     year: 'numeric',
     month: 'long',
@@ -57,33 +49,53 @@ const ProfilForm = ({
         <span className="text-muted-foreground">Nama</span>
         <div className="space-x-3">
           {name && <span>{name}</span>}
-          <FieldNama name={name} refetch={refetch} />
+          {user.user.role === 'user' && (
+            <FieldNama name={name} refetch={refetch} />
+          )}
         </div>
         <span className="text-muted-foreground">Email</span>
         <div className="space-x-3">
           {email && (
             <>
               <span>{email}</span>
-              <VerifikasiEmailBadge isVerified={isVerified} email={email} />
+              {user.user.role === 'user' && (
+                <VerifikasiEmailBadge isVerified={isVerified} email={email} />
+              )}
             </>
           )}
-          <FieldEmail isPassword={isPassword} email={email} refetch={refetch} />
+          {user.user.role === 'user' && (
+            <FieldEmail
+              isPassword={isPassword}
+              email={email}
+              refetch={refetch}
+            />
+          )}
         </div>
         <span className="text-muted-foreground">Nomor HP</span>
         <div className="space-x-3">
           {phone && <span>{phone}</span>}
-          <FieldNomorHP phone={phone} refetch={refetch} />
+          {user.user.role === 'user' && (
+            <FieldNomorHP phone={phone} refetch={refetch} />
+          )}
         </div>
         <span className="text-muted-foreground">Tanggal lahir</span>
         <div className="space-x-3">
           {dob && <span>{dobConverted}</span>}
-          <FieldTanggalLahir dob={dob} refetch={refetch} />
+          {user.user.role === 'user' && (
+            <FieldTanggalLahir dob={dob} refetch={refetch} />
+          )}
         </div>
-        <span className="text-muted-foreground">Kode referral</span>
-        <div className="space-x-3">
-          <span>{referralCode}</span>
-          <SalinKodeReferral referralCode={referralCode} />
-        </div>
+        {user.user.role === 'user' && (
+          <>
+            <span className="text-muted-foreground">Kode referral</span>
+            <div className="space-x-3">
+              <span>{referralCode}</span>
+              {user.user.role === 'user' && (
+                <SalinKodeReferral referralCode={referralCode} />
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
