@@ -28,7 +28,7 @@ export function ErrorHandler(
   } else if (error instanceof MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       res.status(HttpStatus.PAYLOAD_TOO_LARGE).json({
-        message: 'File size limit exceeded',
+        message: 'Ukuran file terlalu besar',
         error: 'PAYLOAD TOO LARGE',
       });
     }
