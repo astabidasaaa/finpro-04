@@ -11,7 +11,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="relative flex flex-col justify-start items-center min-h-screen">
       <Header />
-      <main className="w-full pt-14 pb-48 min-h-screen">{children}</main>
+      <main className="w-full py-16 md:py-24 min-h-screen max-w-screen-xl">
+        {children}
+      </main>
       <Footer />
     </div>
   );

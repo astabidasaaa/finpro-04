@@ -3,16 +3,6 @@ import axiosInstance from '@/lib/axiosInstance';
 import { Dispatch } from '@reduxjs/toolkit';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 
-type User = {
-  email: string;
-  name: string;
-  role: string;
-  avatar?: string;
-  isVerified: boolean;
-  phone: string;
-  referralCode: string;
-};
-
 export const login = ({
   email,
   password,

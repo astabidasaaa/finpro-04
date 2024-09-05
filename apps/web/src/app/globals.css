@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -24,6 +28,7 @@
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
     --dark-yellow: 49 85% 44%;
+    --main-yellow: 49 89% 78%;
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -53,6 +58,7 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
     --dark-yellow: 49 85% 44%;
+    --main-yellow: 49 89% 78%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -68,4 +74,15 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+#swiper-pagination {
+  @apply absolute bottom-0 left-0 px-2 md:px-4 py-1 md:py-2 z-10;
+}
+
+#swiper-pagination .swiper-pagination-bullet {
+  @apply size-1 md:size-1.5 bg-foreground/70 m-0 [&:not(:first-child)]:ml-1 [&:not(:first-child)]:md:ml-1.5;
+}
+#swiper-pagination .swiper-pagination-bullet-active {
+  @apply bg-background;
 }

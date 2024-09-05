@@ -81,9 +81,9 @@ export async function middleware(request: NextRequest) {
     // if (url.startsWith('/dashboard') && userState.role === 'user') {
     //   return NextResponse.redirect(new URL('/', request.url));
     // }
-    if (url.startsWith('/pengaturan') && userState.role !== 'user') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+    // if (url.startsWith('/pengaturan') && userState.role !== 'user') {
+    //   return NextResponse.redirect(new URL('/', request.url));
+    // }
   } else {
     if (url.startsWith('/pengaturan')) {
       const loginUrl = new URL('/login', request.url);
