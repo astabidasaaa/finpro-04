@@ -443,6 +443,152 @@ export class OrderController {
       }
     }
   }
+  public async getFinishedOrdersByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    
+    try {
+      const customerIdStr = req.query.customerId as string;
+      const customerId = parseInt(customerIdStr, 10);
+  
+      if (isNaN(customerId)) {
+        throw new HttpException(400, 'Invalid customerId format');
+      }
+  
+      const finishedStatuses = [OrderStatus.DIKONFIRMASI, OrderStatus.DIBATALKAN];
+  
+      const orders = await prisma.order.findMany({
+        where: {
+          customerId,
+          orderStatus: {
+            in: finishedStatuses,
+          },
+        },
+        include: {
+          orderItems: true,
+          payment: true,
+          shipping: true,
+          orderStatusUpdates: true,
+        },
+      });
+  
+      res.status(200).json({
+        message: 'Finished orders retrieved successfully',
+        data: orders,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  
+  
+  public async getUnfinishedOrdersByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const customerIdStr = req.query.customerId as string;
+      const customerId = parseInt(customerIdStr, 10);
+  
+      if (isNaN(customerId)) {
+        throw new HttpException(400, 'Invalid customerId format');
+      }
+  
+      const unfinishedStatuses = [
+        OrderStatus.MENUNGGU_PEMBAYARAN,
+        OrderStatus.MENUNGGU_KONFIRMASI_PEMBAYARAN,
+        OrderStatus.DIPROSES,
+        OrderStatus.DIKIRIM,
+      ];
+      
+      const orders = await prisma.order.findMany({
+        where: {
+          customerId,
+          orderStatus: {
+            in: unfinishedStatuses,
+          },
+        },
+        include: {
+          orderItems: true,
+          payment: true,
+          shipping: true,
+          orderStatusUpdates: true,
+        },
+      });
+  
+      res.status(200).json({
+        message: 'Unfinished orders retrieved successfully',
+        data: orders,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  public async getOrdersByDateRangeAndUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      // Extracting 'customerId', 'from', and 'to' from the query parameters
+      const customerIdStr = req.query.customerId as string;
+      const fromStr = req.query.from as string;
+      const toStr = req.query.to as string;
+
+      const customerId = parseInt(customerIdStr, 10);
+      const fromDate = new Date(fromStr);
+      const toDate = new Date(toStr);
+
+      if (isNaN(customerId)) {
+        throw new HttpException(400, 'Invalid customerId format');
+      }
+      if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+        throw new HttpException(400, 'Invalid date format');
+      }
+      if (fromDate > toDate) {
+        throw new HttpException(400, 'Invalid date range: from date cannot be after to date');
+      }
+
+      const orders = await prisma.$transaction(async (prisma) => {
+        const orderList = await prisma.order.findMany({
+          where: {
+            customerId, // Filtering by customerId
+            createdAt: {
+              gte: fromDate, // Filter orders created on or after the 'from' date
+              lte: toDate,   // Filter orders created on or before the 'to' date
+            },
+          },
+          include: {
+            orderItems: true,  // Include order items related to the order
+            payment: true,     // Include payment details
+            shipping: true,    // Include shipping details if any
+            orderStatusUpdates: true,  // Include status update history
+          },
+        });
+
+        if (orderList.length === 0) {
+          throw new HttpException(404, 'No orders found for the specified user and date range');
+        }
+
+        return orderList;
+      });
+
+      res.status(200).json({
+        message: 'Orders retrieved successfully',
+        data: orders,
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        next(new HttpException(500, 'Failed to retrieve orders by user ID and date range', err.message));
+      } else {
+        next(new HttpException(500, 'Failed to retrieve orders by user ID and date range', 'An unknown error occurred'));
+      }
+    }
+  }
+  
   public async getProductById(
     req: Request,
     res: Response,

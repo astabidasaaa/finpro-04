@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from '@/components/ui/use-toast';
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/lib/hooks';
 
 type OrderItem = {
   id: string;
@@ -37,22 +38,25 @@ const CheckoutPageView = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
-  const [userId, setUserId] = useState<string>('');
   const [additionalInfo, setAdditionalInfo] = useState<string>('');
   const [nearestStore, setNearestStore] = useState<NearestStore | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isCheckingInventory, setIsCheckingInventory] = useState<boolean>(false);
   const [inventoryIssues, setInventoryIssues] = useState<Map<string, string>>(
     new Map()
-  ); // Track inventory issues
-  const router = useRouter(); 
+  );
+  const router = useRouter();
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user.id.toString();
 
   useEffect(() => {
     const fetchOrderDetailsFromLocalStorage = async () => {
-      const savedItems = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
+      setIsLoading(true); // Ensure loading state is true when starting the fetch
+      try {
+        const savedItems = JSON.parse(localStorage.getItem('selectedProducts') || '[]');
 
-      if (savedItems.length > 0) {
-        try {
+        if (savedItems.length > 0) {
           const productDetails = await Promise.all(
             savedItems.map((cartItem: { id: string, quantity: number }) =>
               axiosInstance().get(`/orders/get-product/${cartItem.id}`)
@@ -70,21 +74,27 @@ const CheckoutPageView = () => {
           });
 
           setOrderItems(mappedItems);
-        } catch (error) {
-          console.error('Error fetching product details:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Failed to fetch product details',
-            description: 'Please try again later.',
-          });
         }
+      } catch (error) {
+        console.error('Error fetching product details:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Failed to fetch product details',
+          description: 'Please try again later.',
+        });
+      } finally {
+        setIsLoading(false); // Ensure loading state is false after the fetch
       }
-
-      setIsLoading(false);
     };
 
     fetchOrderDetailsFromLocalStorage();
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchAddresses(userId);
+    }
+  }, [userId]);
 
   const fetchAddresses = async (userId: string) => {
     try {
@@ -103,28 +113,26 @@ const CheckoutPageView = () => {
     }
   };
 
-  const checkInventory = async () => {
+  const checkInventory = async (nearestStoreData: NearestStore) => {
+    setIsCheckingInventory(true); // Set loading state to true
     try {
       const response = await axiosInstance().post('/orders/check-inventory', {
-        storeId: nearestStore?.storeId,
+        storeId: nearestStoreData.storeId,
         items: orderItems.map(item => ({
           productId: item.id,
           qtyRequired: item.quantity,
         })),
       });
-
+  
       const issues = new Map<string, string>();
-      response.data.data.forEach((item: { productId: number, isAvailable: boolean }) => {
+      response.data.data.forEach((item: { productId: number; isAvailable: boolean }) => {
         if (!item.isAvailable) {
-          issues.set(
-            item.productId.toString(),
-            `Insufficient stock for product ID: ${item.productId}`
-          );
+          issues.set(item.productId.toString(), `Insufficient stock for product ID: ${item.productId}`);
         }
       });
-
+  
       setInventoryIssues(issues);
-      return issues.size === 0; // Return true if no issues
+      return issues.size === 0;
     } catch (error) {
       console.error('Error checking inventory:', error);
       toast({
@@ -133,23 +141,26 @@ const CheckoutPageView = () => {
         description: 'Please try again later.',
       });
       return false;
+    } finally {
+      setIsCheckingInventory(false); // Set loading state to false
     }
   };
+  
 
   const handleCheckout = async () => {
     setIsSubmitting(true);
 
-    if (!(await checkInventory())) {
+    if (nearestStore && !(await checkInventory(nearestStore))) {
       setIsSubmitting(false);
-      return; // Don't proceed with checkout if there are inventory issues
+      return;
     }
 
     try {
       const response = await axiosInstance().post('/orders', {
         customerId: parseInt(userId, 10),
-        price: calculateTotalPrice(), // This should be calculated based on the order items
-        finalPrice: calculateTotalPrice(), // This might differ if discounts are applied
-        paymentGateway: 'MidTrans', // Hardcoded example, adjust as needed
+        price: calculateTotalPrice(),
+        finalPrice: calculateTotalPrice(),
+        paymentGateway: 'MidTrans',
         deliveryAddressId: selectedAddressId,
         orderStatus: 'MENUNGGU_PEMBAYARAN',
         additionalInfo: { note: additionalInfo },
@@ -168,34 +179,15 @@ const CheckoutPageView = () => {
         description: 'Your order has been placed and you will be redirected to the payment page.',
       });
       console.log('Order ID:', orderId);
-    console.log('Total Price:', totalPrice);
-    console.log('User ID:', userId);
+      console.log('Total Price:', totalPrice);
+      console.log('User ID:', userId);
 
-      // Log the constructed URL object
-    // console.log('Redirect URL:', {
-    //   pathname: '/payment',
-    //   query: {
-    //     totalPrice: totalPrice,
-    //     orderId: orderId.toString(),
-    //     userId: userId.toString(),
-    //   },
-    // });
+      const paymentPageUrl = `/payment?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
+      console.log('Redirect URL:', paymentPageUrl);
 
-    // // Redirect to PaymentView with the total price
-    // router.push({
-    //   pathname: '/payment',
-    //   query: {
-    //     totalPrice: totalPrice,
-    //     orderId: orderId,
-    //     userId: userId,
-    //   },
-    // });
-
-    const paymentPageUrl = `/payment?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
-    console.log('Redirect URL:', paymentPageUrl);
-
-    router.push(paymentPageUrl);
+      router.push(paymentPageUrl);
     } catch (error) {
+      console.error('Error placing order:', error);
       toast({
         variant: 'destructive',
         title: 'Checkout failed',
@@ -206,31 +198,23 @@ const CheckoutPageView = () => {
     }
   };
 
-  const handleUserIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUserId = e.target.value;
-    setUserId(newUserId);
-    if (newUserId) {
-      fetchAddresses(newUserId);
-    }
-  };
-
   const handleAddressChange = async (addressId: string) => {
     setSelectedAddressId(addressId);
     const selectedAddress = addresses.find((addr) => addr.id === addressId);
-
+  
     if (selectedAddress) {
       try {
-        // Fetch the nearest store based on the selected address
         const storeResponse = await axiosInstance().post('/orders/find-nearest-store', {
           deliveryLatitude: selectedAddress.latitude,
           deliveryLongitude: selectedAddress.longitude,
         });
-
-        setNearestStore(storeResponse.data.data);
-
-        // Check inventory availability for the items
-        const hasInventoryIssues = !(await checkInventory());
-
+  
+        const nearestStoreData = storeResponse.data.data;
+        setNearestStore(nearestStoreData);
+  
+        // Perform inventory check after ensuring nearestStore is set
+        const hasInventoryIssues = !(await checkInventory(nearestStoreData));
+  
         if (hasInventoryIssues) {
           toast({
             variant: 'destructive',
@@ -260,38 +244,21 @@ const CheckoutPageView = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="text-center text-lg font-medium">Loading...</div>;
   }
 
   return (
-    <div>
-      <h1>Checkout</h1>
-      <div>
-        <h2>Order Items</h2>
-        <ul>
-          {orderItems.map((item) => (
-            <li key={item.id}>
-              {item.name} - {item.quantity} x Rp{item.price.toFixed(2)}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <h3>Total Price: Rp{calculateTotalPrice().toFixed(2)}</h3>
-      </div>
-      <div>
-        <h2>User ID</h2>
-        <Input value={userId} onChange={handleUserIdChange} />
-      </div>
-      <div>
-        <h2>Delivery Address</h2>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6">Checkout</h1>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Delivery Address</h2>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button>
+            <Button className="w-auto text-left px-20 py-2">
               {addresses.find((addr) => addr.id === selectedAddressId)?.address || 'Select Address'}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="w-auto left-0">
             {addresses.map((address) => (
               <DropdownMenuItem
                 key={address.id}
@@ -303,32 +270,43 @@ const CheckoutPageView = () => {
           </DropdownMenuContent>
         </DropdownMenu>
         {nearestStore && (
-          <div>
-            <h3>Nearest Store</h3>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold text-gray-800">Nearest Store:</h3>
             <p>Store ID: {nearestStore.storeId}</p>
             <p>Store Address ID: {nearestStore.storeAddressId}</p>
           </div>
         )}
       </div>
-      <div>
-        <h2>Additional Information</h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Items</h2>
+        <ul className="space-y-4">
+          {orderItems.map((item) => (
+            <li key={item.id} className="border p-4 rounded">
+              <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
+              <p>Quantity: {item.quantity}</p>
+              <p>Price: ${item.price.toFixed(2)}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Additional Information</h2>
         <Input
+          placeholder="Any additional information or notes"
           value={additionalInfo}
           onChange={(e) => setAdditionalInfo(e.target.value)}
-          placeholder="Enter any additional information for your order"
         />
       </div>
-      <div>
-        {Array.from(inventoryIssues.values()).map((issue, index) => (
-          <p key={index} style={{ color: 'red' }}>{issue}</p>
-        ))}
+      <div className="flex justify-between items-center">
+        <span className="text-xl font-semibold text-gray-800">Total Price: ${calculateTotalPrice().toFixed(2)}</span>
+        <Button
+  onClick={handleCheckout}
+  disabled={isSubmitting || isCheckingInventory || inventoryIssues.size > 0}
+>
+  {isSubmitting ? 'Processing...' : 'Place Order'}
+</Button>
       </div>
-      <Button
-        onClick={handleCheckout}
-        disabled={isSubmitting || !selectedAddressId}
-      >
-        {isSubmitting ? 'Processing...' : 'Checkout'}
-      </Button>
+      {isCheckingInventory && <div className="text-center text-lg font-medium mt-4">Checking inventory...</div>}
     </div>
   );
 };

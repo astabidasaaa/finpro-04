@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '@/lib/store';
 
 type User = {
+  id: number;
   email: string;
   name: string;
   role: string;
@@ -22,6 +23,7 @@ interface Auth {
 
 const initialState: Auth = {
   user: {
+    id: 0,
     name: '',
     email: '',
     role: '',

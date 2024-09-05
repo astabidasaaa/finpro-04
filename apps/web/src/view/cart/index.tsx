@@ -60,9 +60,9 @@ const CartPageView = () => {
   };
 
   return (
-    <div>
-      <h1>Cart</h1>
-      <ul>
+    <div className="container mx-auto px-4 md:px-8 lg:px-16 py-8 max-w-screen-lg">
+      <h1 className="text-3xl font-bold mb-6">Cart</h1>
+      <ul className="space-y-4">
         {products.map(product => {
           const cartItem = selectedProducts.get(product.id);
           const quantity = cartItem?.quantity || 0;
@@ -71,26 +71,47 @@ const CartPageView = () => {
           const price = product.prices[0]?.price || 0;
 
           return (
-            <li key={product.id}>
+            <li key={product.id} className="flex items-center justify-between p-4 border border-gray-300 rounded-lg bg-white shadow-sm">
+              <div className="flex items-center space-x-4">
               <Checkbox
                 checked={quantity > 0}
-                onCheckedChange={(isChecked) => handleQuantityChange(product.id, isChecked ? 1 : -quantity)}
+                onCheckedChange={(isChecked) => handleQuantityChange(product.id, isChecked ? 1 : -quantity)} className="h-5 w-5"
               />
-              {product.name} - Rp{price.toFixed(2)}
-              {quantity > 0 && (
-                <div>
-                  <button onClick={() => handleQuantityChange(product.id, -1)}>-</button>
-                  {quantity}
-                  <button onClick={() => handleQuantityChange(product.id, 1)}>+</button>
-                </div>
-              )}
+              <span className="text-lg font-medium">{product.name}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-semibold">Rp{price.toFixed(2)}</span>
+                {quantity > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleQuantityChange(product.id, -1)}
+                      className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    >
+                      -
+                    </button>
+                    <span>{quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(product.id, 1)}
+                      className="px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
+              </div>
             </li>
           );
         })}
       </ul>
-      <Button onClick={handleCheckoutClick} disabled={selectedProducts.size === 0}>
-        Proceed to Checkout
-      </Button>
+      <div className="mt-6 flex justify-center">
+        <Button
+          onClick={handleCheckoutClick}
+          disabled={selectedProducts.size === 0}
+          className="w-full max-w-md" 
+        >
+          Proceed to Checkout
+        </Button>
+      </div>
     </div>
   );
 };

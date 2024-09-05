@@ -25,7 +25,11 @@ export class OrderRoute implements Route {
     this.router.get(`${this.path}/get-all-order`, this.orderController.getAllOrders);
     this.router.get(`${this.path}/get-all-products`, this.orderController.getAllProducts);
     this.router.get(`${this.path}/get-product/:productId`, this.orderController.getProductById);
+    this.router.get(`${this.path}/get-finished-orders-by-user`, this.orderController.getFinishedOrdersByUserId);
+    this.router.get(`${this.path}/get-unfinished-orders-by-user`, this.orderController.getUnfinishedOrdersByUserId);
     this.router.get(`${this.path}/get-orders-by-user`, this.orderController.getOrdersByUserId);
+    this.router.get(`${this.path}/get-orders-by-date-range-and-user`, this.orderController.getOrdersByDateRangeAndUserId);
+    
     this.router.get(`${this.path}/get-order-by-id`, this.orderController.getOrderById);
   }
 }

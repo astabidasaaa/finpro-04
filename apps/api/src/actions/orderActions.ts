@@ -72,20 +72,30 @@ export async function checkInventoryAvailability(
   productId: number,
   qtyRequired: number
 ): Promise<boolean> {
-  const inventory = await prisma.inventory.findFirst({
-    where: {
-      storeId,
-      productId,
-    },
-  });
+  try {
+    console.log(`Checking inventory: Store ID: ${storeId}, Product ID: ${productId}, Required Quantity: ${qtyRequired}`);
 
-  if (!inventory || inventory.stock < qtyRequired) {
-    // Insufficient stock
-    return false;
+    const inventory = await prisma.inventory.findFirst({
+      where: {
+        storeId,
+        productId,
+      },
+    });
+
+    console.log(`Inventory found: ${JSON.stringify(inventory)}`);
+
+    if (!inventory || inventory.stock < qtyRequired) {
+      console.log(`Insufficient stock: ${inventory ? inventory.stock : 'No inventory found'}`);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    
+    throw new Error('Failed to check inventory');
   }
-
-  return true;
 }
+
 
 export async function updateInventoryStock(
   storeId: number,
