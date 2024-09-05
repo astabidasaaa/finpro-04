@@ -63,7 +63,6 @@ const FirstLoad = ({ children }: { children: React.ReactNode }) => {
         });
       }
     }
-
     setPageLoading(false);
   };
 
