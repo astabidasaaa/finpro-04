@@ -34,8 +34,6 @@ const FirstLoad = ({ children }: { children: React.ReactNode }) => {
           getNearestStoreId(latitude, longitude);
         });
       }
-
-      setPageLoading(false);
     }
   }, []);
 
@@ -65,6 +63,8 @@ const FirstLoad = ({ children }: { children: React.ReactNode }) => {
         });
       }
     }
+
+    setPageLoading(false);
   };
 
   const getNearestStoreId = async (latitude: number, longitude: number) => {
