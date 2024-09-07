@@ -102,7 +102,9 @@ class UserQuery {
       return user;
     });
 
-    await verifyEmailAction.verifyEmailRequest(result.email);
+    if (email && result) {
+      await verifyEmailAction.verifyEmailRequest(result.email);
+    }
 
     return result;
   }

@@ -1,6 +1,4 @@
-import Image from 'next/image';
-import styles from './page.module.css';
-import HomePageView from '@/view/main';
+import HomePageView from '@/view/main/beranda';
 
 const HomePage = () => {
   return (

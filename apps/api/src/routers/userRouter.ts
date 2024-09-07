@@ -9,15 +9,11 @@ export class UserRouter implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly userController: UserController;
-  //   private readonly passwordController: PasswordController;
-  //   private readonly verifyEmailController: VerifyEmailController;
   private guard: AuthMiddleware;
 
   constructor() {
     this.router = Router();
     this.userController = new UserController();
-    // this.passwordController = new PasswordController();
-    // this.verifyEmailController = new VerifyEmailController();
     this.guard = new AuthMiddleware();
     this.path = '/user';
     this.initializeRoutes();
@@ -34,6 +30,7 @@ export class UserRouter implements Route {
       `${this.path}/profile`,
       validateUserUpdate,
       this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
       uploader('avatar', '/avatar').single('file'),
       this.userController.updateSelfProfile,
     );

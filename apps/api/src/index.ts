@@ -7,6 +7,9 @@ import { AuthRouter } from './routers/authRouter';
 import { UserRouter } from './routers/userRouter';
 import { ShippingRouter } from './routers/shippingRouter';
 import { GetOrderRouter } from './routers/getOrderRouter';
+import { StoreRouter } from './routers/storeRouter';
+import { PromotionRouter } from './routers/promotionRouter';
+import { CategoryRouter } from './routers/categoryRoute';
 
 function main() {
   // Initialize the app with all the routes
@@ -17,7 +20,10 @@ function main() {
     new VerifyStoreRoute(),
     new PaymentRoute(),
     new UserRouter(),
-    new ShippingRouter()
+    new ShippingRouter(),
+    new StoreRouter(),
+    new PromotionRouter(),
+    new CategoryRouter(),
   ]);
 
   // Start the app

@@ -9,12 +9,16 @@ export const metadata: Metadata = {
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
+    <div className="relative flex flex-col justify-start items-center min-h-screen">
       <Header />
-      <main>{children}</main>
+      <main className="w-full py-16 md:py-24 min-h-screen max-w-screen-xl">
+        {children}
+      </main>
       <Footer />
     </div>
   );
 };
 
 export default MainLayout;
+
+// px-4 md:px-12 lg:px-24

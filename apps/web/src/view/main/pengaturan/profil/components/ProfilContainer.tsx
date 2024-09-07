@@ -21,8 +21,6 @@ const ProfilContainer = () => {
     queryKey: ['user_profile'],
   });
 
-  console.log(data?.data.data);
-
   return (
     <>
       {isLoading ? (

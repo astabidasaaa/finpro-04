@@ -4,14 +4,6 @@ import { expiryChecker } from './lib/utils';
 import axiosInstance from './lib/axiosInstance';
 import { toast } from './components/ui/use-toast';
 
-type User = {
-  id: number;
-  email: string;
-  role: string;
-  avatar: string | null;
-  isVerified: boolean;
-};
-
 export async function middleware(request: NextRequest) {
   const ACCESS_TOKEN = request.cookies.get('access-token')?.value || '';
   const response = NextResponse.next();
@@ -86,31 +78,19 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL( request.url));
     }
-    if (url.startsWith('/dashboard') && userState.role === 'user') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-    if (
-      // url.startsWith('/cart') ||
-      (url.startsWith('/pengaturan') && userState.role !== 'user')
-    ) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+    // if (url.startsWith('/dashboard') && userState.role === 'user') {
+    //   return NextResponse.redirect(new URL('/', request.url));
+    // }
+    // if (url.startsWith('/pengaturan') && userState.role !== 'user') {
+    //   return NextResponse.redirect(new URL('/', request.url));
+    // }
   } else {
-    if (
-      url.startsWith('/dashboard') ||
-      url.startsWith('/pengaturan') ||
-      url.startsWith('/cart')
-    ) {
+    if (url.startsWith('/pengaturan')) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', url);
 
       return NextResponse.redirect(loginUrl);
     }
-    // toast({
-    //   variant: 'default',
-    //   title: 'Login untuk melanjutkan',
-    //   description: 'Maaf halaman yang anda akses',
-    // });
   }
   return response;
 }

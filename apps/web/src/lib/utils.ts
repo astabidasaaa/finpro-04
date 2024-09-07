@@ -22,3 +22,10 @@ export const decodeToken = async (token: string) => {
     return null;
   }
 };
+
+export const truncateText = (text: string, maxLength: number): string => {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + '...';
+  }
+  return text;
+};

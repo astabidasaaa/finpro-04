@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useAppSelector } from '@/lib/hooks';
 import Image from 'next/image';
 import {
   Card,
@@ -19,6 +20,8 @@ const AvatarCard = ({
   avatar: string;
   isPassword: boolean;
 }) => {
+  const user = useAppSelector((state) => state.auth);
+
   // for thumbnail upload
   const [previewImage, setPreviewImage] = useState<string | undefined>(
     undefined,
@@ -32,32 +35,34 @@ const AvatarCard = ({
 
   return (
     <div className="flex flex-col w-full md:max-w-[280px] md:p-4 md:pl-0 space-y-4">
-      <Card className="relative mx-auto w-full md:max-w-[280px]">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold sr-only">Avatar</CardTitle>
-          <CardDescription className="sr-only">
-            Ubah avatar anda
-          </CardDescription>
+      {user.user.role === 'user' && (
+        <Card className="relative mx-auto w-full md:max-w-[280px]">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold sr-only">Avatar</CardTitle>
+            <CardDescription className="sr-only">
+              Ubah avatar anda
+            </CardDescription>
 
-          <Image
-            alt="User avatar"
-            className="aspect-square w-full object-cover "
-            height={300}
-            src={previewImage || '/avatar-placeholder.png'}
-            width={300}
-          />
-        </CardHeader>
-        <CardContent>
-          <AvatarForm
-            previewImage={previewImage}
-            setPreviewImage={setPreviewImage}
-          />
-        </CardContent>
-        <CardFooter className="text-sm text-muted-foreground">
-          Besar file: maksimum 1 MB. Ekstensi file yang diperbolehkan: .JPG
-          .JPEG .PNG
-        </CardFooter>
-      </Card>
+            <Image
+              alt="User avatar"
+              className="aspect-square w-full object-cover "
+              height={300}
+              src={previewImage || '/avatar-placeholder.png'}
+              width={300}
+            />
+          </CardHeader>
+          <CardContent>
+            <AvatarForm
+              previewImage={previewImage}
+              setPreviewImage={setPreviewImage}
+            />
+          </CardContent>
+          <CardFooter className="text-sm text-muted-foreground">
+            Besar file: maksimum 1 MB. Ekstensi file yang diperbolehkan: .JPG
+            .JPEG .PNG
+          </CardFooter>
+        </Card>
+      )}
 
       {isPassword ? (
         <PasswordUbah />
