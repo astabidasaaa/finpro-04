@@ -2,6 +2,7 @@ import { User } from '@/types/express';
 import { Request, Response, NextFunction } from 'express';
 import { State } from '@prisma/client';
 import categoryAction from '@/actions/categoryAction';
+import prisma from '@/prisma';
 
 export class CategoryController {
   public async createCategoryAndSubcategories(
@@ -108,6 +109,40 @@ export class CategoryController {
       });
     } catch (err) {
       next(err);
+    }
+  }
+
+  public async getAllCategoriesAndSubCategories(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const categories = await prisma.productCategory.findMany({
+        orderBy: {
+          name: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+          subcategories: {
+            orderBy: {
+              name: 'asc',
+            },
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      res.status(200).json({
+        message: 'Mengambil kategori berhasil',
+        data: { categories },
+      });
+    } catch (error) {
+      next(error);
     }
   }
 }

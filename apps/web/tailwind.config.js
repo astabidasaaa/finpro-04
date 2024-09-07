@@ -44,6 +44,10 @@ module.exports = {
           foreground: 'hsl(var(--accent-foreground))',
           yellow: 'hsl(var(--dark-yellow))',
         },
+        main: {
+          DEFAULT: 'hsl(var(--main-yellow))',
+          dark: 'hsl(var(--dark-yellow))',
+        },
         popover: {
           DEFAULT: 'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))',
