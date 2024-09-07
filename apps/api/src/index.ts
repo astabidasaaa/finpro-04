@@ -24,7 +24,6 @@ function main() {
     new UserRouter(),
     new StoreRouter(),
     new PromotionRouter(),
-    new CategoryRouter(),
     new ProductRouter(),
   ]);
   app.start();
