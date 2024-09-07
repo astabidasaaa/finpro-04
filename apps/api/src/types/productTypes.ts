@@ -2,7 +2,7 @@ import { $Enums, Inventory, Product } from '@prisma/client';
 
 export enum Sort {
   'priceAsc' = 'priceAsc',
-  'priceDesc' = 'proceDesc',
+  'priceDesc' = 'priceDesc',
   'nameAsc' = 'nameAsc',
   'nameDesc' = 'nameDesc',
   'promo' = 'promo',
@@ -11,6 +11,10 @@ export enum Sort {
 export type SearchedProduct = Product & {
   prices: {
     price: number;
+  }[];
+  images: {
+    title: string;
+    alt: string | null;
   }[];
   inventories: {
     stock: number;
@@ -26,7 +30,7 @@ export type SearchedProduct = Product & {
   brand: {
     name: string;
     id: number;
-  };
+  } | null;
   subcategory: {
     name: string;
   };

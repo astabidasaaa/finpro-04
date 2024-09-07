@@ -22,11 +22,11 @@ class ProductSearchQuery {
               },
             },
           },
-          { productState: $Enums.State.PUBLISHED },
+          // { productState: $Enums.State.PUBLISHED },
         ],
       };
 
-      if (props.keyword) {
+      if (props.keyword !== undefined || props.keyword !== '') {
         filters.AND.push({
           OR: [
             {
@@ -41,25 +41,37 @@ class ProductSearchQuery {
         });
       }
 
-      if (props.subcategoryId) {
+      if (props.subcategoryId !== undefined && !isNaN(props.subcategoryId)) {
         filters.AND.push({
           subcategoryId: props.subcategoryId,
         });
       }
 
-      if (props.brandId) {
+      if (props.brandId !== undefined && !isNaN(props.brandId)) {
         filters.AND.push({
           brandId: props.brandId,
         });
       }
 
-      if (props.startPrice || props.endPrice) {
+      if (
+        (props.startPrice !== undefined && !isNaN(props.startPrice)) ||
+        (props.endPrice !== undefined && !isNaN(props.endPrice))
+      ) {
+        const priceFilter = { price: {} };
+
+        if (props.startPrice !== undefined && !isNaN(props.startPrice)) {
+          priceFilter.price = { ...priceFilter.price, gte: props.startPrice };
+        }
+
+        if (props.endPrice !== undefined && !isNaN(props.endPrice)) {
+          priceFilter.price = { ...priceFilter.price, lte: props.endPrice };
+        }
+
         filters.AND.push({
           prices: {
             some: {
               active: true,
-              ...(props.startPrice && { price: { gte: props.startPrice } }),
-              ...(props.endPrice && { price: { lte: props.endPrice } }),
+              ...priceFilter,
             },
           },
         });
@@ -76,6 +88,12 @@ class ProductSearchQuery {
         where: filters,
         orderBy,
         include: {
+          images: {
+            select: {
+              title: true,
+              alt: true,
+            },
+          },
           subcategory: {
             select: { name: true, productCategory: { select: { name: true } } },
           },
@@ -118,11 +136,11 @@ class ProductSearchQuery {
       });
 
       let sortedProducts: SearchedProduct[];
-      if (props.sortCol == Sort.priceAsc) {
+      if (props.sortCol == Sort.priceDesc) {
         sortedProducts = unsortedProducts.sort(
           (a, b) => a.prices[0].price - b.prices[0].price,
         );
-      } else if (props.sortCol == Sort.priceDesc) {
+      } else if (props.sortCol == Sort.priceAsc) {
         sortedProducts = unsortedProducts.sort(
           (a, b) => b.prices[0].price - a.prices[0].price,
         );

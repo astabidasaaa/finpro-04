@@ -19,7 +19,7 @@ export class ProductController {
         brandId,
         startPrice,
         endPrice,
-        sortCol = 'priceAsc',
+        sortCol = 'nameAsc',
         page = 1,
         pageSize = 20,
       } = req.query;
@@ -74,7 +74,8 @@ export class ProductController {
   ): Promise<void> {
     try {
       const { files } = req;
-      const { id } = req.user as User;
+      // const { id } = req.user as User;
+      const id = 3;
       const { name, brandId, subcategoryId, description, productState, price } =
         req.body;
 
@@ -136,7 +137,8 @@ export class ProductController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { id } = req.user as User;
+      // const { id } = req.user as User;
+      const id = 3;
       const productId = parseInt(req.params.productId);
 
       const archivedProduct = await productAction.archiveProductAction(
