@@ -37,7 +37,7 @@ const OrderDetailsView: React.FC = () => {
       setIsLoading(true);
 
       try {
-        const response = await axiosInstance().get(`/orders/get-order-by-id`, {
+        const response = await axiosInstance().get(`/get-order/get-order-by-id`, {
           params: { orderId: parseInt(orderId as string, 10) },
         });
 
@@ -172,7 +172,7 @@ const OrderDetailsView: React.FC = () => {
         )}
       </div>
       <div className="mt-6">
-        <Link href="/orders">
+        <Link href="/order-list">
           <Button variant="outline">Back to Orders</Button>
         </Link>
       </div>

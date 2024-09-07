@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '@/prisma'; 
 import { OrderStatus, PaymentStatus } from '@prisma/client';
-import { OrderStatusService } from '@/utils/orderStatusService';
+import OrderAction from '@/actions/orderAction';
 import { HttpException } from '@/errors/httpException';
 import { generateOrderCode } from '@/utils/orderUtils';
-import { findNearestStore, checkInventoryAvailability, updateInventoryStock } from '@/actions/orderActions';
+import { updateInventoryStock } from '@/utils/updateInventoryStock';
+import { findNearestStore } from '@/utils/findNearestStore';
+import { checkInventoryAvailability } from '@/utils/checkInventory';
+
 
 export class OrderController {
   public async createOrder(
@@ -161,66 +164,17 @@ export class OrderController {
   ): Promise<void> {
     try {
       const { orderId, userId } = req.body;
-      const orderIdInt = parseInt(orderId, 10);
-
-      if (isNaN(orderIdInt)) {
-        throw new HttpException(400, 'Invalid orderId format');
-      }
-
-      const result = await prisma.$transaction(async (prisma) => {
-        const order = await prisma.order.findUnique({
-          where: { id: orderIdInt },
-        });
-
-        if (!order) {
-          throw new HttpException(404, 'Order not found');
-        }
-
-        const orderItems = await prisma.orderItem.findMany({
-          where: { orderId: orderIdInt },
-        });
-
-        for (const item of orderItems) {
-          const inventoryUpdate = await updateInventoryStock(
-            order.storeId,
-            item.productId,
-            item.qty,
-            orderIdInt,
-            order.customerId
-          );
-
-          if (!inventoryUpdate) {
-            throw new HttpException(400, `Failed to restore stock for product ID: ${item.productId}`);
-          }
-        }
-
-        await prisma.payment.update({
-          where: { id: order.paymentId },
-          data: { paymentStatus: PaymentStatus.FAILED },
-        });
-
-        const orderStatusResult = await OrderStatusService.updateOrderStatus(
-          orderIdInt,
-          OrderStatus.DIBATALKAN,
-          userId, 
-          'Order cancelled and status updated to DIBATALKAN'
-        );
-
-        return orderStatusResult;
-      });
+      const result = await OrderAction.cancelOrderAction(orderId, userId);
 
       res.status(200).json({
         message: 'Order cancelled successfully',
         data: result,
       });
     } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to cancel order', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to cancel order', 'An unknown error occurred'));
-      }
+      next(err);
     }
   }
+  
   public async getAddressesByUserId(
     req: Request,
     res: Response,
@@ -312,279 +266,6 @@ export class OrderController {
         next(new HttpException(500, 'Failed to retrieve all products', err.message));
       } else {
         next(new HttpException(500, 'Failed to retrieve all products', 'An unknown error occurred'));
-      }
-    }
-  }
-  
-  public async getAllOrders(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const orders = await prisma.$transaction(async (prisma) => {
-        const orderList = await prisma.order.findMany({
-          include: {
-            orderItems: true,  // Include order items related to the order
-            payment: true,     // Include payment details
-            shipping: true,    // Include shipping details if any
-            orderStatusUpdates: true,  // Include status update history
-          },
-        });
-  
-        if (orderList.length === 0) {
-          throw new HttpException(404, 'No orders found');
-        }
-  
-        return orderList;
-      });
-  
-      res.status(200).json({
-        message: 'All orders retrieved successfully',
-        data: orders,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve all orders', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve all orders', 'An unknown error occurred'));
-      }
-    }
-  }
-  public async getOrdersByUserId(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      // Extracting 'customerId' from the query parameters, since the API is sending 'customerId'
-      const customerIdStr = req.query.customerId as string;
-      const customerId = parseInt(customerIdStr, 10);
-  
-      if (isNaN(customerId)) {
-        throw new HttpException(400, 'Invalid customerId format');
-      }
-  
-      const orders = await prisma.$transaction(async (prisma) => {
-        const orderList = await prisma.order.findMany({
-          where: {
-            customerId, // Filtering by customerId, which corresponds to the user
-          },
-          include: {
-            orderItems: true,  // Include order items related to the order
-            payment: true,     // Include payment details
-            shipping: true,    // Include shipping details if any
-            orderStatusUpdates: true,  // Include status update history
-          },
-        });
-  
-        if (orderList.length === 0) {
-          throw new HttpException(404, 'No orders found for the specified user');
-        }
-  
-        return orderList;
-      });
-  
-      res.status(200).json({
-        message: 'Orders retrieved successfully',
-        data: orders,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve orders by user ID', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve orders by user ID', 'An unknown error occurred'));
-      }
-    }
-  }
-  public async getOrderById(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      // Extracting 'orderId' from the query parameters
-      const orderIdStr = req.query.orderId as string;
-      const orderId = parseInt(orderIdStr, 10);
-
-      if (isNaN(orderId)) {
-        throw new HttpException(400, 'Invalid orderId format');
-      }
-
-      const order = await prisma.$transaction(async (prisma) => {
-        const orderData = await prisma.order.findUnique({
-          where: {
-            id: orderId, // Filtering by orderId
-          },
-          include: {
-            orderItems: true,  // Include order items related to the order
-            payment: true,     // Include payment details
-            shipping: true,    // Include shipping details if any
-            orderStatusUpdates: true,  // Include status update history
-          },
-        });
-
-        if (!orderData) {
-          throw new HttpException(404, 'Order not found');
-        }
-
-        return orderData;
-      });
-
-      res.status(200).json({
-        message: 'Order retrieved successfully',
-        data: order,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve order by ID', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve order by ID', 'An unknown error occurred'));
-      }
-    }
-  }
-  public async getFinishedOrdersByUserId(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    
-    try {
-      const customerIdStr = req.query.customerId as string;
-      const customerId = parseInt(customerIdStr, 10);
-  
-      if (isNaN(customerId)) {
-        throw new HttpException(400, 'Invalid customerId format');
-      }
-  
-      const finishedStatuses = [OrderStatus.DIKONFIRMASI, OrderStatus.DIBATALKAN];
-  
-      const orders = await prisma.order.findMany({
-        where: {
-          customerId,
-          orderStatus: {
-            in: finishedStatuses,
-          },
-        },
-        include: {
-          orderItems: true,
-          payment: true,
-          shipping: true,
-          orderStatusUpdates: true,
-        },
-      });
-  
-      res.status(200).json({
-        message: 'Finished orders retrieved successfully',
-        data: orders,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-  
-  
-  public async getUnfinishedOrdersByUserId(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const customerIdStr = req.query.customerId as string;
-      const customerId = parseInt(customerIdStr, 10);
-  
-      if (isNaN(customerId)) {
-        throw new HttpException(400, 'Invalid customerId format');
-      }
-  
-      const unfinishedStatuses = [
-        OrderStatus.MENUNGGU_PEMBAYARAN,
-        OrderStatus.MENUNGGU_KONFIRMASI_PEMBAYARAN,
-        OrderStatus.DIPROSES,
-        OrderStatus.DIKIRIM,
-      ];
-      
-      const orders = await prisma.order.findMany({
-        where: {
-          customerId,
-          orderStatus: {
-            in: unfinishedStatuses,
-          },
-        },
-        include: {
-          orderItems: true,
-          payment: true,
-          shipping: true,
-          orderStatusUpdates: true,
-        },
-      });
-  
-      res.status(200).json({
-        message: 'Unfinished orders retrieved successfully',
-        data: orders,
-      });
-    } catch (err) {
-      next(err);
-    }
-  }
-  public async getOrdersByDateRangeAndUserId(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      // Extracting 'customerId', 'from', and 'to' from the query parameters
-      const customerIdStr = req.query.customerId as string;
-      const fromStr = req.query.from as string;
-      const toStr = req.query.to as string;
-
-      const customerId = parseInt(customerIdStr, 10);
-      const fromDate = new Date(fromStr);
-      const toDate = new Date(toStr);
-
-      if (isNaN(customerId)) {
-        throw new HttpException(400, 'Invalid customerId format');
-      }
-      if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
-        throw new HttpException(400, 'Invalid date format');
-      }
-      if (fromDate > toDate) {
-        throw new HttpException(400, 'Invalid date range: from date cannot be after to date');
-      }
-
-      const orders = await prisma.$transaction(async (prisma) => {
-        const orderList = await prisma.order.findMany({
-          where: {
-            customerId, // Filtering by customerId
-            createdAt: {
-              gte: fromDate, // Filter orders created on or after the 'from' date
-              lte: toDate,   // Filter orders created on or before the 'to' date
-            },
-          },
-          include: {
-            orderItems: true,  // Include order items related to the order
-            payment: true,     // Include payment details
-            shipping: true,    // Include shipping details if any
-            orderStatusUpdates: true,  // Include status update history
-          },
-        });
-
-        if (orderList.length === 0) {
-          throw new HttpException(404, 'No orders found for the specified user and date range');
-        }
-
-        return orderList;
-      });
-
-      res.status(200).json({
-        message: 'Orders retrieved successfully',
-        data: orders,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve orders by user ID and date range', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve orders by user ID and date range', 'An unknown error occurred'));
       }
     }
   }

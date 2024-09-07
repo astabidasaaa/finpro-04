@@ -182,7 +182,7 @@ const CheckoutPageView = () => {
       console.log('Total Price:', totalPrice);
       console.log('User ID:', userId);
 
-      const paymentPageUrl = `/payment?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
+      const paymentPageUrl = `/pembayaran?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
       console.log('Redirect URL:', paymentPageUrl);
 
       router.push(paymentPageUrl);

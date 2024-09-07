@@ -47,7 +47,7 @@ const UploadPaymentView = () => {
         description: 'Your payment proof has been uploaded successfully.',
       });
 
-      router.push('/orders'); // Redirect to a success page after upload
+      router.push('/order-list'); // Redirect to a success page after upload
     } catch (error) {
       console.error('Error uploading payment proof:', error);
       toast({

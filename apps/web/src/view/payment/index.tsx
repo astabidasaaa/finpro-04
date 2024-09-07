@@ -18,7 +18,7 @@ const PaymentView = () => {
     const userId = searchParams.get('userId');
     
     // Redirect to payment proof upload page with orderId and userId
-    router.push(`/payment/upload?orderId=${orderId}&userId=${userId}`);
+    router.push(`/pembayaran/upload-pembayaran?orderId=${orderId}&userId=${userId}`);
   };
 
   return (

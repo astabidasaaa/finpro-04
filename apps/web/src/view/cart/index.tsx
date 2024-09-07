@@ -56,7 +56,7 @@ const CartPageView = () => {
   };
 
   const handleCheckoutClick = () => {
-    router.push('/check-out');
+    router.push('/cart/check-out');
   };
 
   return (

@@ -35,7 +35,7 @@ const OrderPageView: React.FC = () => {
 
   useEffect(() => {
     if (customerId) {
-      fetchOrders('/orders/get-orders-by-user');
+      fetchOrders('/get-order/get-orders-by-user');
     }
   }, [customerId, dateRange]);
 
@@ -60,7 +60,7 @@ const OrderPageView: React.FC = () => {
       }
 
       const endpoint = dateRange?.from && dateRange.to
-        ? '/orders/get-orders-by-date-range-and-user'
+        ? '/get-order/get-orders-by-date-range-and-user'
         : url;
 
       const response = await axiosInstance().get(endpoint, { params });
@@ -80,7 +80,7 @@ const OrderPageView: React.FC = () => {
   const fetchOrderDetails = async (orderId: string) => {
     setIsLoading(true);
     try {
-      const response = await axiosInstance().get("/orders/get-order-by-id", {
+      const response = await axiosInstance().get("/get-order/get-order-by-id", {
         params: { orderId: parseInt(orderId, 10) },
       });
       setSelectedOrder(response.data.data);
@@ -114,13 +114,13 @@ const OrderPageView: React.FC = () => {
       <h1 className="text-3xl font-bold mb-8">Order History</h1>
 
       <div className="mb-4 flex gap-4">
-        <Button onClick={() => fetchOrders('/orders/get-finished-orders-by-user')}>
+        <Button onClick={() => fetchOrders('/get-order/get-finished-orders-by-user')}>
           Pesanan Selesai
         </Button>
-        <Button onClick={() => fetchOrders('/orders/get-unfinished-orders-by-user')}>
+        <Button onClick={() => fetchOrders('/get-order/get-unfinished-orders-by-user')}>
           Pesanan Dalam Progress
         </Button>
-        <Button onClick={() => fetchOrders('/orders/get-orders-by-user')}>
+        <Button onClick={() => fetchOrders('/get-order/get-orders-by-user')}>
           Semua Pesanan
         </Button>
       </div>
@@ -145,7 +145,7 @@ const OrderPageView: React.FC = () => {
       {selectedOrder ? (
   <div>
     <h2 className="text-2xl font-semibold mb-4">Selected Order Details</h2>
-    <Link href={`/orders/${selectedOrder.id}`}>
+    <Link href={`/order-list/${selectedOrder.id}`}>
       <div className="border border-gray-300 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow">
         <p className="text-lg font-medium text-blue-600">{selectedOrder.orderCode}</p>
         <hr className="my-2 border-gray-300" />
@@ -164,7 +164,7 @@ const OrderPageView: React.FC = () => {
         <ul className="space-y-4">
           {orders.map((order) => (
             <li key={order.id} className="border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow">
-              <Link href={`/orders/${order.id}`}>
+              <Link href={`/order-list/${order.id}`}>
                 <div className="cursor-pointer">
                   <p className="text-lg font-medium text-blue-600">{order.orderCode}</p>
                   <hr className="my-2 border-gray-300" />
