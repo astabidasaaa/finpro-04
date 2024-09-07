@@ -96,7 +96,7 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
 
   async function fetchCategories() {
     const categoriesResult = await axiosInstance().get(
-      `${process.env.API_URL}/categories`,
+      `${process.env.API_URL}/categories/all`,
     );
 
     setCategories(categoriesResult.data.data);

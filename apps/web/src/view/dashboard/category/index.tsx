@@ -13,7 +13,7 @@ export default function CategoryView() {
   async function fetchData() {
     try {
       const result = await axiosInstance().get(
-        `${process.env.API_URL}/categories`,
+        `${process.env.API_URL}/categories/all`,
       );
       setCategories(result.data.data);
       setIsMounted(true);
