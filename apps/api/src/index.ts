@@ -7,6 +7,7 @@ import { UserRouter } from './routers/userRouter';
 import { SubcategoryRouter } from './routers/subcategoryRouter';
 import { CategoryRouter } from './routers/categoryRouter';
 import { BrandRouter } from './routers/brandRouter';
+import { ProductRouter } from './routers/productRouter';
 
 function main() {
   // Initialize the app with all the routes
@@ -19,6 +20,7 @@ function main() {
     new VerifyStoreRoute(),
     new PaymentRoute(),
     new UserRouter(),
+    new ProductRouter(),
   ]);
   app.start();
 }
