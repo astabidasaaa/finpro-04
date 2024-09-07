@@ -416,18 +416,36 @@ export default function CreateProductForm({
                 <CardContent>
                   <div className="grid gap-6">
                     <div className="grid gap-3">
-                      <Select>
-                        <SelectTrigger id="status" aria-label="Select status">
-                          <SelectValue
-                            defaultValue="DRAFT"
-                            placeholder="DRAFT"
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="DRAFT">DRAFT</SelectItem>
-                          <SelectItem value="PUBLISHED">PUBLISH</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormField
+                        control={form.control}
+                        name="productState"
+                        render={({ field }) => (
+                          <FormItem className="gap-3">
+                            <Select onValueChange={field.onChange}>
+                              <FormControl>
+                                <SelectTrigger
+                                  id="status"
+                                  aria-label="Select status"
+                                >
+                                  <SelectValue
+                                    defaultValue="DRAFT"
+                                    placeholder="DRAFT"
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="DRAFT" key="DRAFT">
+                                  DRAFT
+                                </SelectItem>
+                                <SelectItem value="PUBLISHED" key="PUBLISHED">
+                                  PUBLISH
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                     <Button type="submit">Submit</Button>
                   </div>
