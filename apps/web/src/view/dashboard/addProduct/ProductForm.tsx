@@ -19,9 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CategoryProps } from '@/types/categoryTypes';
 import { BrandProps } from '@/types/brandTypes';
-import { useRouter } from 'next/router';
 import { toast } from '@/components/ui/use-toast';
-import Link from 'next/link';
 import { Upload } from 'lucide-react';
 import {
   Card,
@@ -50,7 +48,6 @@ export default function CreateProductForm({
   brands: BrandProps[];
   categories: CategoryProps[];
 }) {
-  //   const router = useRouter();
   const [parentCategoryId, setParentCategoryId] = useState<string>('');
   const {
     register,
@@ -61,15 +58,9 @@ export default function CreateProductForm({
     resolver: zodResolver(productSchema),
   });
 
-  const [file, setFile] = useState<File | undefined>(undefined);
-  const [images, setImages] = useState<string[]>([]);
-  const [previewImage, setPreviewImage] = useState<string | undefined>(
-    undefined,
-  );
-
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
-  // for image input ref to hide the actual input field
+
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
 
   const form = useForm<z.infer<typeof productSchema>>({
@@ -116,8 +107,8 @@ export default function CreateProductForm({
 
         setTimeout(() => {
           form.reset();
-          setFile(undefined);
-          setPreviewImage(undefined);
+          setFiles([]);
+          setPreviewImages([]);
 
           window.location.reload();
         }, 2500);
@@ -144,10 +135,8 @@ export default function CreateProductForm({
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
 
-      // Update the state with the files
       setFiles(filesArray);
 
-      // Create URLs for the file previews
       const previews = filesArray.map((file) => URL.createObjectURL(file));
       setPreviewImages(previews);
     }
@@ -156,12 +145,6 @@ export default function CreateProductForm({
   // passing ref to hidden input field
   const onUploadBtnClick = () => {
     hiddenInputRef.current?.click();
-  };
-
-  const removeThumbnail = () => {
-    setFile(undefined);
-    setPreviewImage(undefined);
-    hiddenInputRef.current = null;
   };
 
   return (
@@ -334,26 +317,6 @@ export default function CreateProductForm({
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2">
-                    {previewImage && (
-                      <button
-                        type="button"
-                        className="relative group"
-                        onClick={removeThumbnail}
-                      >
-                        <Image
-                          alt="Product image"
-                          className="aspect-square w-full rounded-md object-cover"
-                          height="300"
-                          src={previewImage}
-                          width="300"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 py-4 bg-muted-foreground/90 opacity-0 group-hover:opacity-100 transition-all">
-                          <span className="text-muted text-sm font-medium">
-                            Hapus gambar
-                          </span>
-                        </div>
-                      </button>
-                    )}
                     <div className="grid gap-2">
                       <FormField
                         control={form.control}
@@ -391,15 +354,17 @@ export default function CreateProductForm({
                         type="button"
                       >
                         <Upload className="h-4 w-4 mr-2" />
-                        {previewImage ? 'Ubah gambar' : 'Upload gambar'}
+                        {previewImages.length > 0
+                          ? 'Ubah gambar'
+                          : 'Upload gambar'}
                       </Button>
-                      <div className="thumbnails">
+                      <div className="grid grid-cols-3 gap-2">
                         {previewImages.map((src, index) => (
                           <img
                             key={index}
                             src={src}
                             alt={`Thumbnail ${index + 1}`}
-                            className="w-24 h-24 object-cover"
+                            className="col-span-1 object-cover w-32 h-32"
                           />
                         ))}
                       </div>
