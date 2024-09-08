@@ -7,3 +7,8 @@ export type Address = {
   longitude: string;
   isMain: boolean;
 };
+
+export type TLocation = {
+  lat: number;
+  lng: number;
+};

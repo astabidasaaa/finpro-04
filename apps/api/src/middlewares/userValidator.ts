@@ -57,8 +57,8 @@ export const validateAddressCreate = [
     .trim()
     .notEmpty()
     .withMessage('Alamat wajib diisi')
-    .isLength({ min: 1, max: 64 })
-    .withMessage('Alamat maksimal berisi 64 karakter'),
+    .isLength({ min: 1, max: 80 })
+    .withMessage('Alamat maksimal berisi 80 karakter'),
   body('zipCode')
     .trim()
     .toInt()
@@ -100,8 +100,8 @@ export const validateAddressUpdate = [
   body('address')
     .trim()
     .optional()
-    .isLength({ min: 1, max: 64 })
-    .withMessage('Alamat maksimal berisi 64 karakter'),
+    .isLength({ min: 1, max: 80 })
+    .withMessage('Alamat maksimal berisi 80 karakter'),
   body('zipCode')
     .trim()
     .optional()

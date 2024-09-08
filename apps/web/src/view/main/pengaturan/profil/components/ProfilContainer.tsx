@@ -11,34 +11,35 @@ const ProfilContainer = () => {
   const token = getCookie('access-token');
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryFn: async () =>
-      await axiosInstance().get(`/user/profile`, {
+    queryFn: async () => {
+      const res = await axiosInstance().get(`/user/profile`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      }),
+      });
+      return res.data.data;
+    },
     queryKey: ['user_profile'],
   });
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center w-full min-h-[120px] md:min-h-[320px]">
+        <Error error={error} reset={refetch} />
+      </div>
+    );
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loading />
-      ) : isError ? (
-        <div className="flex justify-center items-center w-full min-h-[120px] md:min-h-[320px]">
-          <Error error={error} reset={refetch} />
-        </div>
-      ) : (
-        <div className="flex flex-col md:flex-row w-full space-y-8 md:space-y-0">
-          <AvatarCard
-            avatar={data?.data.data.avatar}
-            isPassword={data?.data.data.isPassword}
-          />
-          <ProfilForm profile={data?.data.data} refetch={refetch} />
-        </div>
-      )}
-    </>
+    <div className="flex flex-col md:flex-row w-full space-y-8 md:space-y-0">
+      <AvatarCard avatar={data.avatar} isPassword={data.isPassword} />
+      <ProfilForm profile={data} refetch={refetch} />
+    </div>
   );
 };
 

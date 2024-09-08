@@ -88,7 +88,7 @@ export class UserController {
         longitude,
       });
 
-      res.status(200).json({
+      res.status(201).json({
         message: `Membuat alamat user berhasil`,
       });
     } catch (error) {
