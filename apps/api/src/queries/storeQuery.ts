@@ -24,6 +24,9 @@ class StoreQuery {
                 inventories: {
                   some: {
                     storeId: id,
+                    stock: {
+                      gt: 0,
+                    },
                   },
                 },
               },
