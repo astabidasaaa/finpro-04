@@ -111,5 +111,10 @@ export class AuthRouter implements Route {
       }),
       this.socialController.loginGoogleCallback,
     );
+
+    this.router.get(
+      `${this.path}/google/failure`,
+      this.socialController.loginGoogleFailure,
+    );
   }
 }

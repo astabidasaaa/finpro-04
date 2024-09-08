@@ -54,6 +54,17 @@ const LoginForm = () => {
         });
       }, 100);
     }
+
+    if (searchParams?.has('error')) {
+      const errorMessage = searchParams.get('error');
+      setTimeout(() => {
+        toast({
+          variant: 'default',
+          title: 'Login gagal',
+          description: errorMessage,
+        });
+      }, 100);
+    }
   }, [toast, searchParams]);
 
   const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);

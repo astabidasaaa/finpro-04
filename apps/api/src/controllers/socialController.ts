@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import authAction from '@/actions/authAction';
 import { User } from '@/types/express';
+import { FRONTEND_URL } from '@/config';
+import socialLoginAction from '@/actions/socialLoginAction';
 
 export class SocialController {
   public async loginGoogleCallback(
@@ -9,28 +11,31 @@ export class SocialController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      //   const { email } = req.body;
+      const accessPayload = req.user as User;
 
-      //   await authAction.initiateCreateUserFromCredential(email);
-      console.log('berhasil login DENGAN google');
+      const accessToken = await socialLoginAction.loginGoogle(accessPayload);
 
-      res.status(200).json({
-        message: `Berhasil login DENGAN google`,
-      });
+      res.status(301).redirect(`${FRONTEND_URL}/redirect?token=${accessToken}`);
     } catch (error) {
       next(error);
     }
   }
 
-  //   (req: Request, res: Response) => {
-  //         // Extract user and JWT token from req.user
-  //         const { user, token } = req.user as { user: any; token: string };
+  public async loginGoogleFailure(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const message = 'Gagal mengautentikasi menggunakan Google';
 
-  //         // Send the token and user data back to the client
-  //         res.json({
-  //           message: 'Logged in successfully',
-  //           token,
-  //           user,
-  //         });
-  //       },
+      res
+        .status(301)
+        .redirect(
+          `${FRONTEND_URL}/redirect?error=${encodeURIComponent(message)}`,
+        );
+    } catch (error) {
+      next(error);
+    }
+  }
 }

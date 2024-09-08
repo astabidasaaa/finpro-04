@@ -6,6 +6,8 @@ import path from 'path';
 import cors from 'cors';
 import passport from 'passport';
 
+import './utils/passport';
+
 export default class App {
   private readonly app: Express;
 
