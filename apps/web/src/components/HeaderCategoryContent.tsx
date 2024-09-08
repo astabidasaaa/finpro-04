@@ -90,9 +90,7 @@ const HeaderCategoryContent = () => {
                     className="justify-start py-1 h-max max-w-48 lg:max-w-56 text-start whitespace-break-spaces"
                     asChild
                   >
-                    <Link
-                      href={`/search?subcategoryId=${sub.id}&storeId=${storeId}`}
-                    >
+                    <Link href={`/search?subcategoryId=${sub.id}`}>
                       {sub.name}
                     </Link>
                   </Button>

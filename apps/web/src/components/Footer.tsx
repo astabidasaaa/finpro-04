@@ -19,7 +19,7 @@ export const Footer = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-16 lg:w-2/3">
             <div className="flex flex-col justify-start items-start gap-4 w-full">
               <div className="text-base font-bold w-full text-center md:text-left text-main-dark">
-                SIG<span className="text-[#F96167] text-xl">M</span>ART
+                SIG<span className="text-xl">M</span>ART
               </div>
               <div className="flex flex-col justify-start items-start gap-2 w-full">
                 <Link
