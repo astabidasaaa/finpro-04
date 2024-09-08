@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
-import NoProductView from './NoProductView';
 import { AxiosError } from 'axios';
 import ProductTable from './ProductTable';
 import { ProductProps } from '@/types/productTypes';
@@ -71,41 +70,35 @@ export default function ProductListView() {
       <div className="flex items-center">
         <h1 className="text-lg font-semibold md:text-2xl">Produk</h1>
       </div>
-      {products.length > 0 ? (
-        <div className="w-full">
-          <div className="flex items-start justify-between py-4 pr-5">
-            <Input
-              placeholder="Cari produk..."
-              className="max-w-sm"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)} // Update input state
-            />
-            <Button
-              onClick={() => router.push('/dashboard/product/add-product')}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Produk
-            </Button>
-          </div>
-          <ProductTable data={products} />
-          <div className="text-sm py-3">
-            {products.length} dari {total} produk
-          </div>
-          <Pagination>
-            <PaginationContent>
-              {pages.map((page) => (
-                <PaginationItem>
-                  <PaginationLink onClick={() => setPage(page)}>
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-            </PaginationContent>
-          </Pagination>
+      <div className="w-full">
+        <div className="flex items-start justify-between py-4 pr-5">
+          <Input
+            placeholder="Cari produk..."
+            className="max-w-sm"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)} // Update input state
+          />
+          <Button onClick={() => router.push('/dashboard/product/add-product')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Produk
+          </Button>
         </div>
-      ) : (
-        <NoProductView />
-      )}
+        <ProductTable data={products} />
+        <div className="text-sm py-3">
+          {products.length} dari {total} produk
+        </div>
+        <Pagination>
+          <PaginationContent>
+            {pages.map((page) => (
+              <PaginationItem>
+                <PaginationLink onClick={() => setPage(page)}>
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 }
