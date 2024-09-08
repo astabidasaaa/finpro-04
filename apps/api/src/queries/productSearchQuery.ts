@@ -22,7 +22,7 @@ class ProductSearchQuery {
               },
             },
           },
-          // { productState: $Enums.State.PUBLISHED },
+          { productState: $Enums.State.PUBLISHED },
         ],
       };
 
@@ -148,8 +148,20 @@ class ProductSearchQuery {
         sortedProducts = unsortedProducts;
       }
 
+      function sortProducts(products: SearchedProduct[]): SearchedProduct[] {
+        return products.sort((a, b) => {
+          if (a.inventories[0].stock === 0 && b.inventories[0].stock !== 0) {
+            return 1;
+          }
+          if (a.inventories[0].stock !== 0 && b.inventories[0].stock === 0) {
+            return -1;
+          }
+          return 0;
+        });
+      }
+
       const startIndex = (props.page - 1) * props.pageSize;
-      const paginatedProducts = sortedProducts.slice(
+      const paginatedProducts = sortProducts(sortedProducts).slice(
         startIndex,
         startIndex + props.pageSize,
       );
