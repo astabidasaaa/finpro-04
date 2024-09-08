@@ -19,10 +19,14 @@ export default function SubcategoryFilter({
   return (
     <>
       <Collapsible>
-        <CollapsibleTrigger>Kategori</CollapsibleTrigger>
+        <CollapsibleTrigger className="font-medium">
+          Kategori
+        </CollapsibleTrigger>
         <CollapsibleContent>
-          <ScrollArea className="h-40 py-2">
+          <ScrollArea className="h-60 lg:h-44 py-2">
             <RadioGroup
+              defaultChecked={true}
+              defaultValue="0"
               onValueChange={(value) => {
                 let number: number | undefined = Number(value);
                 if (number === 0) {

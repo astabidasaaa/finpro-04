@@ -22,7 +22,10 @@ export default function SelectOrderBy({
 
   return (
     <>
-      <Select onValueChange={(value) => setOrderBy(value)}>
+      <Select
+        defaultValue="nameAsc"
+        onValueChange={(value) => setOrderBy(value)}
+      >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder={OrderBy.nameAsc} />
         </SelectTrigger>

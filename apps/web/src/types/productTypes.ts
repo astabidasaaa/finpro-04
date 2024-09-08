@@ -35,6 +35,49 @@ export type ProductProps = {
   };
 };
 
+type Product = {
+  id: number;
+  creatorId: number;
+  name: string;
+  brandId: number | null;
+  subcategoryId: number;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ProductDetailProps = {
+  id: number;
+  productId: number;
+  storeId: number;
+  stock: number;
+  createdAt: Date;
+  product: Product & {
+    prices: {
+      active: boolean;
+      price: number;
+      startDate: Date;
+    }[];
+    images: {
+      id: number;
+      title: string;
+      alt: string | null;
+    }[];
+  };
+  productDiscountPerStores: ProductDiscountProps[];
+  freeProductPerStores: FreeProductProps[];
+};
+
+export type ProductDiscountProps = {
+  discountType: DiscountType;
+  discountValue: number;
+};
+
+export type FreeProductProps = {
+  get: number;
+  buy: number;
+};
+
 export type ProductsSearchedProps = {
   totalCount: number;
   products: ProductProps[];
