@@ -7,7 +7,6 @@ const nextConfig = {
     PRODUCT_API_URL: 'http://localhost:8000/images/product',
     API_URL: 'http://localhost:8000/api',
     BASE_URL: 'http://localhost:3000',
-    PRODUCT_API_URL: 'http://localhost:8000/images/product',
     ACCESS_TOKEN_SECRET: '1234567890qwertyuiop',
     REFRESH_TOKEN_SECRET: 'asdfghjklzxcvbnm',
     EMAIL_VERIFICATION_SECRET: '0987654321lkjhgfdsa',
