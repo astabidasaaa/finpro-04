@@ -1,9 +1,12 @@
+import AlamatPageView from '@/view/main/pengaturan/alamat';
 import React from 'react';
 
-type Props = {};
-
-const AlamatPage = (props: Props) => {
-  return <div>AlamatPage</div>;
+const AlamatPage = () => {
+  return (
+    <>
+      <AlamatPageView />
+    </>
+  );
 };
 
 export default AlamatPage;

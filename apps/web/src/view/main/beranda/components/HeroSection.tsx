@@ -53,7 +53,7 @@ const HeroSection = () => {
         <SwiperSlide key="banner-main">
           <div className="w-full h-full">
             <Image
-              src={`${process.env.PROMOTION_API_URL}/banner-main.png`}
+              src={`/sigmart-banner.png`}
               alt="Banner Sigmart"
               width={2400}
               height={800}

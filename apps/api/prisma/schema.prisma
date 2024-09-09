@@ -63,6 +63,7 @@ model Role {
 model Address {
   id        Int      @id @default(autoincrement())
   userId    Int
+  name      String   @default("")
   address   String
   zipCode   Int
   latitude  String

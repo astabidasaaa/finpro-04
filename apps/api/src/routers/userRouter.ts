@@ -1,7 +1,12 @@
 import { UserController } from '@/controllers/userController';
 import { uploader } from '@/libs/uploader';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { validateUserUpdate } from '@/middlewares/userValidator';
+import {
+  validateAddressCreate,
+  validateAddressId,
+  validateAddressUpdate,
+  validateUserUpdate,
+} from '@/middlewares/userValidator';
 import { Route } from '@/types/express';
 import { Router } from 'express';
 
@@ -33,6 +38,45 @@ export class UserRouter implements Route {
       this.guard.verifyRole(['user']),
       uploader('avatar', '/avatar').single('file'),
       this.userController.updateSelfProfile,
+    );
+
+    this.router.get(
+      `${this.path}/addresses`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.getUserAddresses,
+    );
+
+    this.router.post(
+      `${this.path}/addresses`,
+      validateAddressCreate,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.postUserAddresses,
+    );
+
+    this.router.patch(
+      `${this.path}/addresses`,
+      validateAddressUpdate,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.updateUserAddresses,
+    );
+
+    this.router.delete(
+      `${this.path}/addresses`,
+      validateAddressId,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.deleteUserAddresses,
+    );
+
+    this.router.patch(
+      `${this.path}/addresses/change-main`,
+      validateAddressId,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.changeUserMainAddress,
     );
   }
 }
