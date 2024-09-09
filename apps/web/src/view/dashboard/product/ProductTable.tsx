@@ -68,7 +68,7 @@ export const columns: ColumnDef<ProductProps>[] = [
       const product = row.original;
       return (
         <div className="font-normal flex items-center">
-          {product.brand.name}
+          {product.brand?.name || ''}
         </div>
       );
     },

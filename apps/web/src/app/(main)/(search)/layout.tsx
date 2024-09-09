@@ -1,5 +1,5 @@
 const SearchLayout = ({ children }: { children: React.ReactNode }) => {
-  return <div>{children}</div>;
+  return <>{children}</>;
 };
 
 export default SearchLayout;

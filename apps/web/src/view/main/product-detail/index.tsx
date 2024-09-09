@@ -13,6 +13,7 @@ import {
   ProductDiscountProps,
 } from '@/types/productTypes';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 export default function ProductDetailView({
   productId,
@@ -101,34 +102,37 @@ export default function ProductDetailView({
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="space-y-4 md:col-span-1">
-            <img
-              src={
-                `${process.env.PRODUCT_API_URL}/${images[selectedImage].title}` ||
-                '/avatar-placeholder.png'
-              }
-              alt={
-                images[selectedImage].alt == null
-                  ? undefined
-                  : images[selectedImage].alt
-              }
-              className="w-full h-auto rounded-lg shadow-lg"
-            />
+          <div className="space-y-4 w-full md:col-span-1">
+            <div className="w-full">
+              <Image
+                src={
+                  `${process.env.PRODUCT_API_URL}/${images[selectedImage].title}` ||
+                  '/avatar-placeholder.png'
+                }
+                alt={images[selectedImage].alt || 'Product image'}
+                className="aspect-square w-full object-cover object-center rounded-lg shadow-lg"
+                height={400}
+                width={400}
+                quality={100}
+              />
+            </div>
             <div className="grid grid-cols-4 gap-2 pt-4">
               {images.map((img, i) => (
-                <img
+                <Image
                   key={i}
                   src={
                     `${process.env.PRODUCT_API_URL}/${img.title}` ||
                     '/avatar-placeholder.png'
                   }
-                  alt={img.alt !== null ? img.alt : undefined}
+                  alt={img.alt || 'Product image'}
                   className={`w-full h-auto rounded-md shadow cursor-pointer transition-all duration-300 ${
                     i === selectedImage
                       ? 'ring-2 ring-main-dark'
                       : 'hover:ring-2 hover:ring-main-dark/30'
                   }`}
                   onClick={() => handleThumbnailClick(i)}
+                  height={200}
+                  width={200}
                 />
               ))}
             </div>
@@ -175,8 +179,8 @@ export default function ProductDetailView({
                 </Badge>
               )}
             </div>
-            <div className="flex flex-row justify-between md:gap-10 md:justify-end">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row justify-start gap-4 md:gap-10 md:justify-end">
+              <div className="flex items-center space-x-4 justify-center md:justify-start">
                 <Button
                   variant="outline"
                   size="icon"
@@ -197,12 +201,13 @@ export default function ProductDetailView({
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <Button className="w-48">
+              <Button className="w-full sm:w-max">
                 <Plus className="size-4 mr-2" />
                 Keranjang
               </Button>
             </div>
-            <div className="text-gray-600 text-xs md:text-sm">
+            <div className="font-semibold">Deskripsi Produk</div>
+            <div className="text-gray-600 text-sm">
               {product?.product.description}
             </div>
           </div>

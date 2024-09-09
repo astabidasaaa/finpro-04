@@ -48,15 +48,12 @@ export default function ProductCard({
   }
 
   return (
-    <Link
-      className="col-span-3 md:col-span-2 lg:col-span-1"
-      href={`/product/${product.id}`}
-    >
+    <Link href={`/product/${product.id}`}>
       <Card>
         <CardHeader>
           <Image
             alt={product.name}
-            className="aspect-square w-56 object-cover"
+            className="aspect-square object-cover"
             height={400}
             width={400}
             src={

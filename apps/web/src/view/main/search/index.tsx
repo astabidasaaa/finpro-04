@@ -130,7 +130,7 @@ export default function SearchMainView() {
   }
 
   return (
-    <div className="container mx-auto grid grid-cols-5 gap-4 -mt-2">
+    <div className="px-4 md:px-12 lg:px-24 max-w-screen-2xl grid grid-cols-5 gap-4 -mt-2">
       <div className="hidden lg:block">
         <div className="col-span-1 p-4 bg-gray-50 rounded-lg shadow-sm">
           <SubcategoryFilter
@@ -162,7 +162,7 @@ export default function SearchMainView() {
           <SelectOrderBy orderBy={orderBy} setOrderBy={setOrderBy} />
         </div>
         {products.length > 0 ? (
-          <div className="grid grid-cols-6 gap-4 pt-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
             {products.map((product: ProductProps) => (
               <ProductCard
                 key={product.id}

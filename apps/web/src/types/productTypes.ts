@@ -2,7 +2,7 @@ export type ProductProps = {
   id: number;
   creatorId: number;
   name: string;
-  brandId: number;
+  brandId: number | null;
   subcategoryId: number;
   description: string;
   productState: State;

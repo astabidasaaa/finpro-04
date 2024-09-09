@@ -362,11 +362,13 @@ export default function CreateProductForm({
                       </Button>
                       <div className="grid grid-cols-3 gap-2">
                         {previewImages.map((src, index) => (
-                          <img
+                          <Image
                             key={index}
                             src={src}
                             alt={`Thumbnail ${index + 1}`}
                             className="col-span-1 object-cover w-32 h-32"
+                            height={300}
+                            width={300}
                           />
                         ))}
                       </div>
