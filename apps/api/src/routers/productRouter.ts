@@ -1,5 +1,6 @@
 import { ProductController } from '@/controllers/productController';
 import { uploader } from '@/libs/uploader';
+import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
 
@@ -7,11 +8,13 @@ export class ProductRouter implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly productController: ProductController;
+  private guard: AuthMiddleware;
 
   constructor() {
     this.router = Router();
     this.productController = new ProductController();
     this.path = '/products';
+    this.guard = new AuthMiddleware();
     this.initializeRoutes();
   }
 
@@ -26,7 +29,7 @@ export class ProductRouter implements Route {
     // make product and auto assign it to inventory of all store
     this.router.post(
       `${this.path}`,
-      // authorizeToken
+      this.guard.verifyAccessToken,
       // authorizeRole = superadmin
       uploader('PRODUCT', '/product').array('product', 8),
       this.productController.createProduct,

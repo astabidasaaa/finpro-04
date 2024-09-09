@@ -38,6 +38,7 @@ import {
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
+import { getCookie } from 'cookies-next';
 
 type ProductFormProps = z.infer<typeof productSchema>;
 
@@ -60,6 +61,7 @@ export default function CreateProductForm({
 
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
+  const token = getCookie('access-token');
 
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -93,7 +95,7 @@ export default function CreateProductForm({
       const submitEvent = await axiosInstance().post(`/products`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          // Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 

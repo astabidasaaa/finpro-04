@@ -74,8 +74,8 @@ export class ProductController {
   ): Promise<void> {
     try {
       const { files } = req;
-      // const { id } = req.user as User;
-      const id = 3;
+      const { id } = req.user as User;
+
       const { name, brandId, subcategoryId, description, productState, price } =
         req.body;
 
@@ -94,7 +94,7 @@ export class ProductController {
         productState,
         price: parseFloat(price),
         images,
-        creatorId: id,
+        creatorId: Number(id),
       });
 
       res.status(200).json({
