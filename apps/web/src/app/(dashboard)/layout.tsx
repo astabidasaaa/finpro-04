@@ -14,20 +14,20 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-muted/40 md:block">
+        <div className="hidden border-r bg-muted/50 md:block">
           <NavigationList />
         </div>
         <div className="flex flex-col">
-          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+          <header className="flex h-14 items-center gap-4 border-b bg-muted/50 px-4 lg:h-[60px] lg:px-6">
             <Sheet>
               <SheetTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant="link"
                   size="icon"
                   className="shrink-0 md:hidden"
                 >
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
+                  <span className="sr-only">Toggle menu navigasi</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
@@ -36,7 +36,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </Sheet>
             <Header />
           </header>
-          <main>{children}</main>
+          <main className="flex flex-col h-[calc(100vh-56px)] lg:h-[calc(100vh-60px)] overflow-y-auto bg-muted/20">
+            {children}
+          </main>
         </div>
       </div>
     </div>
