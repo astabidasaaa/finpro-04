@@ -46,7 +46,7 @@ const RegistrasiPageView = () => {
           <Button
             variant="outline"
             onClick={() => {
-              router.push('http://localhost:8000/api/auth/google');
+              router.push(`${process.env.API_URL}/auth/google`);
             }}
           >
             <FaGoogle className="size-5" />
