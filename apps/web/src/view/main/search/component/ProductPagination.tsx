@@ -16,8 +16,8 @@ export default function ProductPagination({
   return (
     <Pagination>
       <PaginationContent>
-        {pages.map((page) => (
-          <PaginationItem>
+        {pages.map((page, index) => (
+          <PaginationItem key={index}>
             <PaginationLink onClick={() => setPage(page)}>
               {page}
             </PaginationLink>
