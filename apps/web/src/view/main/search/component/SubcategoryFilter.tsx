@@ -10,9 +10,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { SubcategoryProps } from '@/types/subcategoryTypes';
 
 export default function SubcategoryFilter({
+  categoryId,
   categories: subcategories,
   setCategoryId,
 }: {
+  categoryId: string;
   categories: SubcategoryProps[];
   setCategoryId: Dispatch<SetStateAction<number | undefined>>;
 }) {
@@ -26,7 +28,7 @@ export default function SubcategoryFilter({
           <ScrollArea className="h-60 lg:h-44 py-2">
             <RadioGroup
               defaultChecked={true}
-              defaultValue="0"
+              defaultValue={categoryId !== '' ? categoryId : '0'}
               onValueChange={(value) => {
                 let number: number | undefined = Number(value);
                 if (number === 0) {

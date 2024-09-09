@@ -45,6 +45,7 @@ export default function SearchMainView() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
+  const subcategoryHeaderId = searchParams.get('subcategoryId') || '';
   const routerNav = useRouter();
   const pageSize = 12;
   const [page, setPage] = useState<number>(1);
@@ -122,7 +123,7 @@ export default function SearchMainView() {
 
   useEffect(() => {
     fetchData();
-  }, [orderBy, page, keyword]);
+  }, [orderBy, page, keyword, subcategoryHeaderId]);
 
   if (!isMounted) {
     return null;
@@ -133,6 +134,7 @@ export default function SearchMainView() {
       <div className="hidden lg:block">
         <div className="col-span-1 p-4 bg-gray-50 rounded-lg shadow-sm">
           <SubcategoryFilter
+            categoryId={subcategoryHeaderId}
             categories={subcategories}
             setCategoryId={setCategoryId}
           />
@@ -193,6 +195,7 @@ export default function SearchMainView() {
             </SheetHeader>
             <div className="grid grid-cols-2 pt-4">
               <SubcategoryFilter
+                categoryId={subcategoryHeaderId}
                 categories={subcategories}
                 setCategoryId={setCategoryId}
               />
