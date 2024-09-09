@@ -32,8 +32,7 @@ export const uploader = (filePrefix: string, folderName?: string) => {
         file: Express.Multer.File,
         cb: FileNameCallback,
       ) => {
-        // const { id } = req.user as User;
-        const id = 3;
+        const { id } = req.user as User;
 
         const originalNameParts = file.originalname.split('.');
 
