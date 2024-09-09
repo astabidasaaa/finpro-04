@@ -1,8 +1,19 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
+import { Store } from '@prisma/client';
 
 class StoreQuery {
+  public async findSingleStore(storeId: number): Promise<Store | null> {
+    const store = await prisma.store.findUnique({
+      where: {
+        id: storeId,
+      },
+    });
+
+    return store;
+  }
+
   public async findStoreByIdBasedOnCategory(id: number) {
     const storeProduct = await prisma.productCategory.findMany({
       orderBy: {

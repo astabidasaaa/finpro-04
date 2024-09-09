@@ -38,3 +38,5 @@ yarn-error.log*
 
 # others
 dist
+package-lock.json
+next.config.js

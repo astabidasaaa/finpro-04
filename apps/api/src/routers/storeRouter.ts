@@ -18,6 +18,10 @@ export class StoreRouter implements Route {
   }
 
   private initializeRoutes(): void {
+    this.router.get(
+      `${this.path}/single/:storeId`,
+      this.displayStoreController.getSingleStore,
+    );
     this.router.post(
       `${this.path}/nearest-store`,
       this.displayStoreController.nearestStoreId,

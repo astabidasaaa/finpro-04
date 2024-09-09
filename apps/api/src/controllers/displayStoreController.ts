@@ -4,6 +4,25 @@ import { User } from '@/types/express';
 import { NextFunction, Request, Response } from 'express';
 
 export class DisplayStoreController {
+  public async getSingleStore(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { storeId } = req.params;
+
+      const store = await displayStoreAction.getStorebyStoreId(
+        parseInt(storeId),
+      );
+
+      res.status(200).json({
+        message: 'Berhasil menampilkan toko',
+        data: store,
+      });
+    } catch (err) {}
+  }
+
   public async nearestStoreId(
     req: Request,
     res: Response,
