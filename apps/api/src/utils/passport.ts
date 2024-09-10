@@ -30,10 +30,6 @@ passport.use(
           googleId: profile.id,
         });
 
-        const accessToken = sign(user, String(ACCESS_TOKEN_SECRET), {
-          expiresIn: '24hr',
-        });
-
         return done(null, user);
       } catch (error) {
         return done(error, false);
