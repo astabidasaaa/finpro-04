@@ -9,6 +9,7 @@ class AuthQuery {
     const user = await prisma.user.findUnique({
       where: {
         email,
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -36,6 +37,7 @@ class AuthQuery {
     const user = await prisma.user.findUnique({
       where: {
         email,
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -57,7 +59,7 @@ class AuthQuery {
     while (!isUnique) {
       code = generateReferralCode();
       const existingUser = await prisma.user.findUnique({
-        where: { referralCode: code },
+        where: { referralCode: code, deletedAt: null },
       });
 
       if (!existingUser) {
@@ -83,6 +85,7 @@ class AuthQuery {
       },
       where: {
         referralCode: referrerCode,
+        deletedAt: null,
       },
     });
 
@@ -102,6 +105,7 @@ class AuthQuery {
         verificationTokenExpiry: {
           gt: new Date(),
         },
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -116,6 +120,7 @@ class AuthQuery {
     const isSuccess = await prisma.user.update({
       where: {
         id,
+        deletedAt: null,
       },
       data: {
         isVerified: true,
