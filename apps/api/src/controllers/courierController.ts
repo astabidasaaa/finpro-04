@@ -1,5 +1,6 @@
 import courierAction from '@/actions/courierAction';
 import featuredPromotionAction from '@/actions/featuredPromotionAction';
+import { User } from '@/types/express';
 import { NextFunction, Request, Response } from 'express';
 
 export class CourierController {
@@ -9,19 +10,14 @@ export class CourierController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const {
-        origin_latitude,
-        origin_longitude,
-        destination_latitude,
-        destination_longitude,
-        itemList,
-      } = req.body;
+      const { id } = req.user as User;
+
+      const { storeId, addressId, itemList } = req.body;
 
       const shippingPriceList = await courierAction.calculateShippingPrice({
-        origin_latitude,
-        origin_longitude,
-        destination_latitude,
-        destination_longitude,
+        userId: id,
+        storeId,
+        addressId,
         itemList,
       });
 

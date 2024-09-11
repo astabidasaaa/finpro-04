@@ -8,24 +8,45 @@ import {
   TShipping,
   TShippingPayload,
 } from '@/types/courierType';
+import storeQuery from '@/queries/storeQuery';
+import addressQuery from '@/queries/addressQuery';
 
 class CourierAction {
   public async calculateShippingPrice({
-    origin_latitude,
-    origin_longitude,
-    destination_latitude,
-    destination_longitude,
+    userId,
+    storeId,
+    addressId,
     itemList,
   }: {
-    origin_latitude: string;
-    origin_longitude: string;
-    destination_latitude: string;
-    destination_longitude: string;
+    userId: number;
+    storeId: number;
+    addressId: number;
     itemList: TItemFromUser[];
   }) {
+    const storeLocation = await storeQuery.findStoreById(storeId);
+
+    if (!storeLocation) {
+      throw new HttpException(
+        HttpStatus.NOT_FOUND,
+        'Gagal menemukan lokasi toko',
+      );
+    }
+
+    const customerLocation = await addressQuery.getAddressById(
+      userId,
+      addressId,
+    );
+
+    if (!customerLocation) {
+      throw new HttpException(
+        HttpStatus.NOT_FOUND,
+        'Gagal menemukan alamat pengguna',
+      );
+    }
+
     let items: TItemToPost[] = [];
 
-    itemList.forEach((item, index) => {
+    itemList.forEach((item) => {
       items.push({
         name: item.name,
         weight: 1000,
@@ -41,10 +62,10 @@ class CourierAction {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        origin_latitude,
-        origin_longitude,
-        destination_latitude,
-        destination_longitude,
+        origin_latitude: storeLocation.latitude,
+        origin_longitude: storeLocation.longitude,
+        destination_latitude: customerLocation.latitude,
+        destination_longitude: customerLocation.longitude,
         couriers: 'jne,gojek,grab,jet,sicepat',
         items,
       }),
@@ -72,14 +93,16 @@ class CourierAction {
       pricing: [],
     };
 
-    result.pricing?.forEach((item: TPricing, index: number) => {
-      payload.pricing.push({
-        courier_name: item.courier_name,
-        courier_service_name: item.courier_service_name,
-        duration: item.duration,
-        price: item.price,
+    if (result.pricing) {
+      result.pricing.forEach((item: TPricing, index: number) => {
+        payload.pricing.push({
+          courier_name: item.courier_name,
+          courier_service_name: item.courier_service_name,
+          duration: item.duration,
+          price: item.price,
+        });
       });
-    });
+    }
 
     return payload;
   }
