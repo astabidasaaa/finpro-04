@@ -114,6 +114,40 @@ const OrderManagementDetailsView: React.FC = () => {
     return new Date(dateString).toLocaleDateString('en-GB', options);
   };
 
+  const updateOrderStatus = async (status: string) => {
+    if (!orderId) return;
+    setIsLoading(true);
+
+    const endpoint = status === 'DIPROSES' 
+      ? `/shipping/process-order`
+      : `/shipping/shipping-order`;
+
+      try {
+        await axiosInstance().post(endpoint, {
+          orderId: parseInt(orderId as string, 10), 
+          userId: parseInt(userId, 10),
+        });
+
+      toast({
+        variant: 'success',
+        title: 'Order Status Updated',
+        description: `Order status updated to ${status}.`,
+      });
+
+      // Reload the page after updating the status
+      window.location.reload();
+    } catch (error) {
+      console.error(`Error updating order status to ${status}:`, error);
+      toast({
+        variant: 'destructive',
+        title: `Failed to update status to ${status}`,
+        description: 'Please try again later.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const cancelOrder = async () => {
     if (!orderId) return;
 
@@ -145,36 +179,6 @@ const OrderManagementDetailsView: React.FC = () => {
     }
   };
 
-  const confirmShipping = async () => {
-    if (!orderId) return;
-
-    setIsLoading(true);
-
-    try {
-      await axiosInstance().post(`/shipping/confirm`, {
-        orderId: parseInt(orderId as string, 10),
-        userId: parseInt(userId, 10),
-      });
-
-      toast({
-        variant: 'success',
-        title: 'Shipping Confirmed',
-        description: 'The shipping has been successfully confirmed.',
-      });
-
-      // Reload the page after confirmation
-      window.location.reload();
-    } catch (error) {
-      console.error('Error confirming shipping:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to confirm shipping',
-        description: 'Please try again later.',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -308,27 +312,38 @@ const OrderManagementDetailsView: React.FC = () => {
         </dl>
       </div>
       <Separator className="my-4" />
-      {order.orderStatus === 'MENUNGGU_PEMBAYARAN' && (
+      {['MENUNGGU_PEMBAYARAN', 'MENUNGGU_KONFIRMASI_PEMBAYARAN', 'DIPROSES'].includes(order.orderStatus) && (
+  <div className="mt-4">
+    <Button
+      variant="destructive"
+      onClick={cancelOrder}
+      disabled={isLoading}
+    >
+      Batalkan Pesanan
+    </Button>
+  </div>
+)}
+
+        
+        {order.orderStatus === 'MENUNGGU_KONFIRMASI_PEMBAYARAN' && (
           <div className="mt-4">
-            <Button
-              variant="destructive"
-              onClick={cancelOrder}
-              disabled={isLoading}
-            >
-              Cancel Order
-            </Button>
+          <Button
+                onClick={() => updateOrderStatus('DIPROSES')}
+                disabled={isLoading}
+              >
+                Proses Pesanan
+              </Button>
           </div>
-        )}
-        {/* Render the Confirm Shipping button only if the status is DIKIRIM */}
-        {order.orderStatus === 'DIKIRIM' && (
-          <div className="mt-4">
-            <Button
-              
-              onClick={confirmShipping}
-              disabled={isLoading}
-            >
-              Confirm Shipping
-            </Button>
+          )}
+          
+          {order.orderStatus === 'DIPROSES' && (
+            <div className="mt-4">
+          <Button
+                onClick={() => updateOrderStatus('DIKIRIM')}
+                disabled={isLoading}
+              >
+                Kirim Pesanan
+              </Button>
           </div>
         )}
         <div className="mt-6">

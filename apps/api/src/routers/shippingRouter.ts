@@ -19,6 +19,8 @@ export class ShippingRouter implements Route {
     // Create a new order
     // this.router.post(this.path, this.orderController.createOrder);
     this.router.post(`${this.path}/confirm`, this.shippingController.confirmShipping);
+    this.router.post(`${this.path}/process-order`, this.shippingController.processingOrder);
+    this.router.post(`${this.path}/shipping-order`, this.shippingController.shippingOrder);
     
     
     

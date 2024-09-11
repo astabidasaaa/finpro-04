@@ -74,9 +74,9 @@ export async function middleware(request: NextRequest) {
       url.startsWith('/lupa-password') ||
       url.startsWith('/reset-password')
     ) {
-      // const redirect = request.nextUrl.searchParams.get('redirect') || '/';
+      const redirect = request.nextUrl.searchParams.get('redirect') || '/';
 
-      return NextResponse.redirect(new URL( request.url));
+      return NextResponse.redirect(new URL(redirect, request.url));
     }
     // if (url.startsWith('/dashboard') && userState.role === 'user') {
     //   return NextResponse.redirect(new URL('/', request.url));
