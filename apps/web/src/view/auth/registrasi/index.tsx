@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -12,8 +14,10 @@ import RegisterForm from './RegistrasiForm';
 import { BsTwitterX } from 'react-icons/bs';
 import { FaFacebook, FaGoogle } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 const RegistrasiPageView = () => {
+  const router = useRouter();
   return (
     <Card className="mx-auto w-max md:w-full max-w-sm">
       <CardHeader>
@@ -39,13 +43,18 @@ const RegistrasiPageView = () => {
           </div>
         </div>
         <div className="grid grid-cols-3 w-full gap-2 mt-4">
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            onClick={() => {
+              router.push(`${process.env.API_URL}/auth/google`);
+            }}
+          >
             <FaGoogle className="size-5" />
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" disabled={true}>
             <FaFacebook className="size-5" />
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" disabled={true}>
             <BsTwitterX className="size-5" />
           </Button>
         </div>

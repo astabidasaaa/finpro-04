@@ -3,12 +3,10 @@ import React from 'react';
 
 type Props = {};
 
-const DashboardHomePage = (props: Props) => {
+export default function DashboardPage(props: Props) {
   return (
     <>
       <DashboardHomeView />
     </>
   );
-};
-
-export default DashboardHomePage;
+}

@@ -18,7 +18,7 @@ import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { Navigation } from 'swiper/modules';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -33,8 +33,11 @@ const DisplayProductSection = () => {
   const { storeId } = nearestStore;
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryFn: async () =>
-      await axiosInstance().get(`/stores/nearest-store/${storeId}`),
+    queryFn: async () => {
+      const res = await axiosInstance().get(`/stores/nearest-store/${storeId}`);
+
+      return res.data.data.categories;
+    },
     queryKey: ['product_categories', storeId],
   });
 
@@ -42,81 +45,82 @@ const DisplayProductSection = () => {
     refetch();
   }, [storeId]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center items-center w-full min-h-[120px] md:min-h-[320px]">
+        <Error error={error} reset={refetch} />
+      </div>
+    );
+  }
+
   return (
     <>
-      {isLoading ? (
-        <Loading />
-      ) : isError ? (
-        <div className="flex justify-center items-center w-full min-h-[120px] md:min-h-[320px]">
-          <Error error={error} reset={refetch} />
-        </div>
-      ) : (
-        data && (
-          <div className="flex flex-col gap-10">
-            {data.data.data.categories.map(
-              (category: TCategory, categoryIndex: number) => {
-                const encodedQuery = encodeURIComponent(
-                  category.subcategories[0].name,
-                );
+      {data && (
+        <div className="flex flex-col gap-10">
+          {data.map((category: TCategory, categoryIndex: number) => {
+            return (
+              <React.Fragment key={`category-${categoryIndex}`}>
+                {category.subcategories.length > 0 && (
+                  <div className="relative group flex flex-col gap-4">
+                    <div className="flex flex-row justify-between items-center">
+                      <h2 className="text-base md:text-xl font-semibold">
+                        {category.name}
+                      </h2>
 
-                return (
-                  <>
-                    {category.subcategories.length > 0 &&
-                      category.subcategories[0].products.length > 0 && (
-                        <div
-                          key={`category-${categoryIndex}`}
-                          className="relative group flex flex-col gap-4"
+                      <Button
+                        variant="link"
+                        asChild
+                        className="py-0 h-5 text-main-dark text-xs md:text-sm"
+                      >
+                        <Link
+                          href={`/search?subcategoryId=${category.subcategories[0].id}`}
                         >
-                          <div className="flex flex-row justify-between items-center">
-                            <h2 className="text-base md:text-xl font-semibold">
-                              {category.name}
-                            </h2>
-
-                            <Button
-                              variant="link"
-                              asChild
-                              className="py-0 h-5 text-main-dark text-xs md:text-sm"
+                          Lihat semua
+                        </Link>
+                      </Button>
+                    </div>
+                    <Swiper
+                      spaceBetween={20}
+                      slidesPerView={1.8}
+                      breakpoints={{
+                        1280: {
+                          slidesPerView: 4.7,
+                        },
+                        1024: {
+                          slidesPerView: 3.5,
+                        },
+                        768: {
+                          slidesPerView: 3.2,
+                        },
+                        480: {
+                          slidesPerView: 2.4,
+                        },
+                      }}
+                      navigation={{
+                        enabled: true,
+                        prevEl: `.prev-${category.id}`,
+                        nextEl: `.next-${category.id}`,
+                      }}
+                      freeMode={true}
+                      grabCursor={true}
+                      modules={[Navigation]}
+                      className="w-full overflow-clip"
+                    >
+                      {category.subcategories.map(
+                        (
+                          subcategory: TSubCategory,
+                          subCategoryIndex: number,
+                        ) => {
+                          return (
+                            <React.Fragment
+                              key={`subcategory-${subCategoryIndex}`}
                             >
-                              <Link
-                                href={`/search?subcategories=${encodedQuery}&storeId=${storeId}`}
-                              >
-                                Lihat semua
-                              </Link>
-                            </Button>
-                          </div>
-                          <Swiper
-                            spaceBetween={20}
-                            slidesPerView={1.8}
-                            breakpoints={{
-                              1280: {
-                                slidesPerView: 4.7,
-                              },
-                              1024: {
-                                slidesPerView: 3.5,
-                              },
-                              768: {
-                                slidesPerView: 3.2,
-                              },
-                              480: {
-                                slidesPerView: 2.4,
-                              },
-                            }}
-                            navigation={{
-                              enabled: true,
-                              prevEl: `.prev-${category.id}`,
-                              nextEl: `.next-${category.id}`,
-                            }}
-                            freeMode={true}
-                            grabCursor={true}
-                            modules={[Navigation]}
-                            className="w-full overflow-clip"
-                          >
-                            {category.subcategories.map(
-                              (
-                                subcategory: TSubCategory,
-                                subCategoryIndex: number,
-                              ) => {
-                                return subcategory.products.map(
+                              {subcategory.products.length > 0 &&
+                                subcategory.products.map(
                                   (product: TProduct, productIndex: number) => {
                                     let IDR = new Intl.NumberFormat('id-ID', {
                                       style: 'currency',
@@ -180,30 +184,30 @@ const DisplayProductSection = () => {
                                       </SwiperSlide>
                                     );
                                   },
-                                );
-                              },
-                            )}
-                          </Swiper>
-                          <Button
-                            variant="default"
-                            className={`prev-${category.id} absolute top-[50%] -left-4 bg-main-dark hover:bg-main text-background border-none rounded-full size-10 cursor-pointer hidden md:block transition-all z-10`}
-                          >
-                            &#10094;
-                          </Button>
-                          <Button
-                            variant="default"
-                            className={`next-${category.id} absolute top-[50%] -right-4 bg-main-dark hover:bg-main text-background border-none rounded-full size-10 cursor-pointer hidden md:block transition-all z-10`}
-                          >
-                            &#10095;
-                          </Button>
-                        </div>
+                                )}
+                            </React.Fragment>
+                          );
+                        },
                       )}
-                  </>
-                );
-              },
-            )}
-          </div>
-        )
+                    </Swiper>
+                    <Button
+                      variant="default"
+                      className={`prev-${category.id} absolute top-[50%] -left-4 bg-main-dark hover:bg-main text-background border-none rounded-full size-10 cursor-pointer hidden md:block transition-all z-10`}
+                    >
+                      &#10094;
+                    </Button>
+                    <Button
+                      variant="default"
+                      className={`next-${category.id} absolute top-[50%] -right-4 bg-main-dark hover:bg-main text-background border-none rounded-full size-10 cursor-pointer hidden md:block transition-all z-10`}
+                    >
+                      &#10095;
+                    </Button>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
       )}
     </>
   );

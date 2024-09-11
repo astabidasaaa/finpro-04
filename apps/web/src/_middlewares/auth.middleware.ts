@@ -51,25 +51,22 @@ export const logout = () => {
   };
 };
 
-// export const keepLogin = () => {
-//   return async (dispatch: Dispatch) => {
-//     try {
-//       const token = getCookie('access-token');
-//       if (!token) throw new Error('Silakan login ulang.');
+export const loginSocial = ({ access_token }: { access_token: string }) => {
+  return async (dispatch: Dispatch) => {
+    try {
+      const user = await axiosInstance().get(`/user/profile`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
 
-//       const user = parseJWT(token) as User;
+      dispatch(loginState(user.data.data));
 
-//       if (user.username) {
-//         dispatch(loginState(user));
-//       }
-
-//       return true;
-//     } catch (error) {
-//       if (error axiosInstanceof Error) {
-//         deleteCookie('access-token');
-//         deleteCookie('refresh-token');
-//         throw error;
-//       }
-//     }
-//   };
-// };
+      return true;
+    } catch (error) {
+      deleteCookie('access-token');
+      throw error;
+    }
+  };
+};

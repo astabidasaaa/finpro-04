@@ -4,6 +4,9 @@ import type { Route } from './types/express';
 import { ErrorHandler } from './middlewares/errorHandler';
 import path from 'path';
 import cors from 'cors';
+import passport from 'passport';
+
+import './utils/passport';
 
 export default class App {
   private readonly app: Express;
@@ -32,6 +35,7 @@ export default class App {
       '/uploads',
       express.static(path.join(path.dirname(__dirname), 'src', 'uploads'))
     );
+    this.app.use(passport.initialize());
   }
 
   private handleError(): void {
