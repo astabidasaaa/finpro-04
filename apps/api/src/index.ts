@@ -8,7 +8,7 @@ import { UserRouter } from './routers/userRouter';
 import { StoreRouter } from './routers/storeRouter';
 import { PromotionRouter } from './routers/promotionRouter';
 import { CategoryRouter } from './routers/categoryRoute';
-import { ShippingRouter } from './routers/shippingRouter';
+import { CourierRouter } from './routers/courierRouter';
 
 function main() {
   // Initialize the app with all the routes
@@ -21,7 +21,7 @@ function main() {
     new StoreRouter(),
     new PromotionRouter(),
     new CategoryRouter(),
-    new ShippingRouter(),
+    new CourierRouter(),
   ]);
 
   // Start the app

@@ -1,8 +1,8 @@
+import courierAction from '@/actions/courierAction';
 import featuredPromotionAction from '@/actions/featuredPromotionAction';
-import shippingAction from '@/actions/shippingAction';
 import { NextFunction, Request, Response } from 'express';
 
-export class ShippingController {
+export class CourierController {
   public async getShippingPrice(
     req: Request,
     res: Response,
@@ -17,7 +17,7 @@ export class ShippingController {
         itemList,
       } = req.body;
 
-      const shippingPriceList = await shippingAction.calculateShippingPrice({
+      const shippingPriceList = await courierAction.calculateShippingPrice({
         origin_latitude,
         origin_longitude,
         destination_latitude,

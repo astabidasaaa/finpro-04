@@ -1,6 +1,5 @@
 import { SHIPPING_CLIENT_KEY } from '@/config';
 import { HttpException } from '@/errors/httpException';
-import prisma from '@/prisma';
 import { HttpStatus } from '@/types/error';
 import {
   TItemFromUser,
@@ -8,9 +7,9 @@ import {
   TPricing,
   TShipping,
   TShippingPayload,
-} from '@/types/shippingType';
+} from '@/types/courierType';
 
-class ShippingAction {
+class CourierAction {
   public async calculateShippingPrice({
     origin_latitude,
     origin_longitude,
@@ -86,4 +85,4 @@ class ShippingAction {
   }
 }
 
-export default new ShippingAction();
+export default new CourierAction();

@@ -1,19 +1,19 @@
-import { ShippingController } from '@/controllers/shippingController';
+import { CourierController } from '@/controllers/courierController';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
 
-export class ShippingRouter implements Route {
+export class CourierRouter implements Route {
   readonly router: Router;
   readonly path: string;
-  private readonly shippingController: ShippingController;
+  private readonly courierController: CourierController;
   private guard: AuthMiddleware;
 
   constructor() {
     this.router = Router();
-    this.shippingController = new ShippingController();
+    this.courierController = new CourierController();
     this.guard = new AuthMiddleware();
-    this.path = '/shipping';
+    this.path = '/courier';
     this.initializeRoutes();
   }
 
@@ -21,7 +21,7 @@ export class ShippingRouter implements Route {
     this.router.post(
       `${this.path}/`,
       this.guard.verifyAccessToken,
-      this.shippingController.getShippingPrice,
+      this.courierController.getShippingPrice,
     );
   }
 }
