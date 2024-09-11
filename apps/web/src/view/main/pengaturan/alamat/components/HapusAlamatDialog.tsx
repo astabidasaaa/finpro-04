@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -11,41 +9,55 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import axiosInstance from '@/lib/axiosInstance';
-import { AxiosError } from 'axios';
 import { getCookie } from 'cookies-next';
+import axiosInstance from '@/lib/axiosInstance';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { AxiosError, AxiosResponse } from 'axios';
 import { toast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
-const DialogVerifikasi = ({ email }: { email: string }) => {
+const HapusAlamatDialog = ({
+  addressId,
+  label,
+  refetch,
+}: {
+  addressId: number;
+  label: string;
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, Error>>;
+}) => {
   const token = getCookie('access-token');
 
-  const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const handleSubmit = async () => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().get('/auth/verify-email-request', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const res = await axiosInstance().delete(
+        `/user/addresses/${addressId}`,
+
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       setTimeout(() => {
         setSubmitLoading((prev) => false);
 
         if (res.status === 200) {
           setOpen((prev) => false);
+          refetch();
 
           toast({
             variant: 'default',
             title: res.data.message,
-            description:
-              'Silakan akses link verifikasi yang telah dikirimkan ke email Anda',
+            description: 'Berhasil menghapus alamat',
           });
         }
       }, 1500);
@@ -60,7 +72,7 @@ const DialogVerifikasi = ({ email }: { email: string }) => {
       setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Permintaan verifikasi email gagal',
+          title: 'Gagal menghapus alamat',
           description: message,
         });
 
@@ -68,32 +80,41 @@ const DialogVerifikasi = ({ email }: { email: string }) => {
       }, 1500);
     }
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Badge variant="destructive" className="hover:cursor-pointer">
-          Belum diverifikasi
-        </Badge>
+      <DialogTrigger asChild>
+        <Button variant="link" className="p-0 h-max text-main-dark text-xs">
+          Hapus
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Verifikasi email</DialogTitle>
+          <DialogTitle>Hapus Alamat</DialogTitle>
           <DialogDescription>
-            Tekan lanjutkan untuk memverifikasi. Kami akan mengirimkan pesan
-            berisi link verifikasi ke {email}
+            Apakah Anda yakin untuk menghapus alamat dengan label <b>{label}</b>
+            ? Alamat akan dihapus dari sistem dan tidak dapat dikembalikan.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button
             type="button"
-            onClick={() => handleSubmit()}
-            disabled={isSubmitLoading}
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="mt-2 sm:mt-0 min-w-28"
+          >
+            Batal
+          </Button>
+          <Button
+            type="button"
             className="min-w-36"
+            onClick={handleSubmit}
+            disabled={isSubmitLoading}
           >
             {isSubmitLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              'Lanjutkan'
+              'Hapus Alamat'
             )}
           </Button>
         </DialogFooter>
@@ -102,4 +123,4 @@ const DialogVerifikasi = ({ email }: { email: string }) => {
   );
 };
 
-export default DialogVerifikasi;
+export default HapusAlamatDialog;

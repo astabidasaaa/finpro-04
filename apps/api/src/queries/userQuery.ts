@@ -14,6 +14,7 @@ class UserQuery {
     const user = await prisma.user.findUnique({
       where: {
         id,
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -123,6 +124,9 @@ class UserQuery {
           where: {
             deleted: false,
           },
+          orderBy: {
+            createdAt: 'desc',
+          },
           select: {
             id: true,
             name: true,
@@ -141,6 +145,7 @@ class UserQuery {
 
   public async createAddressQuery({
     id,
+    name,
     address,
     zipCode,
     latitude,
@@ -153,6 +158,7 @@ class UserQuery {
       data: {
         addresses: {
           create: {
+            name,
             address,
             zipCode,
             latitude,
@@ -237,6 +243,7 @@ class UserQuery {
     const updateMainAddress = await prisma.user.update({
       where: {
         id,
+        deletedAt: null,
       },
       data: {
         addresses: {

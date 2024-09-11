@@ -70,14 +70,14 @@ export const validateAddressCreate = [
     .trim()
     .notEmpty()
     .withMessage('Latitude wajib diisi')
-    .isLength({ min: 1, max: 12 })
-    .withMessage('Latitude berisi maksimal 12 angka'),
+    .isLength({ min: 1, max: 32 })
+    .withMessage('Latitude berisi maksimal 32 angka'),
   body('longitude')
     .trim()
     .notEmpty()
     .withMessage('Longitude wajib diisi')
-    .isLength({ min: 1, max: 12 })
-    .withMessage('Longitude berisi maksimal 12 angka'),
+    .isLength({ min: 1, max: 32 })
+    .withMessage('Longitude berisi maksimal 32 angka'),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -91,7 +91,6 @@ export const validateAddressCreate = [
 ];
 
 export const validateAddressUpdate = [
-  addressId_validator,
   body('name')
     .trim()
     .optional()
@@ -111,27 +110,13 @@ export const validateAddressUpdate = [
   body('latitude')
     .trim()
     .optional()
-    .isLength({ min: 1, max: 12 })
-    .withMessage('Latitude berisi maksimal 12 angka'),
+    .isLength({ min: 1, max: 32 })
+    .withMessage('Latitude berisi maksimal 32 angka'),
   body('longitude')
     .trim()
     .optional()
-    .isLength({ min: 1, max: 12 })
-    .withMessage('Longitude berisi maksimal 12 angka'),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).send({ errors: errors.array() });
-    }
-
-    next();
-  },
-];
-
-export const validateAddressId = [
-  addressId_validator,
+    .isLength({ min: 1, max: 32 })
+    .withMessage('Longitude berisi maksimal 32 angka'),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

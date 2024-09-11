@@ -87,6 +87,7 @@ const AlamatContainer = () => {
               <AlamatCard
                 key={`${address.id}-${index}`}
                 fullAddress={address}
+                refetch={refetch}
               />
             );
           })
