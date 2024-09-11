@@ -3,15 +3,28 @@ import getOrderQuery from '@/queries/getOrderQuery';
 import { HttpStatus } from '@/types/error';
 
 class GetOrderAction {
-    public async getAllOrdersAction() {
-        const orders = await getOrderQuery.getAllOrders();
-    
-        if (orders.length === 0) {
-          throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found');
-        }
-    
-        return orders;
-      }
+  public async getAllOrdersAction(page: number, limit: number) {
+    const offset = (page - 1) * limit;
+  
+    // Fetch paginated orders and total count in parallel
+    const [orders, total] = await Promise.all([
+      getOrderQuery.getAllOrders(limit, offset), // Fetch paginated data
+      getOrderQuery.countAllOrders(), // Fetch total count of orders
+    ]);
+  
+    if (orders.length === 0) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found');
+    }
+  
+    const totalPages = Math.ceil(total / limit);
+  
+    return {
+      data: orders,
+      total,
+      totalPages,
+    };
+  }
+  
     public async getOrderByIdAction(orderIdStr: string) {
         const orderId = parseInt(orderIdStr, 10);
     
@@ -96,6 +109,36 @@ class GetOrderAction {
 
     return orders;
   }
+  public async getOrdersByStoreAction(storeIdStr: string, pageStr: string, limitStr: string) {
+    const storeId = parseInt(storeIdStr, 10);
+    const page = parseInt(pageStr, 10) || 1; // Default to page 1 if not provided
+    const limit = parseInt(limitStr, 10) || 10; // Default limit to 10 if not provided
+    const offset = (page - 1) * limit; // Calculate offset
+  
+    if (isNaN(storeId)) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid storeId format');
+    }
+  
+    const orders = await getOrderQuery.getOrdersByStoreId(storeId, limit, offset);
+    const totalOrders = await getOrderQuery.countOrdersByStoreId(storeId); // Total order count
+  
+    if (!orders.length) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found for the specified store');
+    }
+  
+    return { orders, totalOrders };
+  }
+  
+  public async getAllStoresAction() {
+    const stores = await getOrderQuery.getAllStores();
+  
+    if (!stores.length) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'No stores found');
+    }
+  
+    return stores;
+  }
+  
 }
 
 export default new GetOrderAction();

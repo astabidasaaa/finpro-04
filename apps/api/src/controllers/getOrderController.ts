@@ -3,22 +3,30 @@ import { HttpException } from '@/errors/httpException';
 import getOrderActions from '@/actions/getOrderActions';
 
 export class GetOrderController {
-    public async getAllOrders(
-        req: Request,
-        res: Response,
-        next: NextFunction
-      ): Promise<void> {
-        try {
-          const orders = await getOrderActions.getAllOrdersAction();
-    
-          res.status(200).json({
-            message: 'All orders retrieved successfully',
-            data: orders,
-          });
-        } catch (err) {
-          next(err);
-        }
-      }
+  public async getAllOrders(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      // Extract page and limit from query, with default values if not provided
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+  
+      const orders = await getOrderActions.getAllOrdersAction(page, limit);
+  
+      res.status(200).json({
+        message: 'All orders retrieved successfully',
+        data: orders.data,
+        totalOrders: orders.total,
+        totalPages: orders.totalPages,
+        currentPage: page,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+  
       public async getOrdersByUserId(
         req: Request,
         res: Response,
@@ -121,4 +129,48 @@ export class GetOrderController {
           }
         }
       }
+      public async getOrdersByStoreId(
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        try {
+          const storeIdStr = req.query.storeId as string;
+          const pageStr = req.query.page as string; // Get the page from query
+          const limitStr = req.query.limit as string; // Get the limit from query
+      
+          const { orders, totalOrders } = await getOrderActions.getOrdersByStoreAction(storeIdStr, pageStr, limitStr);
+      
+          res.status(200).json({
+            message: 'Orders retrieved successfully',
+            data: {
+              orders,
+              totalOrders,
+              currentPage: parseInt(pageStr, 10) || 1,
+              totalPages: Math.ceil(totalOrders / (parseInt(limitStr, 10) || 10)),
+            },
+          });
+        } catch (err) {
+          next(err);
+        }
+      }
+      
+      public async getAllStores(
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        try {
+          const stores = await getOrderActions.getAllStoresAction();
+      
+          res.status(200).json({
+            message: 'Stores retrieved successfully',
+            data: stores,
+          });
+        } catch (err) {
+          next(err);
+        }
+      }
+      
+      
 }

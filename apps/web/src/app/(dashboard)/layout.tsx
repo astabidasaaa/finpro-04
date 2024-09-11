@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div>
-      {/* <DashboardHeader /> */}
-      <main>{children}</main>
-      {/* <DashboardFooter /> */}
+    <div className="relative flex flex-col justify-start items-center min-h-screen">
+      <Header />
+      <main className="w-full py-16 md:py-24 min-h-screen max-w-screen-xl">{children}</main>
+      <Footer />
     </div>
   );
 };

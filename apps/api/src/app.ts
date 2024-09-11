@@ -28,6 +28,10 @@ export default class App {
       '/images',
       express.static(path.join(path.dirname(__dirname), 'public')),
     );
+    this.app.use(
+      '/uploads',
+      express.static(path.join(path.dirname(__dirname), 'src', 'uploads'))
+    );
   }
 
   private handleError(): void {

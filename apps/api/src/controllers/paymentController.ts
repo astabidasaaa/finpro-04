@@ -20,7 +20,7 @@ export class PaymentController {
             throw new HttpException(400, 'No file uploaded');
           }
   
-          const paymentProofPath = req.file.path;
+          const paymentProofPath = req.file.filename;
   
           const order = await prisma.order.findUnique({
             where: { id: parseInt(orderId, 10) },
