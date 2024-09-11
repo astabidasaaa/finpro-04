@@ -6,10 +6,13 @@ import { AuthRouter } from './routers/authRouter';
 import { UserRouter } from './routers/userRouter';
 import { StoreRouter } from './routers/storeRouter';
 import { PromotionRouter } from './routers/promotionRouter';
+import { CategoryRouter } from './routers/categoryRoute';
+import { CourierRouter } from './routers/courierRouter';
 import { SubcategoryRouter } from './routers/subcategoryRouter';
 import { CategoryRouter } from './routers/categoryRouter';
 import { BrandRouter } from './routers/brandRouter';
 import { ProductRouter } from './routers/productRouter';
+
 
 function main() {
   // Initialize the app with all the routes
@@ -24,6 +27,8 @@ function main() {
     new UserRouter(),
     new StoreRouter(),
     new PromotionRouter(),
+    new CategoryRouter(),
+    new CourierRouter(),
     new ProductRouter(),
   ]);
   app.start();

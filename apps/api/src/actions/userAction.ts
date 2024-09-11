@@ -1,4 +1,5 @@
 import { HttpException } from '@/errors/httpException';
+import addressQuery from '@/queries/addressQuery';
 import userQuery from '@/queries/userQuery';
 import { HttpStatus } from '@/types/error';
 import {
@@ -40,7 +41,7 @@ class UserAction {
   }
 
   public async getAllAddresses(id: number) {
-    const user = await userQuery.getAddressQuery(id);
+    const user = await addressQuery.getAddressQuery(id);
 
     if (!user)
       throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
@@ -61,7 +62,7 @@ class UserAction {
     if (!user)
       throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
 
-    const createAddress = await userQuery.createAddressQuery({
+    const createAddress = await addressQuery.createAddressQuery({
       id,
       name,
       address,
@@ -91,7 +92,7 @@ class UserAction {
     if (!user)
       throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
 
-    const updateAddress = await userQuery.updateAddressQuery({
+    const updateAddress = await addressQuery.updateAddressQuery({
       id,
       addressId,
       name,
@@ -114,7 +115,7 @@ class UserAction {
     if (!user)
       throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
 
-    const deleteAddress = await userQuery.deleteAddressQuery({
+    const deleteAddress = await addressQuery.deleteAddressQuery({
       id,
       addressId,
     });
@@ -132,7 +133,7 @@ class UserAction {
     if (!user)
       throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
 
-    const changedMainAddress = await userQuery.changeMainAddressQuery({
+    const changedMainAddress = await addressQuery.changeMainAddressQuery({
       id,
       addressId,
     });
