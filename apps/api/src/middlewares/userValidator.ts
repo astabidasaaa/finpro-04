@@ -118,6 +118,7 @@ export const validateAddressUpdate = [
     .isLength({ min: 1, max: 32 })
     .withMessage('Longitude berisi maksimal 32 angka'),
 
+
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
 

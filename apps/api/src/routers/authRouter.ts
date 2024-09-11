@@ -1,5 +1,7 @@
+import { BACKEND_URL } from '@/config';
 import { AuthController } from '@/controllers/authController';
 import { PasswordController } from '@/controllers/passwordController';
+import { SocialController } from '@/controllers/socialController';
 import { VerifyEmailController } from '@/controllers/verifyEmailController';
 import {
   validateChangePassword,
@@ -11,6 +13,7 @@ import {
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
+import passport from 'passport';
 
 export class AuthRouter implements Route {
   readonly router: Router;
@@ -18,6 +21,7 @@ export class AuthRouter implements Route {
   private readonly authController: AuthController;
   private readonly passwordController: PasswordController;
   private readonly verifyEmailController: VerifyEmailController;
+  private readonly socialController: SocialController;
   private guard: AuthMiddleware;
 
   constructor() {
@@ -25,6 +29,7 @@ export class AuthRouter implements Route {
     this.authController = new AuthController();
     this.passwordController = new PasswordController();
     this.verifyEmailController = new VerifyEmailController();
+    this.socialController = new SocialController();
     this.guard = new AuthMiddleware();
     this.path = '/auth';
     this.initializeRoutes();
@@ -91,6 +96,25 @@ export class AuthRouter implements Route {
       `${this.path}/add-password`,
       this.guard.verifyAccessToken,
       this.authController.refreshAccessToken,
+    );
+
+    this.router.get(
+      `${this.path}/google`,
+      passport.authenticate('google', { scope: ['profile', 'email'] }),
+    );
+
+    this.router.get(
+      `${this.path}/google/callback`,
+      passport.authenticate('google', {
+        failureRedirect: `${BACKEND_URL}/api/auth/google/failure`,
+        session: false,
+      }),
+      this.socialController.loginGoogleCallback,
+    );
+
+    this.router.get(
+      `${this.path}/google/failure`,
+      this.socialController.loginGoogleFailure,
     );
   }
 }

@@ -1,9 +1,5 @@
-import React from 'react';
+import { Button } from '@/components/ui/button';
 
-type Props = {};
-
-const DashboardHomeView = (props: Props) => {
-  return <div>DashboardHomeView</div>;
-};
-
-export default DashboardHomeView;
+export default function Dashboard() {
+  return <></>;
+}

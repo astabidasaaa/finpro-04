@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import Header from '@/components/dashboard/Header';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
+import NavigationList from '@/components/dashboard/NavigationList';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -10,9 +13,34 @@ export const metadata: Metadata = {
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
-      {/* <DashboardHeader /> */}
-      <main>{children}</main>
-      {/* <DashboardFooter /> */}
+      <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+        <div className="hidden border-r bg-muted/50 md:block">
+          <NavigationList />
+        </div>
+        <div className="flex flex-col">
+          <header className="flex h-14 items-center gap-4 border-b bg-muted/50 px-4 lg:h-[60px] lg:px-6">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="link"
+                  size="icon"
+                  className="shrink-0 md:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu navigasi</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="flex flex-col">
+                <NavigationList />
+              </SheetContent>
+            </Sheet>
+            <Header />
+          </header>
+          <main className="flex flex-col h-[calc(100vh-56px)] lg:h-[calc(100vh-60px)] overflow-y-auto bg-muted/20">
+            {children}
+          </main>
+        </div>
+      </div>
     </div>
   );
 };

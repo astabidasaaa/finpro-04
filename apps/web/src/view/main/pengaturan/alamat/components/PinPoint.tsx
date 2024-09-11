@@ -9,6 +9,7 @@ const PinPoint = ({
   setMapPin,
   setDialogPage,
 }: {
+
   mapPin: TLocation | null;
   setMapPin: React.Dispatch<React.SetStateAction<TLocation | null>>;
   setDialogPage: React.Dispatch<React.SetStateAction<string>>;

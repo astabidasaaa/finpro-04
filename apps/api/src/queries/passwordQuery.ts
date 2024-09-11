@@ -10,6 +10,7 @@ class PasswordQuery {
         resetPasswordTokenExpiry: {
           gt: new Date(),
         },
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -24,6 +25,7 @@ class PasswordQuery {
     const isSuccess = await prisma.user.update({
       where: {
         id,
+        deletedAt: null,
       },
       data: {
         password,
@@ -43,6 +45,7 @@ class PasswordQuery {
     const isSuccess = await prisma.user.update({
       where: {
         email,
+        deletedAt: null,
       },
       data: {
         password: newPassword,

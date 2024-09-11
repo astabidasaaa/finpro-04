@@ -4,6 +4,15 @@ import storeQuery from '@/queries/storeQuery';
 import { HttpStatus } from '@/types/error';
 
 class DisplayStoreAction {
+  public async getStorebyStoreId(storeId: number) {
+    const store = await storeQuery.findSingleStore(storeId);
+    if (store === null) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'Toko tidak ditemukan');
+    }
+
+    return store;
+  }
+
   public async getNearestStoreId(latitude: number, longitude: number) {
     if (latitude && longitude) {
       const stores = await storeQuery.findAllStoreAndReturnLatAndLong();
