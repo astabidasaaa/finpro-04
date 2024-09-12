@@ -11,8 +11,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin } from 'lucide-react';
+import HapusAlamatDialog from './HapusAlamatDialog';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { AxiosResponse } from 'axios';
+import UbahAlamatUtamaDialog from './UbahAlamatUtamaDialog';
+import DisplayMap from './DisplayMap';
+import UbahAlamatDialog from './UbahAlamatDialog';
 
-const AlamatCard = ({ fullAddress }: { fullAddress: Address }) => {
+const AlamatCard = ({
+  fullAddress,
+  refetch,
+}: {
+  fullAddress: Address;
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, Error>>;
+}) => {
   const { id, name, address, latitude, longitude, zipCode, isMain } =
     fullAddress;
   return (
@@ -23,7 +37,7 @@ const AlamatCard = ({ fullAddress }: { fullAddress: Address }) => {
         <CardTitle className="sr-only">{name}</CardTitle>
         <CardDescription className="sr-only">{address}</CardDescription>
       </CardHeader>
-      <CardContent className="pt-6 space-y-2">
+      <CardContent className="pt-6 space-y-1 md:space-y-2">
         <div className="text-sm font-bold space-x-3">
           <span>{name}</span>
           {isMain && (
@@ -37,26 +51,23 @@ const AlamatCard = ({ fullAddress }: { fullAddress: Address }) => {
         </div>
         <p className="text-sm md:text-base">{address}</p>
         <p className="text-sm md:text-base">{zipCode}</p>
-        <Button
-          variant="link"
-          className="!mt-4 p-0 h-max text-main-dark space-x-2"
-        >
-          <MapPin className="size-5" /> <span>Lihat Pinpoint</span>
-        </Button>
+        <DisplayMap
+          latestLocation={{
+            lat: parseFloat(latitude),
+            lng: parseFloat(longitude),
+          }}
+        />
       </CardContent>
       <CardFooter className="space-x-4">
-        <Button variant="link" className="p-0 h-max text-main-dark text-xs">
-          Ubah Alamat
-        </Button>
-
+        <UbahAlamatDialog fullAddress={fullAddress} refetch={refetch} />
         {!isMain && (
-          <Button variant="link" className="p-0 h-max text-main-dark text-xs">
-            Jadikan Alamat Utama
-          </Button>
+          <UbahAlamatUtamaDialog
+            addressId={id}
+            label={name}
+            refetch={refetch}
+          />
         )}
-        <Button variant="link" className="p-0 h-max text-main-dark text-xs">
-          Hapus
-        </Button>
+        <HapusAlamatDialog addressId={id} label={name} refetch={refetch} />
       </CardFooter>
     </Card>
   );

@@ -15,7 +15,7 @@ const CartBtn = () => {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="ghost" type="button" asChild>
-            <Link href="/keranjang" className="!p-0 h-max hidden md:block">
+            <Link href="/cart" className="!p-0 h-max hidden md:block">
               <ShoppingBag className="size-4 md:size-5" />
             </Link>
           </Button>

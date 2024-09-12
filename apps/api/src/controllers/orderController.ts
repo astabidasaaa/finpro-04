@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import prisma from '@/prisma'; 
 import { OrderStatus, PaymentStatus } from '@prisma/client';
-import { OrderStatusService } from '@/utils/orderStatusService';
+import OrderAction from '@/actions/orderAction';
 import { HttpException } from '@/errors/httpException';
 import { generateOrderCode } from '@/utils/orderUtils';
-import { findNearestStore, checkInventoryAvailability, updateInventoryStock } from '@/actions/orderActions';
+import { updateInventoryStock } from '@/utils/updateInventoryStock';
+import { findNearestStore } from '@/utils/findNearestStore';
+import { checkInventoryAvailability } from '@/utils/checkInventory';
+
 
 export class OrderController {
   public async createOrder(
@@ -12,6 +15,7 @@ export class OrderController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    console.log('Received request data:', req.body);
     try {
       const {
         customerId,
@@ -28,6 +32,7 @@ export class OrderController {
       const deliveryAddress = await prisma.address.findUnique({
         where: { id: deliveryAddressId },
       });
+      console.log('Delivery Address:', deliveryAddress);
 
       if (!deliveryAddress) {
         throw new HttpException(404, 'Delivery address not found');
@@ -38,6 +43,7 @@ export class OrderController {
         deliveryAddress.latitude,
         deliveryAddress.longitude
       );
+      console.log('Nearest Store:', nearestStore);
 
       // Validate inventory for all items
       for (const item of cartItems) {
@@ -47,6 +53,7 @@ export class OrderController {
           item.qty, 
           
         );
+        console.log(`Inventory for Product ID ${item.productId}:`, inventory);
 
         if (!inventory) {
           throw new HttpException(
@@ -135,7 +142,10 @@ export class OrderController {
 
       res.status(201).json({
         message: 'Order created successfully',
-        data: result,
+        data: {
+          orderId: result.id,
+          ...result, // Include other fields if necessary
+        },
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -154,63 +164,228 @@ export class OrderController {
   ): Promise<void> {
     try {
       const { orderId, userId } = req.body;
-      const orderIdInt = parseInt(orderId, 10);
-
-      if (isNaN(orderIdInt)) {
-        throw new HttpException(400, 'Invalid orderId format');
-      }
-
-      const result = await prisma.$transaction(async (prisma) => {
-        const order = await prisma.order.findUnique({
-          where: { id: orderIdInt },
-        });
-
-        if (!order) {
-          throw new HttpException(404, 'Order not found');
-        }
-
-        const orderItems = await prisma.orderItem.findMany({
-          where: { orderId: orderIdInt },
-        });
-
-        for (const item of orderItems) {
-          const inventoryUpdate = await updateInventoryStock(
-            order.storeId,
-            item.productId,
-            item.qty,
-            orderIdInt,
-            order.customerId
-          );
-
-          if (!inventoryUpdate) {
-            throw new HttpException(400, `Failed to restore stock for product ID: ${item.productId}`);
-          }
-        }
-
-        await prisma.payment.update({
-          where: { id: order.paymentId },
-          data: { paymentStatus: PaymentStatus.FAILED },
-        });
-
-        const orderStatusResult = await OrderStatusService.updateOrderStatus(
-          orderIdInt,
-          OrderStatus.DIBATALKAN,
-          userId, 
-          'Order cancelled and status updated to DIBATALKAN'
-        );
-
-        return orderStatusResult;
-      });
+      const result = await OrderAction.cancelOrderAction(orderId, userId);
 
       res.status(200).json({
         message: 'Order cancelled successfully',
         data: result,
       });
     } catch (err) {
+      next(err);
+    }
+  }
+  
+  public async getAddressesByUserId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const userId = req.query.userId as string;
+      const userIdInt = parseInt(userId, 10);
+
+      if (isNaN(userIdInt)) {
+        throw new HttpException(400, 'Invalid userId format');
+      }
+
+      const addresses = await prisma.address.findMany({
+        where: {
+          userId: userIdInt,
+          deleted: false,
+        },
+        select: {
+          id: true,
+          address: true,
+          zipCode: true,
+          latitude: true,
+          longitude: true,
+          isMain: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          isMain: 'desc', // Main address first
+        },
+      });
+
+      if (!addresses || addresses.length === 0) {
+        throw new HttpException(404, 'No addresses found for the specified user');
+      }
+
+      res.status(200).json({
+        message: 'Addresses retrieved successfully',
+        data: addresses,
+      });
+    } catch (err) {
       if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to cancel order', err.message));
+        next(new HttpException(500, 'Failed to retrieve addresses', err.message));
       } else {
-        next(new HttpException(500, 'Failed to cancel order', 'An unknown error occurred'));
+        next(new HttpException(500, 'Failed to retrieve addresses', 'An unknown error occurred'));
+      }
+    }
+  }
+  public async getAllProducts(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const products = await prisma.$transaction(async (prisma) => {
+        const productList = await prisma.product.findMany({
+          include: {
+            creator: true,
+            prices: {
+              where: {
+                active: true,
+              },
+              select: {
+                price: true,
+              },
+            },
+            images: true,
+            inventories: true,
+            brand: true,
+            subcategory: true,
+            orderItems: true,
+          },
+        });
+  
+        if (productList.length === 0) {
+          throw new HttpException(404, 'No products found');
+        }
+  
+        return productList;
+      });
+  
+      res.status(200).json({
+        message: 'All products retrieved successfully',
+        data: products,
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        next(new HttpException(500, 'Failed to retrieve all products', err.message));
+      } else {
+        next(new HttpException(500, 'Failed to retrieve all products', 'An unknown error occurred'));
+      }
+    }
+  }
+  
+  public async getProductById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    // Convert productId from string to number if necessary
+    const productId = parseInt(req.params.productId, 10);
+  
+    if (isNaN(productId)) {
+      return next(new HttpException(400, 'Invalid product ID format'));
+    }
+  
+    try {
+      const product = await prisma.$transaction(async (prisma) => {
+        const productDetail = await prisma.product.findUnique({
+          where: {
+            id: productId,  // Now productId is a number
+          },
+          include: {
+            creator: true,
+            prices: true,
+            images: true,
+            inventories: true,
+            brand: true,
+            subcategory: true,
+            orderItems: true,
+          },
+        });
+  
+        if (!productDetail) {
+          throw new HttpException(404, 'Product not found');
+        }
+  
+        const productPrice = productDetail.prices.length > 0 ? productDetail.prices[0].price : null;
+
+        return {
+          ...productDetail,
+          price: productPrice, // Include the price in the response
+        };
+      });
+  
+      res.status(200).json({
+        message: 'Product retrieved successfully',
+        data: product,
+      });
+    } catch (err) {
+      if (err instanceof Error) {
+        next(new HttpException(500, 'Failed to retrieve product', err.message));
+      } else {
+        next(new HttpException(500, 'Failed to retrieve product', 'An unknown error occurred'));
+      }
+    }
+  }
+  public async findNearestStore(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { deliveryLatitude, deliveryLongitude } = req.body;
+
+      if (!deliveryLatitude || !deliveryLongitude) {
+        throw new HttpException(400, 'Missing delivery latitude or longitude');
+      }
+
+      const nearestStore = await findNearestStore(deliveryLatitude, deliveryLongitude);
+
+      res.status(200).json({
+        message: 'Nearest store found successfully',
+        data: nearestStore,
+      });
+    } catch (err) {
+      if (err instanceof HttpException) {
+        next(err);
+      } else if (err instanceof Error) {
+        next(new HttpException(500, 'Failed to find nearest store', err.message));
+      } else {
+        next(new HttpException(500, 'Failed to find nearest store', 'An unknown error occurred'));
+      }
+    }
+  }
+  public async checkInventory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { storeId, items } = req.body;
+  
+      console.log('Request body:', req.body); // Log request data
+  
+      if (!storeId || !items || !Array.isArray(items)) {
+        throw new HttpException(400, 'Invalid request data');
+      }
+  
+      // Check inventory availability for each item
+      const inventoryChecks = await Promise.all(
+        items.map(async (item: { productId: number, qtyRequired: number }) => {
+          console.log(`Checking inventory for Store ID: ${storeId}, Product ID: ${item.productId}, Quantity Required: ${item.qtyRequired}`);
+          const isAvailable = await checkInventoryAvailability(storeId, item.productId, item.qtyRequired);
+          return {
+            productId: item.productId,
+            isAvailable,
+          };
+        })
+      );
+  
+      console.log('Inventory check results:', inventoryChecks); // Log results
+  
+      res.status(200).json({
+        message: 'Inventory check completed',
+        data: inventoryChecks,
+      });
+    } catch (err) {
+      if (err instanceof HttpException) {
+        next(err);
+      } else if (err instanceof Error) {
+        next(new HttpException(500, 'Failed to check inventory', err.message));
+      } else {
+        next(new HttpException(500, 'Failed to check inventory', 'An unknown error occurred'));
       }
     }
   }

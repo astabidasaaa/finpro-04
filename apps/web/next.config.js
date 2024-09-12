@@ -5,6 +5,8 @@ const nextConfig = {
     AVATAR_API_URL: 'http://localhost:8000/images/avatar',
     PROMOTION_API_URL: 'http://localhost:8000/images/promotion',
     PRODUCT_API_URL: 'http://localhost:8000/images/product',
+    PAYMENT_PROOF_API_URL:'http://localhost:8000/uploads/payment',
+
     API_URL: 'http://localhost:8000/api',
     BASE_URL: 'http://localhost:3000',
     ACCESS_TOKEN_SECRET: '1234567890qwertyuiop',
