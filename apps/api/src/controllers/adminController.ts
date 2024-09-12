@@ -1,8 +1,40 @@
 import { User } from '@/types/express';
 import { Request, Response, NextFunction } from 'express';
 import adminAction from '@/actions/adminAction';
+import passwordAction from '@/actions/passwordAction';
 
 export class AdminController {
+  public async getUsers(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const {
+        keyword = '',
+        page = 1,
+        pageSize = 20,
+        role = '',
+        storeId,
+      } = req.query;
+
+      const admins = await adminAction.getUsersAction({
+        keyword: String(keyword),
+        page: Number(page),
+        pageSize: Number(pageSize),
+        role: String(role),
+        storeId: Number(storeId),
+      });
+
+      res.status(200).json({
+        message: 'Data user berhasil ditampilkan',
+        data: admins,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async createAdmin(
     req: Request,
     res: Response,
@@ -61,6 +93,24 @@ export class AdminController {
       });
     } catch (err) {
       next(err);
+    }
+  }
+
+  public async changePassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { email, password, newPassword } = req.body;
+
+      await passwordAction.change(email, password, newPassword);
+
+      res.status(200).json({
+        message: 'Password berhasil diubah',
+      });
+    } catch (error) {
+      next(error);
     }
   }
 

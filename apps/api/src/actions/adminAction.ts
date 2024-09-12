@@ -2,13 +2,27 @@ import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import { Brand, User } from '@prisma/client';
 import { capitalizeString } from '@/utils/stringManipulation';
-import { CreateAdminInput, UpdateAdminInput } from '@/types/adminTypes';
+import {
+  CreateAdminInput,
+  SearchedUser,
+  SearchUsersInput,
+  UpdateAdminInput,
+} from '@/types/adminTypes';
 import authQuery from '@/queries/authQuery';
 import { hashingPassword } from '@/utils/password';
 import adminQuery from '@/queries/adminQuery';
 import userQuery from '@/queries/userQuery';
 
 class AdminAction {
+  public async getUsersAction(props: SearchUsersInput): Promise<{
+    users: SearchedUser[];
+    totalCount: number;
+  }> {
+    const allProduct = await adminQuery.getUsers(props);
+
+    return allProduct;
+  }
+
   public async createAdminAction(props: CreateAdminInput): Promise<User> {
     const isEmailTaken = await authQuery.findUserByEmail(props.email);
 
@@ -44,6 +58,12 @@ class AdminAction {
     }
 
     if (name !== undefined) {
+      if (name === '') {
+        throw new HttpException(
+          HttpStatus.FORBIDDEN,
+          'Nama tidak boleh kosong',
+        );
+      }
       const formattedName = capitalizeString(name);
       if (currentAdmin.profile?.name !== formattedName) {
         updateData.name = formattedName;
@@ -58,6 +78,13 @@ class AdminAction {
     }
 
     if (email !== undefined && email !== currentAdmin.email) {
+      const isEmailTaken = await authQuery.findUserByEmail(email);
+      if (isEmailTaken) {
+        throw new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'Email sudah digunakan',
+        );
+      }
       updateData.email = email;
     }
 
@@ -75,7 +102,7 @@ class AdminAction {
     } else {
       throw new HttpException(
         HttpStatus.CONFLICT,
-        'Perubahan tidak dapat disimpan karena tidak ada perubahan yang dilakukan pada brand ini',
+        'Perubahan tidak dapat disimpan karena tidak ada perubahan yang dilakukan pada akun ini',
       );
     }
   }

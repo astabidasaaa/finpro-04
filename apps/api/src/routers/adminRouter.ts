@@ -2,6 +2,7 @@ import { AdminController } from '@/controllers/adminController';
 import {
   validateAdminCreation,
   validateAdminUpdate,
+  validateChangeAdminPassword,
 } from '@/middlewares/adminValidator';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
@@ -30,12 +31,28 @@ export class AdminRouter implements Route {
       this.adminController.createAdmin,
     );
 
+    // pagination and filter to show all admin
+    this.router.get(
+      `${this.path}/users`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
+      this.adminController.getUsers,
+    );
+
     this.router.patch(
       `${this.path}/update/:adminId`,
       validateAdminUpdate,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin']),
       this.adminController.updateAdmin,
+    );
+
+    this.router.patch(
+      `${this.path}/change-password`,
+      validateChangeAdminPassword,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
+      this.adminController.changePassword,
     );
 
     this.router.patch(
