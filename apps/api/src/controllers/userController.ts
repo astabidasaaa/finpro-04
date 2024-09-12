@@ -171,4 +171,30 @@ export class UserController {
       next(error);
     }
   }
+
+  public async getSelectedAddress(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { id } = req.user as User;
+
+      const { addressId } = req.body;
+
+      const selectedAddress = await userAction.getAddressByIdOrByIsMainOrLatest(
+        {
+          userId: id,
+          addressId: parseInt(addressId),
+        },
+      );
+
+      res.status(200).json({
+        message: `Mengubah alamat utama berhasil`,
+        data: { selectedAddress },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
