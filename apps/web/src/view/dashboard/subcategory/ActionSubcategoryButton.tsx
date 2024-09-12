@@ -38,9 +38,14 @@ import {
 } from '@/components/ui/select';
 import { CategoryProps } from '@/types/categoryTypes';
 import { getCookie } from 'cookies-next';
+import { useAppSelector } from '@/lib/hooks';
+import DisabledButton from '@/components/DisabledButton';
+import { UserType } from '@/types/userType';
 
 export function DialogDeleteCategory({ data }: { data: SubcategoryProps }) {
   const token = getCookie('access-token');
+  const { user } = useAppSelector((state) => state.auth);
+
   async function handleDelete() {
     try {
       const response = await axiosInstance().delete(
@@ -69,28 +74,36 @@ export function DialogDeleteCategory({ data }: { data: SubcategoryProps }) {
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <button className="w-full text-left">
-          <span className="text-sm w-full">Hapus</span>
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Apakah kamu yakin untuk menghapus subkategori {data.name}?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Tindakan ini tidak dapat dibatalkan. Ini akan secara permanen
-            menghapus data subkategori dari server kami.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Hapus</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <>
+      {user.role === UserType.SUPERADMIN ? (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full text-left">
+              <span className="text-sm w-full">Hapus</span>
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Apakah kamu yakin untuk menghapus subkategori {data.name}?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Tindakan ini tidak dapat dibatalkan. Ini akan secara permanen
+                menghapus data subkategori dari server kami.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>
+                Hapus
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ) : (
+        <DisabledButton text={'Hapus'} />
+      )}
+    </>
   );
 }
 
@@ -102,6 +115,7 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const token = getCookie('access-token');
+  const { user } = useAppSelector((state) => state.auth);
 
   async function fetchCategories() {
     const categoriesResult = await axiosInstance().get(
@@ -149,70 +163,76 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <button className="w-full text-left">
-          <span className="text-sm w-full">Ubah</span>
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Ubah subkategori</DialogTitle>
-          <div />
-          <DialogDescription>
-            Ubah detail subkategori Anda disini. Klik simpan perubahan saat Anda
-            selesai.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Nama
-            </Label>
-            <Input
-              id="name"
-              defaultValue={data.name}
-              className="col-span-3"
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Kategori
-            </Label>
-            <Select onValueChange={(e) => setParentCategoryId(e)}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue
-                  placeholder={
-                    data.productCategoryId
-                      ? categories.find(
-                          (cat) => cat.id == data.productCategoryId,
-                        )?.name
-                      : 'Select a category'
-                  }
+    <>
+      {user.role === UserType.SUPERADMIN ? (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <button className="w-full text-left">
+              <span className="text-sm w-full">Ubah</span>
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Ubah subkategori</DialogTitle>
+              <div />
+              <DialogDescription>
+                Ubah detail subkategori Anda disini. Klik simpan perubahan saat
+                Anda selesai.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Nama
+                </Label>
+                <Input
+                  id="name"
+                  defaultValue={data.name}
+                  className="col-span-3"
+                  onChange={(e) => setName(e.target.value)}
                 />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={category.id}
-                      value={category.id.toString()}
-                    >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit" onClick={handleOnClick}>
-            Simpan perubahan
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Kategori
+                </Label>
+                <Select onValueChange={(e) => setParentCategoryId(e)}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue
+                      placeholder={
+                        data.productCategoryId
+                          ? categories.find(
+                              (cat) => cat.id == data.productCategoryId,
+                            )?.name
+                          : 'Select a category'
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {categories.map((category) => (
+                        <SelectItem
+                          key={category.id}
+                          value={category.id.toString()}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" onClick={handleOnClick}>
+                Simpan perubahan
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <DisabledButton text={'Ubah'} />
+      )}
+    </>
   );
 }

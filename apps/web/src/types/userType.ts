@@ -34,3 +34,9 @@ export type SearchedUser = {
     name: string;
   } | null;
 };
+
+export enum UserType {
+  SUPERADMIN = 'super admin',
+  STOREADMIN = 'store admin',
+  USER = 'user',
+}

@@ -30,9 +30,14 @@ import { toast } from '@/components/ui/use-toast';
 import { CategoryProps } from '@/types/categoryTypes';
 import { ProductProps } from '@/types/productTypes';
 import { getCookie } from 'cookies-next';
+import { useAppSelector } from '@/lib/hooks';
+import { UserType } from '@/types/userType';
+import DisabledButton from '@/components/DisabledButton';
 
 export function DialogDeleteProduct({ data }: { data: ProductProps }) {
   const token = getCookie('access-token');
+  const { user } = useAppSelector((state) => state.auth);
+
   async function handleDelete() {
     try {
       const response = await axiosInstance().patch(
@@ -62,27 +67,35 @@ export function DialogDeleteProduct({ data }: { data: ProductProps }) {
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <button className="w-full text-left">
-          <span className="text-sm w-full">Arsip</span>
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Apakah kamu yakin untuk mengarsip produk {data.name}?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Tindakan ini akan membuat produk tidak dapat dibeli.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Arsip</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <>
+      {user.role === UserType.SUPERADMIN ? (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full text-left">
+              <span className="text-sm w-full">Arsip</span>
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Apakah kamu yakin untuk mengarsip produk {data.name}?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Tindakan ini akan membuat produk tidak dapat dibeli.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>
+                Arsip
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ) : (
+        <DisabledButton text={'Arsip'} />
+      )}
+    </>
   );
 }
 
