@@ -37,12 +37,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CategoryProps } from '@/types/categoryTypes';
+import { getCookie } from 'cookies-next';
 
 export function DialogDeleteCategory({ data }: { data: SubcategoryProps }) {
+  const token = getCookie('access-token');
   async function handleDelete() {
     try {
       const response = await axiosInstance().delete(
         `/subcategories/${data.id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
       if (response.status == 200) {
         window.location.reload();
@@ -93,6 +101,7 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const token = getCookie('access-token');
 
   async function fetchCategories() {
     const categoriesResult = await axiosInstance().get(
@@ -113,6 +122,12 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
         {
           name: name,
           parentCategoryId,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
 

@@ -1,4 +1,5 @@
 import { BrandController } from '@/controllers/brandController';
+import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
 
@@ -6,10 +7,12 @@ export class BrandRouter implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly brandController: BrandController;
+  private readonly guard: AuthMiddleware;
 
   constructor() {
     this.router = Router();
     this.brandController = new BrandController();
+    this.guard = new AuthMiddleware();
     this.path = '/brands';
     this.initializeRoutes();
   }
@@ -22,20 +25,20 @@ export class BrandRouter implements Route {
     );
     this.router.post(
       `${this.path}`,
-      // authenticateToken,
-      // authorizeRole = superadmin,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.brandController.createBrand,
     );
     this.router.patch(
       `${this.path}/:brandId`,
-      // authenticateToken,
-      // authorizeRole = superadmin,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.brandController.updateBrand,
     );
     this.router.delete(
       `${this.path}/:brandId`,
-      // authenticateToken
-      // authorizeRole = superadmin
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.brandController.deleteBrand,
     );
   }

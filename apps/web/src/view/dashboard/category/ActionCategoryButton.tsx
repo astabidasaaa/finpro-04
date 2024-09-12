@@ -13,7 +13,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
-import { BrandProps } from '@/types/brandTypes';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
 import {
@@ -29,11 +28,18 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/components/ui/use-toast';
 import { CategoryProps } from '@/types/categoryTypes';
+import { getCookie } from 'cookies-next';
 
 export function DialogDeleteCategory({ data }: { data: CategoryProps }) {
+  const token = getCookie('access-token');
   async function handleDelete() {
     try {
-      const response = await axiosInstance().delete(`/categories/${data.id}`);
+      const response = await axiosInstance().delete(`/categories/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.status == 200) {
         window.location.reload();
       }
@@ -79,12 +85,22 @@ export function DialogDeleteCategory({ data }: { data: CategoryProps }) {
 export function DialogEditCategory({ data }: { data: CategoryProps }) {
   const [name, setName] = useState<string>(data.name);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const token = getCookie('access-token');
 
   async function handleOnClick() {
     try {
-      const response = await axiosInstance().patch(`/categories/${data.id}`, {
-        name: name,
-      });
+      const response = await axiosInstance().patch(
+        `/categories/${data.id}`,
+        {
+          name: name,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setIsOpen(false);
       if (response.status == 200) {

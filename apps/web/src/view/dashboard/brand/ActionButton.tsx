@@ -28,11 +28,18 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { toast } from '@/components/ui/use-toast';
+import { getCookie } from 'cookies-next';
 
 export function DialogDeleteBrand({ data }: { data: BrandProps }) {
+  const token = getCookie('access-token');
   async function handleDelete() {
     try {
-      const response = await axiosInstance().delete(`/brands/${data.id}`);
+      const response = await axiosInstance().delete(`/brands/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.status == 200) {
         window.location.reload();
       }
@@ -81,13 +88,23 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
     data.description,
   );
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const token = getCookie('access-token');
 
   async function handleOnClick() {
     try {
-      const response = await axiosInstance().patch(`/brands/${data.id}`, {
-        name: name,
-        description: description,
-      });
+      const response = await axiosInstance().patch(
+        `/brands/${data.id}`,
+        {
+          name: name,
+          description: description,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setIsOpen(false);
       if (response.status == 200) {

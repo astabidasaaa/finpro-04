@@ -137,8 +137,7 @@ export class ProductController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      // const { id } = req.user as User;
-      const id = 3;
+      const { id } = req.user as User;
       const productId = parseInt(req.params.productId);
 
       const archivedProduct = await productAction.archiveProductAction(
