@@ -99,6 +99,17 @@ class StoreQuery {
 
     return stores;
   }
+
+  public async getAllStore() {
+    const stores = await prisma.store.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return stores;
+  }
 }
 
 export default new StoreQuery();

@@ -19,6 +19,10 @@ export class StoreRouter implements Route {
 
   private initializeRoutes(): void {
     this.router.get(
+      `${this.path}/all`,
+      this.displayStoreController.getAllStore,
+    );
+    this.router.get(
       `${this.path}/single/:storeId`,
       this.displayStoreController.getSingleStore,
     );
