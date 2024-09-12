@@ -69,7 +69,7 @@ export default function AdminManagementView() {
       );
 
       const storeResult = await axiosInstance().get(
-        `${process.env.API_URL}/stores/all`,
+        `${process.env.API_URL}/stores`,
         {
           headers: {
             'Content-Type': 'application/json',

@@ -24,7 +24,7 @@ export function AddAdminButton() {
   async function fetchData() {
     try {
       const storeResult = await axiosInstance().get(
-        `${process.env.API_URL}/stores/all`,
+        `${process.env.API_URL}/stores`,
         {
           headers: {
             'Content-Type': 'application/json',
