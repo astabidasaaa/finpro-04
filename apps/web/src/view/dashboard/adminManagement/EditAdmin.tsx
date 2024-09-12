@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -42,7 +41,6 @@ const formSchema = z.object({
     })
     .max(48, { message: 'Email berisi maksimal 48 karakter' })
     .optional(),
-  role: z.string().optional(),
   storeId: z.string().optional(),
 });
 
@@ -55,8 +53,7 @@ const EditFormAdmin = ({
   stores: StoreProps[];
   user: SearchedUser;
 }) => {
-  const router = useRouter();
-  const [selectedRole, setSelectedRole] = useState<string>(user.role.name);
+  const role = user.role.name;
   const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
   const token = getCookie('access-token');
 
@@ -65,7 +62,6 @@ const EditFormAdmin = ({
     defaultValues: {
       email: user.email,
       name: user.profile?.name || '',
-      role: user.role.name,
       storeId: String(user.store?.id) || '',
     },
   });
@@ -74,7 +70,6 @@ const EditFormAdmin = ({
     setSubmitLoading((prev) => true);
 
     try {
-      console.log(values);
       let storeId = values.storeId;
       if (values.storeId === '' || values.storeId === 'undefined') {
         storeId = undefined;
@@ -85,7 +80,6 @@ const EditFormAdmin = ({
         {
           email: values.email,
           name: values.name,
-          role: values.role,
           storeId,
         },
         {
@@ -164,52 +158,14 @@ const EditFormAdmin = ({
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="role"
-          render={({ field }) => (
-            <FormItem className="gap-3">
-              <FormLabel>Tipe admin</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  setSelectedRole(value);
-                }}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger id="role" aria-label="Select role">
-                    <SelectValue placeholder="SUPER ADMIN" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="super admin" key="super admin">
-                    SUPER ADMIN
-                  </SelectItem>
-                  <SelectItem value="store admin" key="store admin">
-                    STORE ADMIN
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {selectedRole === 'store admin' && (
+        {role === 'store admin' && (
           <FormField
             control={form.control}
             name="storeId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Toko</FormLabel>
-                <FormDescription>
-                  Opsional, akses toko dapat diatur kemudian.
-                </FormDescription>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value} // Bind field.value for default selection
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="-- Pilih Toko --" />

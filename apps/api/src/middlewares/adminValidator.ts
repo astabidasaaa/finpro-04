@@ -70,7 +70,6 @@ export const validateAdminUpdate = [
     .optional()
     .isLength({ max: 48 })
     .withMessage('Nama berisi maksimal 48 karakter'),
-  body('role').trim().optional(),
   body('storeId').optional().isNumeric(),
 
   (req: Request, res: Response, next: NextFunction) => {

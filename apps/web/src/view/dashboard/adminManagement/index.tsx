@@ -11,7 +11,7 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import AdminTable from './AdminTable';
-import { SearchedUser } from '@/types/userType';
+import { SearchedUser, UserType } from '@/types/userType';
 import AdminFilter from './AdminFilter';
 import StoreFilter from './StoreFilter';
 import { StoreProps } from '@/types/storeTypes';
@@ -26,7 +26,7 @@ export default function AdminManagementView() {
   const [page, setPage] = useState<number>(1);
   const [storeId, setStoreId] = useState<number>();
   const [stores, setStores] = useState<StoreProps[]>([]);
-  const [role, setRole] = useState<string>('store admin');
+  const [role, setRole] = useState<UserType>(UserType.STOREADMIN);
   const totalPages = Math.ceil(total / pageSize);
   const pages = [];
   for (let i = 1; i <= totalPages; i++) {
@@ -125,8 +125,8 @@ export default function AdminManagementView() {
           <AddAdminButton />
         </div>
         <div className="flex flex-col gap-y-3 pb-4">
-          <AdminFilter role={role} setRole={setRole} />
-          {role === 'store admin' && (
+          <AdminFilter role={role} setRole={setRole} setStoreId={setStoreId} />
+          {role === UserType.STOREADMIN && (
             <StoreFilter stores={stores} setStoreId={setStoreId} />
           )}
         </div>

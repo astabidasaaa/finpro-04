@@ -72,7 +72,7 @@ export class AdminController {
   ): Promise<void> {
     try {
       const adminId = parseInt(req.params.adminId);
-      const { name, role, email } = req.body;
+      const { name, email } = req.body;
       let { storeId } = req.body;
 
       if (storeId !== undefined) {
@@ -82,7 +82,6 @@ export class AdminController {
       const updatedAdmin = await adminAction.updateAdminAction({
         id: adminId,
         name,
-        role,
         email,
         storeId,
       });

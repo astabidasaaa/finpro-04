@@ -145,7 +145,6 @@ class AdminQuery {
         },
         data: {
           email: props.email,
-          roleId: props.roleId,
           storeId: props.storeId,
           profile: {
             update: {

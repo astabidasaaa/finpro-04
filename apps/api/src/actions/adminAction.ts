@@ -46,7 +46,7 @@ class AdminAction {
   }
 
   public async updateAdminAction(props: UpdateAdminInput): Promise<User> {
-    const { id, name, role, storeId, email } = props;
+    const { id, name, storeId, email } = props;
     let updateData: any = {};
 
     const currentAdmin = await userQuery.findSelfProfile(id);
@@ -67,13 +67,6 @@ class AdminAction {
       const formattedName = capitalizeString(name);
       if (currentAdmin.profile?.name !== formattedName) {
         updateData.name = formattedName;
-      }
-    }
-
-    if (role !== undefined) {
-      const updatedRole = await adminQuery.findRoleByName(role);
-      if (currentAdmin.role.name !== updatedRole.name) {
-        updateData.roleId = updatedRole.id;
       }
     }
 
