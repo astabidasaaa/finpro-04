@@ -17,3 +17,26 @@ export type Auth = {
   user: User;
   status: Status;
 };
+
+export type SearchedUser = {
+  role: {
+    id: number;
+    name: string;
+  };
+  id: number;
+  email: string;
+  profile: {
+    name: string | null;
+    dob: Date | null;
+  } | null;
+  store: {
+    id: number;
+    name: string;
+  } | null;
+};
+
+export enum UserType {
+  SUPERADMIN = 'super admin',
+  STOREADMIN = 'store admin',
+  USER = 'user',
+}

@@ -40,7 +40,7 @@ const LoginForm = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/';
+  let redirect = searchParams.get('redirect') || '/';
   const { toast } = useToast();
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const LoginForm = () => {
       setTimeout(() => {
         // setSubmitLoading((prev) => false);
 
-        if (res) {
+        if (res === 'user') {
           form.reset();
           router.replace(redirect);
 
@@ -97,6 +97,16 @@ const LoginForm = () => {
             variant: 'default',
             title: 'Login berhasil',
             description: 'Selamat datang di Sigmart, selamat berbelanja',
+          });
+        } else if (res === 'store admin' || res === 'super admin') {
+          redirect = searchParams.get('redirect') || '/dashboard';
+          form.reset();
+          router.replace(redirect);
+
+          toast({
+            variant: 'default',
+            title: 'Login berhasil',
+            description: 'Selamat datang di Dashboard Sigmart',
           });
         }
       }, 1500);

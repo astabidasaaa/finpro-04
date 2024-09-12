@@ -32,6 +32,7 @@ import { DialogDeleteProduct, DialogEditProduct } from './ActionProductButton';
 import { ProductProps } from '@/types/productTypes';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 export const columns: ColumnDef<ProductProps>[] = [
   {
@@ -136,7 +137,6 @@ export default function ProductTable({ data }: { data: ProductProps[] }) {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const router = useRouter();
 
   const table = useReactTable({
@@ -154,37 +154,30 @@ export default function ProductTable({ data }: { data: ProductProps[] }) {
     },
   });
 
-  const handleRowClick = (rowId: string) => {
-    setExpandedRow(expandedRow === rowId ? null : rowId);
-  };
-
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader className="bg-gray-50">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <React.Fragment key={row.id}>
-                <TableRow
-                  onClick={() => handleRowClick(row.id)}
-                  className="cursor-pointer"
-                >
+    <div className="w-full rounded-md border">
+      <ScrollArea className="w-[calc(100vw_-_48px)] md:w-full max-w-full rounded-md overflow-auto">
+        <Table className="">
+          <TableHeader className="bg-gray-50">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} className="cursor-pointer">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -194,17 +187,21 @@ export default function ProductTable({ data }: { data: ProductProps[] }) {
                     </TableCell>
                   ))}
                 </TableRow>
-              </React.Fragment>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     </div>
   );
 }

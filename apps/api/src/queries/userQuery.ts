@@ -35,6 +35,12 @@ class UserQuery {
             name: true,
           },
         },
+        store: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 

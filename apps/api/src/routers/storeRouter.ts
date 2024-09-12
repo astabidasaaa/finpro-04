@@ -18,8 +18,9 @@ export class StoreRouter implements Route {
   }
 
   private initializeRoutes(): void {
+    this.router.get(`${this.path}/`, this.displayStoreController.getAllStore);
     this.router.get(
-      `${this.path}/single/:storeId`,
+      `${this.path}/:storeId`,
       this.displayStoreController.getSingleStore,
     );
     this.router.post(

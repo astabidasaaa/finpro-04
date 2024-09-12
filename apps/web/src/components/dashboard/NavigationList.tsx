@@ -4,69 +4,22 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  Home,
-  Package,
-  Package2,
-  LayoutGrid,
-  Percent,
-  Store,
-} from 'lucide-react';
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-
-const superAdminMenuList = [
-  {
-    label: 'Dashboard',
-    icon: <Home className="size-5" />,
-    href: '/dashboard',
-  },
-  {
-    label: 'Pengelolaan Toko',
-    icon: <Store className="size-5" />,
-    href: '/dashboard/pengelolaan-toko',
-  },
-  {
-    label: 'Kategori',
-    // add category, add subcategory, category
-    icon: <LayoutGrid className="size-5" />,
-    href: '/dashboard/category',
-    child: [
-      { label: 'Kategori', href: '/dashboard/category/list' },
-      { label: 'Subkategori', href: '/dashboard/category/subcategory' },
-    ],
-  },
-  {
-    label: 'Produk',
-    // brand, product, add product
-    icon: <Package className="size-5" />,
-    href: '/dashboard/product',
-    child: [
-      { label: 'Brand', href: '/dashboard/product/brand' },
-      { label: 'Daftar Produk', href: '/dashboard/product/list' },
-      { label: 'Tambah Produk', href: '/dashboard/product/add-product' },
-    ],
-  },
-  {
-    label: 'Inventori',
-    // brand, product, add product
-    icon: <Package2 className="size-5" />,
-    href: '/dashboard/inventory',
-  },
-  {
-    label: 'Manajemen Diskon',
-    // brand, product, add product
-    icon: <Percent className="size-5" />,
-    href: '/dashboard/discount',
-  },
-];
+import { useAppSelector } from '@/lib/hooks';
+import { superAdminMenuList } from './superAdminMenu';
+import { storeAdminMenuList } from './storeAdminMenu';
 
 export default function NavigationList() {
   const pathname = usePathname();
+  const { user } = useAppSelector((state) => state.auth);
+  const menuList =
+    user.role === 'super admin' ? superAdminMenuList : storeAdminMenuList;
 
   return (
     <div className="flex h-full max-h-screen flex-col gap-2">
@@ -84,7 +37,7 @@ export default function NavigationList() {
       <div className="flex-1 h-full overflow-y-auto overflow-x-hidden">
         <nav className="grid items-start text-sm lg:text-base font-medium sm:px-4 lg:px-6">
           <Accordion type="single" collapsible className="flex flex-col w-full">
-            {superAdminMenuList.map((item, index) => {
+            {menuList.map((item, index) => {
               return (
                 <React.Fragment key={`${item.href}`}>
                   {item.child ? (

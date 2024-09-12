@@ -11,8 +11,7 @@ export class CategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      // const { id } = req.user as User;
-      const id = 4;
+      const { id } = req.user as User;
 
       const { name, subcategories }: { name: string; subcategories: string[] } =
         req.body;
@@ -74,8 +73,7 @@ export class CategoryController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      // const { id } = req.user as User;
-      const id = 4;
+      const { id } = req.user as User;
       const categoryId = parseInt(req.params.categoryId);
       const { name } = req.body;
 

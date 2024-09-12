@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { UserType } from '@/types/userType';
+import { useAppSelector } from '@/lib/hooks';
 
 export default function ProductListView() {
   const [products, setProducts] = useState<ProductProps[]>([]);
@@ -29,6 +31,7 @@ export default function ProductListView() {
   const router = useRouter();
   const [inputValue, setInputValue] = useState<string>('');
   const [keyword, setKeyword] = useState<string>('');
+  const { user } = useAppSelector((state) => state.auth);
 
   async function fetchData() {
     try {
@@ -78,10 +81,14 @@ export default function ProductListView() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)} // Update input state
           />
-          <Button onClick={() => router.push('/dashboard/product/add-product')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Produk
-          </Button>
+          {user.role === UserType.SUPERADMIN && (
+            <Button
+              onClick={() => router.push('/dashboard/product/add-product')}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Produk
+            </Button>
+          )}
         </div>
         <ProductTable data={products} />
         <div className="text-sm py-3">

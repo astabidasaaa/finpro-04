@@ -9,8 +9,7 @@ export class BrandController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      // const { id } = req.user as User;
-      const id = 4;
+      const { id } = req.user as User;
 
       const {
         name,
@@ -74,8 +73,7 @@ export class BrandController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      // const { id } = req.user as User;
-      const id = 4;
+      const { id } = req.user as User;
 
       const brandId = parseInt(req.params.brandId);
       const updatedBrandProps = req.body;

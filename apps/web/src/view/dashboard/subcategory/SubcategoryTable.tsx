@@ -36,6 +36,8 @@ import {
 } from './ActionSubcategoryButton';
 import { SubcategoryProps } from '@/types/subcategoryTypes';
 import AddSubcategoryButton from './AddSubcategoryButton';
+import { useAppSelector } from '@/lib/hooks';
+import { UserType } from '@/types/userType';
 
 export const columns: ColumnDef<SubcategoryProps>[] = [
   {
@@ -97,6 +99,7 @@ export default function SubcategoryTable({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const { user } = useAppSelector((state) => state.auth);
 
   const table = useReactTable({
     data,
@@ -125,7 +128,7 @@ export default function SubcategoryTable({
           }
           className="max-w-sm"
         />
-        <AddSubcategoryButton />
+        {user.role === UserType.SUPERADMIN && <AddSubcategoryButton />}
       </div>
       <div className="rounded-md border">
         <Table>

@@ -103,7 +103,7 @@ export default function SearchMainView() {
         `${process.env.API_URL}/subcategories`,
       );
       const storeResult = await axiosInstance().get(
-        `${process.env.API_URL}/stores/single/${storeId}`,
+        `${process.env.API_URL}/stores/${storeId}`,
       );
 
       setStore(storeResult.data.data);

@@ -4,6 +4,17 @@ import storeQuery from '@/queries/storeQuery';
 import { HttpStatus } from '@/types/error';
 
 class DisplayStoreAction {
+  public async getAllStore(): Promise<
+    {
+      id: number;
+      name: string;
+    }[]
+  > {
+    const stores = await storeQuery.getAllStore();
+
+    return stores;
+  }
+
   public async getStorebyStoreId(storeId: number) {
     const store = await storeQuery.findSingleStore(storeId);
     if (store === null) {
