@@ -13,6 +13,7 @@ import { SubcategoryRouter } from './routers/subcategoryRouter';
 import { CategoryRouter } from './routers/categoryRouter';
 import { BrandRouter } from './routers/brandRouter';
 import { ProductRouter } from './routers/productRouter';
+import { AdminRouter } from './routers/adminRouter';
 
 function main() {
   // Initialize the app with all the routes
@@ -33,6 +34,7 @@ function main() {
     new CategoryRouter(),
     new CourierRouter(),
     new ProductRouter(),
+    new AdminRouter(),
   ]);
   app.start();
 }

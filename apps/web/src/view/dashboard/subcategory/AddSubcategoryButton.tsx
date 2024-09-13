@@ -24,12 +24,14 @@ import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { CategoryProps } from '@/types/categoryTypes';
+import { getCookie } from 'cookies-next';
 
 export default function AddSubcategoryButton() {
   const [name, setName] = useState<string>('');
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [parentCategoryId, setParentCategoryId] = useState<string>('');
   const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const token = getCookie('access-token');
 
   async function fetchCategories() {
     const categoriesResult = await axiosInstance().get(
@@ -45,10 +47,19 @@ export default function AddSubcategoryButton() {
 
   async function handleOnClick() {
     try {
-      const response = await axiosInstance().post(`/subcategories`, {
-        name: name,
-        parentCategoryId,
-      });
+      const response = await axiosInstance().post(
+        `/subcategories`,
+        {
+          name: name,
+          parentCategoryId,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setIsOpen(false);
       if (response.status == 200) {

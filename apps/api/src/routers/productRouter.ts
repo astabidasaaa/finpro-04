@@ -30,22 +30,22 @@ export class ProductRouter implements Route {
     this.router.post(
       `${this.path}`,
       this.guard.verifyAccessToken,
-      // authorizeRole = superadmin
+      this.guard.verifyRole(['super admin']),
       uploader('PRODUCT', '/product').array('product', 8),
       this.productController.createProduct,
     );
     // update product detail and state, price = new ProductPriceHistory (previous price became inactive), image min 1,
     this.router.patch(
-      // authorizeToken
-      // authorizeRole = superadmin
       `${this.path}/:productId`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.productController.updateProduct,
     );
     // archive product
     this.router.patch(
-      // authorizeToken
-      // authorizeRole = superadmin
       `${this.path}/archive/:productId`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.productController.archiveProduct,
     );
   }

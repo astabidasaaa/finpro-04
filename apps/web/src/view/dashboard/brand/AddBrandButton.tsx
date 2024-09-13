@@ -15,18 +15,29 @@ import { AxiosError } from 'axios';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { getCookie } from 'cookies-next';
 
 export function AddBrandButton() {
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const token = getCookie('access-token');
 
   async function handleOnClick() {
     try {
-      const response = await axiosInstance().post(`/brands/`, {
-        name: name,
-        description: description,
-      });
+      const response = await axiosInstance().post(
+        `/brands/`,
+        {
+          name: name,
+          description: description,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setIsOpen(false);
       if (response.status == 200) {

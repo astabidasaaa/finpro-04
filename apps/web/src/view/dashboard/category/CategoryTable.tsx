@@ -37,6 +37,8 @@ import {
 import { CategoryProps } from '@/types/categoryTypes';
 import { Badge } from '@/components/ui/badge';
 import AddCategoryButton from './AddCategoryButton';
+import { UserType } from '@/types/userType';
+import { useAppSelector } from '@/lib/hooks';
 
 export const columns: ColumnDef<CategoryProps>[] = [
   {
@@ -94,6 +96,7 @@ export default function CategoryTable({ data }: { data: CategoryProps[] }) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
+  const { user } = useAppSelector((state) => state.auth);
 
   const table = useReactTable({
     data,
@@ -126,7 +129,7 @@ export default function CategoryTable({ data }: { data: CategoryProps[] }) {
           }
           className="max-w-sm"
         />
-        <AddCategoryButton />
+        {user.role === UserType.SUPERADMIN && <AddCategoryButton />}
       </div>
       <div className="rounded-md border">
         <Table>

@@ -1,4 +1,5 @@
 import { SubcategoryController } from '@/controllers/subcategoryController';
+import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
 
@@ -6,10 +7,12 @@ export class SubcategoryRouter implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly subcategoryController: SubcategoryController;
+  private readonly guard: AuthMiddleware;
 
   constructor() {
     this.router = Router();
     this.subcategoryController = new SubcategoryController();
+    this.guard = new AuthMiddleware();
     this.path = '/subcategories';
     this.initializeRoutes();
   }
@@ -21,20 +24,20 @@ export class SubcategoryRouter implements Route {
     );
     this.router.post(
       `${this.path}`,
-      // authenticateToken,
-      // authorizeRole = superadmin,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.subcategoryController.createSubcategory,
     );
     this.router.patch(
       `${this.path}/:subcategoryId`,
-      // authenticateToken,
-      // authorizeRole = superadmin,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.subcategoryController.updateSubcategory,
     );
     this.router.delete(
       `${this.path}/:subcategoryId`,
-      // authenticateToken
-      // authorizeRole = superadmin
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
       this.subcategoryController.deleteSubcategory,
     );
   }
