@@ -30,6 +30,16 @@ class ProductDetailQuery {
                 orderBy: { updatedAt: 'desc' },
                 take: 1,
               },
+              subcategory: {
+                select: {
+                  name: true,
+                  productCategory: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
             },
           },
           freeProductPerStores: {
