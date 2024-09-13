@@ -75,5 +75,12 @@ export class UserRouter implements Route {
       this.guard.verifyRole(['user']),
       this.userController.changeUserMainAddress,
     );
+
+    this.router.post(
+      `${this.path}/addresses/selected`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.getSelectedAddress,
+    );
   }
 }

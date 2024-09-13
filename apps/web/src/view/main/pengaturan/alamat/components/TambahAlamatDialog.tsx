@@ -15,17 +15,19 @@ import AlamatForm from './AlamatForm';
 
 const TambahAlamatDialog = ({
   refetch,
+  buttonStyle,
 }: {
   refetch: (
     options?: RefetchOptions,
   ) => Promise<QueryObserverResult<AxiosResponse<any, any>, Error>>;
+  buttonStyle: string;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-main-dark hover:bg-main-dark/80">
+        <Button className={buttonStyle}>
           <Plus className="size-4 mr-0 md:mr-2" />
           <span className="hidden md:inline-block">Tambah Alamat</span>
         </Button>

@@ -78,7 +78,10 @@ const AlamatContainer = () => {
           />
           <Search className="absolute left-2.5 top-3 size-4 text-muted-foreground" />
         </div>
-        <TambahAlamatDialog refetch={refetch} />
+        <TambahAlamatDialog
+          refetch={refetch}
+          buttonStyle="bg-main-dark hover:bg-main-dark/80"
+        />
       </div>
       <div className="flex flex-col gap-4">
         {addresses && addresses?.length > 0 ? (
