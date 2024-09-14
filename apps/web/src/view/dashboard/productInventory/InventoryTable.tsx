@@ -145,7 +145,7 @@ export default function InventoryTable({ data }: { data: InventoryProps[] }) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Inventori tidak ditemukan.
+                  Inventaris tidak ditemukan.
                 </TableCell>
               </TableRow>
             )}

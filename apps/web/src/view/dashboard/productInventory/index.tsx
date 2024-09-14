@@ -23,11 +23,6 @@ export default function ProductInventoryView() {
   const [page, setPage] = useState<number>(1);
   const [storeId, setStoreId] = useState<number>();
   const [stores, setStores] = useState<StoreProps[]>([]);
-  const totalPages = Math.ceil(total / pageSize);
-  const pages = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
-  }
   const router = useRouter();
   const [inputValue, setInputValue] = useState<string>('');
   const [keyword, setKeyword] = useState<string>('');

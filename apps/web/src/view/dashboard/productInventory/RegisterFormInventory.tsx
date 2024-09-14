@@ -155,7 +155,7 @@ const RegisterFormInventory = ({
         });
 
         setSubmitLoading((prev) => false);
-      }, 1000);
+      }, 500);
     }
   };
 
