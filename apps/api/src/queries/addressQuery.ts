@@ -183,6 +183,48 @@ class AddressQuery {
 
     return updateMainAddress;
   }
+
+  public async selectedAddressQuery({
+    userId,
+    addressId,
+  }: {
+    userId: number;
+    addressId: number;
+  }) {
+    let address;
+
+    if (addressId) {
+      address = await prisma.address.findFirst({
+        where: {
+          id: addressId,
+          userId,
+          deleted: false,
+        },
+      });
+    } else {
+      address = await prisma.address.findFirst({
+        where: {
+          userId,
+          isMain: true,
+          deleted: false,
+        },
+      });
+
+      if (!address) {
+        address = await prisma.address.findFirst({
+          where: {
+            userId,
+            deleted: false,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+      }
+    }
+
+    return address;
+  }
 }
 
 export default new AddressQuery();

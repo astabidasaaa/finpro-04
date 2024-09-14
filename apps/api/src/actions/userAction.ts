@@ -144,6 +144,26 @@ class UserAction {
         'Gagal mengubah alamat utama',
       );
   }
+
+  public async getAddressByIdOrByIsMainOrLatest({
+    userId,
+    addressId,
+  }: {
+    userId: number;
+    addressId: number;
+  }) {
+    const user = await userQuery.findSelfProfile(userId);
+
+    if (!user)
+      throw new HttpException(HttpStatus.NOT_FOUND, 'Pengguna tidak ditemukan');
+
+    const selectedAddress = await addressQuery.selectedAddressQuery({
+      userId,
+      addressId,
+    });
+
+    return selectedAddress;
+  }
 }
 
 export default new UserAction();
