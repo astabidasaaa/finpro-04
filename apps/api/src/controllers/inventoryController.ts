@@ -71,20 +71,23 @@ export class InventoryController {
         keyword = '',
         storeId,
         sortCol = 'timeDesc',
+        filterType = '',
       } = req.query;
 
-      const inventories = await inventoryAction.getAllInventoryUpdatesAction({
-        id,
-        keyword: String(keyword),
-        page: Number(page),
-        pageSize: Number(pageSize),
-        storeId: Number(storeId),
-        sortCol: String(keyword),
-      });
+      const inventoryUpdates =
+        await inventoryAction.getAllInventoryUpdatesAction({
+          id,
+          keyword: String(keyword),
+          page: Number(page),
+          pageSize: Number(pageSize),
+          storeId: Number(storeId),
+          sortCol: String(sortCol),
+          filterType: String(filterType),
+        });
 
       res.status(200).json({
-        message: 'Seluruh inventaris berhasil ditampilkan',
-        data: inventories,
+        message: 'Seluruh riwayat inventaris berhasil ditampilkan',
+        data: inventoryUpdates,
       });
     } catch (err) {
       next(err);
@@ -104,23 +107,24 @@ export class InventoryController {
         pageSize = 20,
         keyword = '',
         sortCol = 'timeDesc',
-        filterType,
+        filterType = '',
       } = req.query;
 
-      const allBrand = await inventoryAction.getStoreInventoryUpdatesAction({
-        id,
-        role,
-        keyword: String(keyword),
-        page: Number(page),
-        pageSize: Number(pageSize),
-        filterType: String(filterType),
-        sortCol: String(sortCol),
-        storeId,
-      });
+      const inventoryUpdates =
+        await inventoryAction.getStoreInventoryUpdatesAction({
+          id,
+          role,
+          keyword: String(keyword),
+          page: Number(page),
+          pageSize: Number(pageSize),
+          filterType: String(filterType),
+          sortCol: String(sortCol),
+          storeId,
+        });
 
       res.status(200).json({
-        message: 'Inventaris dari toko berhasil ditampilkan',
-        data: allBrand,
+        message: 'Riwayat inventaris dari toko berhasil ditampilkan',
+        data: inventoryUpdates,
       });
     } catch (err) {
       next(err);

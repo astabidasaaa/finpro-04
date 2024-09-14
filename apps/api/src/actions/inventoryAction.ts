@@ -9,6 +9,8 @@ import {
   SearchAllInventoryUpdatesInput,
   SearchStoreInventoryInput,
   SearchStoreInventoryUpdatesInput,
+  UpdateDetailDesc,
+  UpdateTypeDesc,
 } from '@/types/inventoryTypes';
 import storeQuery from '@/queries/storeQuery';
 import productQuery from '@/queries/productQuery';
@@ -138,6 +140,13 @@ class InventoryAction {
       );
     }
 
+    const updateTypeMap = new Map<string, string>(
+      Object.entries(UpdateTypeDesc),
+    );
+    const updateDetailMap = new Map<string, string>(
+      Object.entries(UpdateDetailDesc),
+    );
+
     if (
       updateType === $Enums.InventoryUpdateType.ADD &&
       (updateDetail === $Enums.InventoryUpdateDetail.STOCK_OUT ||
@@ -146,7 +155,7 @@ class InventoryAction {
     ) {
       throw new HttpException(
         HttpStatus.BAD_REQUEST,
-        `Tipe perubahan ${updateType} dan detail perubahan ${updateDetail} tidak selaras`,
+        `Tipe perubahan ${updateTypeMap.get(updateType)?.toUpperCase()} dan detail perubahan ${updateDetailMap.get(updateDetail)?.toUpperCase()} tidak selaras`,
       );
     }
 
@@ -157,7 +166,7 @@ class InventoryAction {
     ) {
       throw new HttpException(
         HttpStatus.BAD_REQUEST,
-        `Tipe perubahan ${updateType} dan detail perubahan ${updateDetail} tidak selaras`,
+        `Tipe perubahan ${updateTypeMap.get(updateType)?.toUpperCase()} dan detail perubahan ${updateDetailMap.get(updateDetail)?.toUpperCase()}  tidak selaras`,
       );
     }
 

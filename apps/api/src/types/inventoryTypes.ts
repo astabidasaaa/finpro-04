@@ -23,7 +23,7 @@ export type SearchAllInventoryUpdatesInput = {
   page: number;
   pageSize: number;
   storeId?: number;
-  filterType?: $Enums.InventoryUpdateDetail;
+  filterType?: string;
   sortCol: string;
 };
 
@@ -70,3 +70,17 @@ export type InventoryUpdateProps = InventoryUpdate & {
     };
   };
 };
+
+export enum UpdateDetailDesc {
+  STOCK_IN = 'Stok masuk',
+  STOCK_OUT = 'Stok keluar',
+  ADJUSTMENT = 'Penyesuaian',
+  DAMAGED = 'Rusak',
+  EXPIRATION = 'Kadaluarsa',
+  CANCELLED_ORDER = 'Order dibatalkan',
+}
+
+export enum UpdateTypeDesc {
+  ADD = 'Tambah',
+  REMOVE = 'Kurang',
+}

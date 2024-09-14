@@ -16,13 +16,13 @@ class InventoryUpdatesQuery {
 
       if (props.storeId !== undefined && !isNaN(props.storeId)) {
         filters.AND.push({
-          inventories: {
+          inventory: {
             storeId: Number(props.storeId),
           },
         });
       }
 
-      if (props.filterType !== undefined || props.filterType !== '') {
+      if (props.filterType !== undefined && props.filterType !== '') {
         filters.AND.push({
           type: props.filterType,
         });
@@ -52,7 +52,7 @@ class InventoryUpdatesQuery {
         orderBy.createdAt = 'desc';
       }
 
-      const totalInventoryUpdates = await prisma.inventory.count({
+      const totalInventoryUpdates = await prisma.inventoryUpdate.count({
         where: filters,
       });
       const inventoryUpdates = await prisma.inventoryUpdate.findMany({
@@ -99,14 +99,14 @@ class InventoryUpdatesQuery {
       const filters: any = {
         AND: [
           {
-            inventories: {
+            inventory: {
               storeId: Number(props.storeId),
             },
           },
         ],
       };
 
-      if (props.filterType !== undefined || props.filterType !== '') {
+      if (props.filterType !== undefined && props.filterType !== '') {
         filters.AND.push({
           type: props.filterType,
         });
@@ -136,7 +136,7 @@ class InventoryUpdatesQuery {
         orderBy.createdAt = 'desc';
       }
 
-      const totalInventoryUpdates = await prisma.inventory.count({
+      const totalInventoryUpdates = await prisma.inventoryUpdate.count({
         where: filters,
       });
       const inventoryUpdates = await prisma.inventoryUpdate.findMany({
