@@ -4,6 +4,21 @@ import { User } from '@/types/express';
 import { NextFunction, Request, Response } from 'express';
 
 export class DisplayStoreController {
+  public async getAllStore(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const stores = await displayStoreAction.getAllStore();
+
+      res.status(200).json({
+        message: 'Berhasil menampilkan seluruh toko',
+        data: stores,
+      });
+    } catch (err) {}
+  }
+
   public async getSingleStore(
     req: Request,
     res: Response,

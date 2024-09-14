@@ -20,5 +20,7 @@ export const FRONTEND_URL = process.env.FRONTEND_URL || '';
 export const BACKEND_URL = process.env.BACKEND_URL || '';
 export const NODEMAILER_EMAIL = process.env.NODEMAILER_EMAIL || '';
 export const NODEMAILER_PASS = process.env.NODEMAILER_PASS || '';
+export const SHIPPING_CLIENT_KEY = process.env.SHIPPING_CLIENT_KEY || '';
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+

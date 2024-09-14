@@ -3,13 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox'; 
+import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
 
 type Product = {
   id: string;
   name: string;
   prices: { price: number }[];
+  images: {
+    title: string;
+    alt?: string;
+  }[];
 };
 
 type CartItem = {
@@ -19,7 +23,9 @@ type CartItem = {
 
 const CartPageView = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<Map<string, CartItem>>(new Map());
+  const [selectedProducts, setSelectedProducts] = useState<
+    Map<string, CartItem>
+  >(new Map());
 
   const router = useRouter();
 
@@ -39,9 +45,12 @@ const CartPageView = () => {
   }, []);
 
   const handleQuantityChange = (productId: string, delta: number) => {
-    setSelectedProducts(prev => {
+    setSelectedProducts((prev) => {
       const newSelection = new Map(prev);
-      const currentItem = newSelection.get(productId) || { id: productId, quantity: 0 };
+      const currentItem = newSelection.get(productId) || {
+        id: productId,
+        quantity: 0,
+      };
       const newQuantity = currentItem.quantity + delta;
 
       if (newQuantity > 0) {
@@ -50,7 +59,10 @@ const CartPageView = () => {
         newSelection.delete(productId);
       }
 
-      localStorage.setItem('selectedProducts', JSON.stringify(Array.from(newSelection.values())));
+      localStorage.setItem(
+        'selectedProducts',
+        JSON.stringify(Array.from(newSelection.values())),
+      );
       return newSelection;
     });
   };
@@ -63,7 +75,7 @@ const CartPageView = () => {
     <div className="container mx-auto px-4 md:px-8 lg:px-16 py-8 max-w-screen-lg">
       <h1 className="text-3xl font-bold mb-6">Cart</h1>
       <ul className="space-y-4">
-        {products.map(product => {
+        {products.map((product) => {
           const cartItem = selectedProducts.get(product.id);
           const quantity = cartItem?.quantity || 0;
 
@@ -71,16 +83,24 @@ const CartPageView = () => {
           const price = product.prices[0]?.price || 0;
 
           return (
-            <li key={product.id} className="flex items-center justify-between p-4 border border-gray-300 rounded-lg bg-white shadow-sm">
+            <li
+              key={product.id}
+              className="flex items-center justify-between p-4 border border-gray-300 rounded-lg bg-white shadow-sm"
+            >
               <div className="flex items-center space-x-4">
-              <Checkbox
-                checked={quantity > 0}
-                onCheckedChange={(isChecked) => handleQuantityChange(product.id, isChecked ? 1 : -quantity)} className="h-5 w-5"
-              />
-              <span className="text-lg font-medium">{product.name}</span>
+                <Checkbox
+                  checked={quantity > 0}
+                  onCheckedChange={(isChecked) =>
+                    handleQuantityChange(product.id, isChecked ? 1 : -quantity)
+                  }
+                  className="h-5 w-5"
+                />
+                <span className="text-lg font-medium">{product.name}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-semibold">Rp{price.toFixed(2)}</span>
+                <span className="text-lg font-semibold">
+                  Rp{price.toFixed(2)}
+                </span>
                 {quantity > 0 && (
                   <div className="flex items-center space-x-2">
                     <button
@@ -107,7 +127,7 @@ const CartPageView = () => {
         <Button
           onClick={handleCheckoutClick}
           disabled={selectedProducts.size === 0}
-          className="w-full max-w-md" 
+          className="w-full max-w-md"
         >
           Proceed to Checkout
         </Button>

@@ -99,6 +99,38 @@ class StoreQuery {
 
     return stores;
   }
+
+  public async findStoreById(id: number) {
+    const store = await prisma.store.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        addresses: {
+          where: {
+            deleted: false,
+          },
+          select: {
+            latitude: true,
+            longitude: true,
+          },
+        },
+      },
+    });
+
+    return store?.addresses[0];
+  }
+
+  public async getAllStore() {
+    const stores = await prisma.store.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return stores;
+  }
 }
 
 export default new StoreQuery();

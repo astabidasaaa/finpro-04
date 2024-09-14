@@ -3,7 +3,6 @@ import { uploader } from '@/libs/uploader';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import {
   validateAddressCreate,
-  validateAddressId,
   validateAddressUpdate,
   validateUserUpdate,
 } from '@/middlewares/userValidator';
@@ -56,7 +55,7 @@ export class UserRouter implements Route {
     );
 
     this.router.patch(
-      `${this.path}/addresses`,
+      `${this.path}/addresses/:addressId`,
       validateAddressUpdate,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['user']),
@@ -64,19 +63,24 @@ export class UserRouter implements Route {
     );
 
     this.router.delete(
-      `${this.path}/addresses`,
-      validateAddressId,
+      `${this.path}/addresses/:addressId`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['user']),
       this.userController.deleteUserAddresses,
     );
 
-    this.router.patch(
-      `${this.path}/addresses/change-main`,
-      validateAddressId,
+    this.router.get(
+      `${this.path}/addresses/:addressId/change-main`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['user']),
       this.userController.changeUserMainAddress,
+    );
+
+    this.router.post(
+      `${this.path}/addresses/selected`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']),
+      this.userController.getSelectedAddress,
     );
   }
 }

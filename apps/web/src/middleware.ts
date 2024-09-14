@@ -65,6 +65,12 @@ export async function middleware(request: NextRequest) {
       response.cookies.delete('access-token');
     }
   }
+
+  const forbiddenStoreAdminPaths = [
+    '/dashboard/account',
+    '/dashboard/product/add-product',
+  ];
+
   const url = request.nextUrl.pathname;
   // Redirect based on user role and URL
   if (userState.role) {
@@ -78,14 +84,26 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL(redirect, request.url));
     }
-    // if (url.startsWith('/dashboard') && userState.role === 'user') {
-    //   return NextResponse.redirect(new URL('/', request.url));
-    // }
+    if (url.startsWith('/dashboard') && userState.role === 'user') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    if (
+      userState.role === 'store admin' &&
+      forbiddenStoreAdminPaths.some((path) => url.startsWith(path))
+    ) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
     // if (url.startsWith('/pengaturan') && userState.role !== 'user') {
     //   return NextResponse.redirect(new URL('/', request.url));
     // }
   } else {
     if (url.startsWith('/pengaturan')) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', url);
+
+      return NextResponse.redirect(loginUrl);
+    }
+    if (url.startsWith('/dashboard')) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', url);
 

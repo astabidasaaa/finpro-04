@@ -33,6 +33,8 @@ import {
 import { BrandProps } from '@/types/brandTypes';
 import { DialogDeleteBrand, DialogEditBrand } from './ActionButton';
 import { AddBrandButton } from './AddBrandButton';
+import { useAppSelector } from '@/lib/hooks';
+import { UserType } from '@/types/userType';
 
 export const columns: ColumnDef<BrandProps>[] = [
   {
@@ -88,6 +90,7 @@ export default function BrandTable({ data }: { data: BrandProps[] }) {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const { user } = useAppSelector((state) => state.auth);
 
   const table = useReactTable({
     data,
@@ -116,7 +119,7 @@ export default function BrandTable({ data }: { data: BrandProps[] }) {
           }
           className="max-w-sm"
         />
-        <AddBrandButton />
+        {user.role === UserType.SUPERADMIN && <AddBrandButton />}
       </div>
       <div className="rounded-md border">
         <Table>

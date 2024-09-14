@@ -70,7 +70,7 @@ const DialogVerifikasi = ({ email }: { email: string }) => {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Badge variant="destructive" className="hover:cursor-pointer">
           Belum diverifikasi
         </Badge>

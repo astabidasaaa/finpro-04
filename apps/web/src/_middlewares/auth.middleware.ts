@@ -10,7 +10,7 @@ export const login = ({
   email: string;
   password: string;
 }) => {
-  return async (dispatch: Dispatch) => {
+  return async (dispatch: Dispatch): Promise<string> => {
     try {
       await axiosInstance().post('/auth/login', {
         email,
@@ -30,7 +30,7 @@ export const login = ({
 
       dispatch(loginState(user.data.data));
 
-      return true;
+      return user.data.data.role;
     } catch (error) {
       deleteCookie('access-token');
       throw error;

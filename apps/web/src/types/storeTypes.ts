@@ -36,3 +36,8 @@ export type TCategory = {
   name: string;
   subcategories: TSubCategory[];
 };
+
+export type StoreProps = {
+  name: string;
+  id: number;
+};

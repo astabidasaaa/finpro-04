@@ -1,51 +1,74 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { useState } from 'react';
-import 'leaflet/dist/leaflet.css';
 
-// Leaflet requires a default icon which you need to import separately
-import L from 'leaflet';
+import React from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L, { DragEndEvent } from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIconShadow from 'leaflet/dist/images/marker-shadow.png';
 import { TLocation } from '@/types/addressType';
 
-// Fix for missing marker icons in Leaflet
-const DefaultIcon = L.icon({
+const customIcon = new L.Icon({
   iconUrl: markerIcon.src,
   shadowUrl: markerIconShadow.src,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
-L.Marker.prototype.options.icon = DefaultIcon;
 
-// const defaultPosition = { lat: 51.505, lng: -0.09 }; // Default to London
-
-// A component to handle map clicks and update the marker position
-function LocationMarker({ defaultPosition }: { defaultPosition: TLocation }) {
-  const [position, setPosition] = useState(defaultPosition);
-
+function LocationMarker({
+  latestLocation,
+  setLatestLocation,
+}: {
+  latestLocation: TLocation;
+  setLatestLocation: React.Dispatch<React.SetStateAction<TLocation>>;
+}) {
   useMapEvents({
     click(e) {
-      setPosition(e.latlng); // Update marker position when map is clicked
+      setLatestLocation(e.latlng);
     },
   });
 
+  const handleMarkerDragEnd = (e: DragEndEvent) => {
+    const newLatLng = e.target.getLatLng();
+    setLatestLocation({ lat: newLatLng.lat, lng: newLatLng.lng });
+  };
+
   return (
     <>
-      <Marker position={position} draggable />
+      <Marker
+        icon={customIcon}
+        position={latestLocation}
+        eventHandlers={{
+          dragend: handleMarkerDragEnd,
+        }}
+        draggable
+      />
     </>
   );
 }
 
-const Map = ({ defaultPosition }: { defaultPosition: TLocation }) => {
+const Map = ({
+  latestLocation,
+  setLatestLocation,
+}: {
+  latestLocation: TLocation;
+  setLatestLocation: React.Dispatch<React.SetStateAction<TLocation>>;
+}) => {
   return (
     <MapContainer
-      center={defaultPosition}
-      zoom={13}
-      style={{ height: '500px', width: '100%' }}
+      center={latestLocation}
+      zoom={14}
+      className="w-full h-80 lg:h-96"
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <LocationMarker defaultPosition={defaultPosition} />
+      <LocationMarker
+        latestLocation={latestLocation}
+        setLatestLocation={setLatestLocation}
+      />
     </MapContainer>
   );
 };

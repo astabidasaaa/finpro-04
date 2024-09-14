@@ -104,12 +104,13 @@ export class UserController {
     try {
       const { id } = req.user as User;
 
-      const { addressId, name, address, zipCode, latitude, longitude } =
-        req.body;
+      const { addressId } = req.params;
+
+      const { name, address, zipCode, latitude, longitude } = req.body;
 
       await userAction.updateAddress({
         id,
-        addressId,
+        addressId: parseInt(addressId),
         name,
         address,
         zipCode,
@@ -133,11 +134,11 @@ export class UserController {
     try {
       const { id } = req.user as User;
 
-      const { addressId } = req.body;
+      const { addressId } = req.params;
 
       await userAction.deleteAddress({
         id,
-        addressId,
+        addressId: parseInt(addressId),
       });
 
       res.status(200).json({
@@ -156,15 +157,41 @@ export class UserController {
     try {
       const { id } = req.user as User;
 
-      const { addressId } = req.body;
+      const { addressId } = req.params;
 
       await userAction.changeMainAddress({
         id,
-        addressId,
+        addressId: parseInt(addressId),
       });
 
       res.status(200).json({
         message: `Mengubah alamat utama berhasil`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async getSelectedAddress(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { id } = req.user as User;
+
+      const { addressId } = req.body;
+
+      const selectedAddress = await userAction.getAddressByIdOrByIsMainOrLatest(
+        {
+          userId: id,
+          addressId: parseInt(addressId),
+        },
+      );
+
+      res.status(200).json({
+        message: `Mengubah alamat utama berhasil`,
+        data: { selectedAddress },
       });
     } catch (error) {
       next(error);
