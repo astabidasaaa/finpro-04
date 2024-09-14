@@ -1,4 +1,5 @@
 import { InventoryController } from '@/controllers/inventoryController';
+import { validateInventoryChangeCreation } from '@/middlewares/addInventoryChangeValidator';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
@@ -50,6 +51,7 @@ export class InventoryRouter implements Route {
     );
     this.router.post(
       `${this.path}/update/`,
+      validateInventoryChangeCreation,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
       this.inventoryController.addInventoryChange,
