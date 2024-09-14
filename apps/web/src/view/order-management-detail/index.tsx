@@ -14,10 +14,6 @@ import {
     Copy,
     CreditCard,
   
-
- 
-
-  
   } from "lucide-react"
 
 
@@ -257,12 +253,8 @@ const OrderManagementDetailsView: React.FC = () => {
             
           </address>
         </div>
-        <div className="grid auto-rows-max gap-3">
-          <div className="font-semibold">Billing Information</div>
-          <div className="text-muted-foreground">
-            Same as shipping address
-          </div>
-        </div>
+        
+        
       </div>
       <Separator className="my-4" />
       <div className="grid gap-3">
@@ -287,10 +279,10 @@ const OrderManagementDetailsView: React.FC = () => {
         <dl className="grid gap-3">
           <div className="flex items-center justify-between">
             <dt className="flex items-center gap-1 text-muted-foreground">
-              <CreditCard className="h-4 w-4" />
-              Visa
+              
+              Status
             </dt>
-            <dd>**** **** **** 4532</dd>
+            <Badge variant="default" className="text-xs">{order.payment.paymentStatus}</Badge>
           </div>
           {order.payment.paymentProof ? (
   <div className="flex items-center justify-between">

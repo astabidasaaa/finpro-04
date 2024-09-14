@@ -7,6 +7,7 @@ import { generateOrderCode } from '@/utils/orderUtils';
 import { updateInventoryStock } from '@/utils/updateInventoryStock';
 import { findNearestStore } from '@/utils/findNearestStore';
 import { checkInventoryAvailability } from '@/utils/checkInventory';
+import orderAction from '@/actions/orderAction';
 
 
 export class OrderController {
@@ -389,4 +390,25 @@ export class OrderController {
       }
     }
   }
+  public async getUserById(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userIdStr = req.query.userId as string;
+
+    
+
+    const user = await orderAction.getUserAction(userIdStr);
+
+    res.status(200).json({
+      message: 'User retrieved successfully',
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 }

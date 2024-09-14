@@ -53,6 +53,27 @@ class OrderQuery {
         throw new HttpException(500, 'Failed to cancel order');
       }
     }
+    public async getUserById(userId: number) {
+      try {
+        return await prisma.$transaction(async (prisma) => {
+          const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              // role: true,
+              // profile: true,
+              // addresses: true,
+              store: true,
+              orders: true,
+            },
+          });
+    
+          return user;
+        });
+      } catch (err) {
+        throw new HttpException(500, 'Failed to retrieve user from the database');
+      }
+    }
+    
   }
   
   export default new OrderQuery();

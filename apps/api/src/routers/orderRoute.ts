@@ -25,6 +25,7 @@ export class OrderRoute implements Route {
     
     this.router.get(`${this.path}/get-all-products`, this.orderController.getAllProducts);
     this.router.get(`${this.path}/get-product/:productId`, this.orderController.getProductById);
+    this.router.get(`${this.path}/get-user-by-id`, this.orderController.getUserById);
     
     
   }
