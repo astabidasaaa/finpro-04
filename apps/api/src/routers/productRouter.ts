@@ -21,9 +21,14 @@ export class ProductRouter implements Route {
   private initializeRoutes(): void {
     // get all products with including filter and pagination
     this.router.get(`${this.path}`, this.productController.getProducts);
-    // get single product detail
+    // get all products in brief (name and id only)
     this.router.get(
-      `${this.path}/single`,
+      `${this.path}/all-brief`,
+      this.productController.getAllProductBrief,
+    );
+    // get single product detail for specific store
+    this.router.get(
+      `${this.path}/single-store`,
       this.productController.getSingleProductDetail,
     );
     // make product and auto assign it to inventory of all store

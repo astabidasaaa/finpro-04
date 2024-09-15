@@ -38,6 +38,25 @@ export class DisplayStoreController {
     } catch (err) {}
   }
 
+  public async getAdminStore(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { adminId } = req.params;
+
+      const store = await displayStoreAction.getAdminStoreAction(
+        parseInt(adminId),
+      );
+
+      res.status(200).json({
+        message: 'Berhasil menampilkan toko dari admin',
+        data: store,
+      });
+    } catch (err) {}
+  }
+
   public async nearestStoreId(
     req: Request,
     res: Response,

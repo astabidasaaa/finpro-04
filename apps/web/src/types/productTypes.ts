@@ -63,6 +63,12 @@ export type ProductDetailProps = {
       title: string;
       alt: string | null;
     }[];
+    subcategory: {
+      name: string;
+      productCategory: {
+        name: string;
+      };
+    };
   };
   productDiscountPerStores: ProductDiscountProps[];
   freeProductPerStores: FreeProductProps[];

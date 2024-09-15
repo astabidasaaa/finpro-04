@@ -131,6 +131,65 @@ class StoreQuery {
 
     return stores;
   }
+
+  public async getAllAdminByStoreId(storeId: number): Promise<number[]> {
+    const adminstore = await prisma.store.findFirst({
+      where: {
+        id: storeId,
+      },
+      select: {
+        admins: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (adminstore == null) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Admin toko tidak ditemukan',
+      );
+    }
+
+    const adminIds = adminstore.admins.map((admin) => admin.id);
+
+    return adminIds;
+  }
+
+  public async getAdminStore(
+    adminId: number,
+  ): Promise<{ id: number; name: string } | null> {
+    const adminstore = await prisma.user.findFirst({
+      where: {
+        id: adminId,
+      },
+      select: {
+        storeId: true,
+        store: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (adminstore == null) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Admin toko tidak ditemukan',
+      );
+    }
+
+    if (adminstore.storeId !== null && adminstore.store !== null) {
+      return {
+        id: adminstore.storeId,
+        name: adminstore.store.name,
+      };
+    }
+    return null;
+  }
 }
 
 export default new StoreQuery();

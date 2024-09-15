@@ -43,7 +43,7 @@ export default function ProductDetailView({
   async function fetchData() {
     try {
       const productResult = await axiosInstance().get(
-        `${process.env.API_URL}/products/single?productId=${productId}&storeId=${storeId}`,
+        `${process.env.API_URL}/products/single-store?productId=${productId}&storeId=${storeId}`,
       );
 
       setProduct(productResult.data.data);
