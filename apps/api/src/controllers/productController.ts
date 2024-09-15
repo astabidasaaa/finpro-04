@@ -1,5 +1,6 @@
 import productAction from '@/actions/productAction';
 import { HttpException } from '@/errors/httpException';
+import productQuery from '@/queries/productQuery';
 import { HttpStatus } from '@/types/error';
 import { User } from '@/types/express';
 import { Sort } from '@/types/productTypes';
@@ -35,6 +36,23 @@ export class ProductController {
         page: Number(page),
         pageSize: Number(pageSize),
       });
+
+      res.status(200).json({
+        message: 'Produk berhasil ditampilkan',
+        data: products,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getAllProductBrief(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const products = await productQuery.getAllProductBrief();
 
       res.status(200).json({
         message: 'Produk berhasil ditampilkan',

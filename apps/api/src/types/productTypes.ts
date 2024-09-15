@@ -85,7 +85,16 @@ export type ProductProps = Product & {
   }[];
 };
 
-export type ProductDetailProps = Inventory & { product: ProductProps } & {
+export type ProductDetailProps = Inventory & {
+  product: ProductProps & {
+    subcategory: {
+      name: string;
+      productCategory: {
+        name: string;
+      };
+    };
+  };
+} & {
   productDiscountPerStores: {
     discountType: $Enums.DiscountType;
     discountValue: number;

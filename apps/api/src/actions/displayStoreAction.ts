@@ -24,6 +24,21 @@ class DisplayStoreAction {
     return store;
   }
 
+  public async getAdminStoreAction(userId: number): Promise<{
+    id: number;
+    name: string;
+  }> {
+    const store = await storeQuery.getAdminStore(userId);
+    if (store === null) {
+      throw new HttpException(
+        HttpStatus.NOT_FOUND,
+        'Admin tidak memiliki toko',
+      );
+    }
+
+    return store;
+  }
+
   public async getNearestStoreId(latitude: number, longitude: number) {
     if (latitude && longitude) {
       const stores = await storeQuery.findAllStoreAndReturnLatAndLong();

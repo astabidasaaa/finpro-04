@@ -28,6 +28,10 @@ export class StoreRouter implements Route {
       this.displayStoreController.getSingleStore,
     );
 
+    this.router.get(
+      `${this.path}/single/:adminId`,
+      this.displayStoreController.getAdminStore,
+    );
     this.router.post(
       `${this.path}/nearest-store`,
       this.displayStoreController.nearestStoreId,
