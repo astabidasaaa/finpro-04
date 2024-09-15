@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { Store } from '@prisma/client';
+import { State, Store } from '@prisma/client';
 
 class StoreQuery {
   public async findSingleStore(storeId: number): Promise<Store | null> {
@@ -130,6 +130,80 @@ class StoreQuery {
     });
 
     return stores;
+  }
+
+  public async searchStores({
+    keyword = '',
+    state,
+    sortBy = 'createdAt',
+    sortOrder = 'asc',
+  }: {
+    keyword: string;
+    state: State;
+    sortBy: string;
+    sortOrder: string;
+  }) {
+    return await prisma.store.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                name: {
+                  contains: keyword,
+                },
+              },
+              {
+                addresses: {
+                  some: {
+                    address: {
+                      contains: keyword,
+                    },
+                    deleted: false,
+                  },
+                },
+              },
+              {
+                creator: {
+                  OR: [
+                    {
+                      email: {
+                        contains: keyword,
+                      },
+                    },
+                    {
+                      profile: {
+                        name: {
+                          contains: keyword,
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+
+          state ? { storeState: state } : {},
+        ],
+      },
+
+      orderBy:
+        sortBy === 'admins'
+          ? {
+              admins: {
+                _count: sortOrder as any,
+              },
+            }
+          : {
+              createdAt: sortOrder as any,
+            },
+      include: {
+        creator: true,
+        addresses: true,
+        admins: true,
+      },
+    });
   }
 }
 

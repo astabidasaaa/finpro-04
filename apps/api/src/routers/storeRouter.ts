@@ -1,4 +1,5 @@
 import { DisplayStoreController } from '@/controllers/displayStoreController';
+import { StoreController } from '@/controllers/storeController';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { Route } from '@/types/express';
 import { Router } from 'express';
@@ -7,11 +8,13 @@ export class StoreRouter implements Route {
   readonly router: Router;
   readonly path: string;
   private readonly displayStoreController: DisplayStoreController;
+  private readonly storeController: StoreController;
   private guard: AuthMiddleware;
 
   constructor() {
     this.router = Router();
     this.displayStoreController = new DisplayStoreController();
+    this.storeController = new StoreController();
     this.guard = new AuthMiddleware();
     this.path = '/stores';
     this.initializeRoutes();
@@ -19,10 +22,12 @@ export class StoreRouter implements Route {
 
   private initializeRoutes(): void {
     this.router.get(`${this.path}/`, this.displayStoreController.getAllStore);
+
     this.router.get(
       `${this.path}/:storeId`,
       this.displayStoreController.getSingleStore,
     );
+
     this.router.post(
       `${this.path}/nearest-store`,
       this.displayStoreController.nearestStoreId,
@@ -31,6 +36,13 @@ export class StoreRouter implements Route {
     this.router.get(
       `${this.path}/nearest-store/:storeId`,
       this.displayStoreController.nearestStore,
+    );
+
+    this.router.get(
+      `${this.path}/search`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
+      this.storeController.getStoresWithQuery,
     );
   }
 }
