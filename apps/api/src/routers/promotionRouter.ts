@@ -22,5 +22,11 @@ export class PromotionRouter implements Route {
       `${this.path}/featured`,
       this.promotionController.getFeaturedPromotions,
     );
+    this.router.post(
+      `${this.path}/general`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
+      this.promotionController.createGeneralPromotion,
+    );
   }
 }
