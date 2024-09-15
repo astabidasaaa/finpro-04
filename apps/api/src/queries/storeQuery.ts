@@ -149,7 +149,7 @@ class StoreQuery {
     if (adminstore == null) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        'Admin toko tidak ditemukan',
+        'Toko tidak ditemukan',
       );
     }
 
