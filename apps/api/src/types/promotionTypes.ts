@@ -22,3 +22,23 @@ export type CreatePromotionInput = {
   afterMinPurchase?: number;
   afterMinTransaction?: number;
 };
+
+export type CreateFreeProductPromotionInput = {
+  freeProductState: $Enums.State;
+  inventoryId: number;
+  creatorId: number;
+  buy: number;
+  get: number;
+  startedAt: Date;
+  finishedAt: Date;
+};
+
+export type CreateDiscountProductPromotionInput = {
+  productDiscountState: $Enums.State;
+  inventoryId: number;
+  creatorId: number;
+  discountType: $Enums.DiscountType;
+  discountValue: number;
+  startedAt: Date;
+  finishedAt: Date;
+};

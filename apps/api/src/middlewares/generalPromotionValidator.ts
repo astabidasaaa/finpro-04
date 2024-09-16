@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { $Enums } from '@prisma/client';
 
-const promotionStateValidator = body('promotionState')
+export const promotionStateValidator = body('promotionState')
   .trim()
   .notEmpty()
   .withMessage('Status promotion tidak boleh kosong')
@@ -42,7 +42,7 @@ const generalPromotionSourceValidator = body('source')
     'Sumber promosi setelah minimal pembelian membutuhkan minimal pembelian',
   );
 
-const promotionTypeValidator = body('promotionType')
+export const promotionTypeValidator = body('promotionType')
   .trim()
   .notEmpty()
   .withMessage('Tipe promosi tidak boleh kosong')
@@ -52,7 +52,7 @@ const promotionTypeValidator = body('promotionType')
     'Tidak terdapat tipe promosi yang sesuai. Tipe promosi harus diantara: DELIVERY dan TRANSACTION',
   );
 
-const discountTypeValidator = body('discountType')
+export const discountTypeValidator = body('discountType')
   .trim()
   .notEmpty()
   .withMessage('Tipe diskon tidak boleh kosong')
@@ -69,40 +69,57 @@ const generalTypeValidators = [
   discountTypeValidator,
 ];
 
-const storeIdValidator = body('storeId')
-  .notEmpty()
-  .withMessage('Toko harus dipilih')
-  .isNumeric()
-  .withMessage('ID toko harus dalam bentuk angka');
-
-const storeTypeValidators = [
-  storeIdValidator,
-  promotionStateValidator,
-  promotionTypeValidator,
-  discountTypeValidator,
-];
-
-const textFieldValidators = [
+export const textFieldValidators = [
   body('name').trim().notEmpty().withMessage('Nama wajib diisi'),
   body('description').trim().notEmpty().withMessage('Deskripsi wajib diisi'),
 ];
 
-const dateValidators = [
+export const dateValidators = [
   body('startedAt')
     .notEmpty()
     .withMessage('Tanggal mulai promosi harus diisi')
+    .bail()
     .toDate()
     .isISO8601()
     .withMessage('Tanggal mulai promosi tidak sesuai'),
   body('finishedAt')
     .notEmpty()
     .withMessage('Tanggal selesai promosi harus diisi')
+    .bail()
     .toDate()
     .isISO8601()
-    .withMessage('Tanggal selesai promosi tidak sesuai'),
+    .withMessage('Tanggal selesai promosi tidak sesuai')
+    .bail()
+    .custom((value, { req }) => {
+      const startedAt = new Date(req.body.startedAt);
+      const finishedAt = new Date(value);
+
+      if (finishedAt <= startedAt) {
+        return false;
+      }
+      return true;
+    })
+    .withMessage(
+      'Tanggal promosi berakhir sama atau lebih besar daripada tanggal promosi dimulai',
+    ),
 ];
 
-const valueValidators = [
+export const discountValueValidator = body('discountValue')
+  .notEmpty()
+  .withMessage('Diskon harus diisi')
+  .bail()
+  .isNumeric()
+  .withMessage('Diskon harus dalam bentuk angka')
+  .bail()
+  .isFloat({ min: 0.01 })
+  .withMessage('Nilai diskon harus positif')
+  .bail()
+  .custom((value, { req }) =>
+    req.body.discountType === $Enums.DiscountType.PERCENT ? value < 100 : true,
+  )
+  .withMessage('Nilai diskon pada tipe diskon persen harus dibawah 100');
+
+export const valueValidators = [
   body('quota')
     .notEmpty()
     .withMessage('Kuota harus diisi')
@@ -112,22 +129,7 @@ const valueValidators = [
     .bail()
     .isInt({ min: 1 })
     .withMessage('Kuota tidak boleh kurang dari 1'),
-  body('discountValue')
-    .notEmpty()
-    .withMessage('Diskon harus diisi')
-    .bail()
-    .isNumeric()
-    .withMessage('Diskon harus dalam bentuk angka')
-    .bail()
-    .isFloat({ min: 0.01 })
-    .withMessage('Nilai diskon harus positif')
-    .bail()
-    .custom((value, { req }) =>
-      req.body.discountType === $Enums.DiscountType.PERCENT
-        ? value < 100
-        : true,
-    )
-    .withMessage('Nilai diskon pada tipe diskon persen harus dibawah 100'),
+  discountValueValidator,
   body('discountDurationSecs')
     .notEmpty()
     .withMessage('Jangka waktu aktif diskon harus diisi')
@@ -197,24 +199,6 @@ export const validateGeneralPromotionCreation = [
   ...valueValidators,
   isFeaturedValidator,
   ...conditionalValidators,
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    next();
-  },
-];
-
-export const validateStorePromotionCreation = [
-  ...storeTypeValidators,
-  ...textFieldValidators,
-  ...generalTypeValidators,
-  ...dateValidators,
-  ...valueValidators,
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

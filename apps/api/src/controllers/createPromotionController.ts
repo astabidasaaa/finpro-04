@@ -1,28 +1,10 @@
-import featuredPromotionAction from '@/actions/featuredPromotionAction';
-import promotionAction from '@/actions/promotionAction';
+import createPromotionAction from '@/actions/createPromotionAction';
+import inventoryQuery from '@/queries/inventoryQuery';
 import { User } from '@/types/express';
 import { $Enums } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 
-export class PromotionController {
-  public async getFeaturedPromotions(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const featuredPromotions =
-        await featuredPromotionAction.getFeaturedPromotion();
-
-      res.status(200).json({
-        message: 'Mengambil promosi unggulan berhasil',
-        data: { featuredPromotions },
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-
+export class CreatePromotionController {
   public async createGeneralPromotion(
     req: Request,
     res: Response,
@@ -60,7 +42,7 @@ export class PromotionController {
         : parseInt(req.body.afterMinTransaction);
 
       const generalPromotion =
-        await promotionAction.createGeneralPromotionAction({
+        await createPromotionAction.createGeneralPromotionAction({
           creatorId: id,
           banner: file?.filename,
           scope: $Enums.PromotionScope.GENERAL,
@@ -119,8 +101,8 @@ export class PromotionController {
         ? undefined
         : parseInt(req.body.maxDeduction);
 
-      const generalPromotion = await promotionAction.createStorePromotionAction(
-        {
+      const storePromotion =
+        await createPromotionAction.createStorePromotionAction({
           creatorId: id,
           role,
           scope: $Enums.PromotionScope.STORE,
@@ -139,15 +121,102 @@ export class PromotionController {
           isFeatured: false,
           minPurchase,
           maxDeduction,
-        },
-      );
+        });
 
       res.status(200).json({
         message: 'Promosi toko berhasil dibuat',
-        data: generalPromotion,
+        data: storePromotion,
       });
     } catch (error) {
       next(error);
+    }
+  }
+
+  public async createFreeProductPromotion(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { id, role } = req.user as User;
+      const {
+        promotionState,
+        startedAt,
+        finishedAt,
+        storeId,
+        productId,
+        buy,
+        get,
+      } = req.body;
+
+      const inventory = await inventoryQuery.getInventoryBuyProductIdAndStoreId(
+        parseInt(productId),
+        parseInt(storeId),
+      );
+
+      const freeProductPromotion =
+        await createPromotionAction.createFreeProductPromotionAction({
+          freeProductState: promotionState,
+          startedAt,
+          finishedAt,
+          inventoryId: inventory.id,
+          buy,
+          get,
+          creatorId: id,
+          role,
+          storeId,
+        });
+
+      res.status(200).json({
+        message: 'Promosi beli N gratis N pada toko berhasil dibuat',
+        data: freeProductPromotion,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async createDiscountProductPromotion(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { id, role } = req.user as User;
+      const {
+        promotionState,
+        startedAt,
+        finishedAt,
+        storeId,
+        productId,
+        discountValue,
+        discountType,
+      } = req.body;
+
+      const inventory = await inventoryQuery.getInventoryBuyProductIdAndStoreId(
+        parseInt(productId),
+        parseInt(storeId),
+      );
+
+      const discountProductPromotion =
+        await createPromotionAction.createDiscountProductPromotionAction({
+          productDiscountState: promotionState,
+          startedAt,
+          finishedAt,
+          inventoryId: inventory.id,
+          discountValue: parseInt(discountValue),
+          discountType,
+          creatorId: id,
+          role,
+          storeId,
+        });
+
+      res.status(200).json({
+        message: 'Promosi diskon produk toko berhasil dibuat',
+        data: discountProductPromotion,
+      });
+    } catch (err) {
+      next(err);
     }
   }
 }
