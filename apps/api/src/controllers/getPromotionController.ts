@@ -29,14 +29,19 @@ export class GetPromotionController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      let { promotionState } = req.query;
+      let { page = 1, pageSize = 20, keyword = '', promotionState } = req.query;
       if (promotionState === undefined) {
         promotionState = undefined;
       } else {
         promotionState = String(promotionState);
       }
       const generalPromotions =
-        await getPromotionAction.getGeneralPromotionsAction(promotionState);
+        await getPromotionAction.getGeneralPromotionsAction({
+          promotionState,
+          keyword: String(keyword),
+          page: Number(page),
+          pageSize: Number(pageSize),
+        });
 
       res.status(200).json({
         message: 'Mengambil promosi general berhasil',
@@ -53,19 +58,30 @@ export class GetPromotionController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      let { promotionState, storeId } = req.query;
+      let {
+        page = 1,
+        pageSize = 20,
+        keyword = '',
+        promotionState,
+        storeId,
+      } = req.query;
       if (promotionState === undefined) {
         promotionState = undefined;
       } else {
         promotionState = String(promotionState);
       }
       const storePromotions = await getPromotionAction.getStorePromotionsAction(
-        promotionState,
-        Number(storeId),
+        {
+          promotionState,
+          storeId: Number(storeId),
+          keyword: String(keyword),
+          page: Number(page),
+          pageSize: Number(pageSize),
+        },
       );
 
       res.status(200).json({
-        message: 'Mengambil promosi general berhasil',
+        message: 'Mengambil promosi toko berhasil',
         data: storePromotions,
       });
     } catch (error) {
@@ -79,7 +95,13 @@ export class GetPromotionController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      let { promotionState, storeId } = req.query;
+      let {
+        page = 1,
+        pageSize = 20,
+        keyword = '',
+        promotionState,
+        storeId,
+      } = req.query;
       if (promotionState === undefined) {
         promotionState = undefined;
       } else {
@@ -87,10 +109,13 @@ export class GetPromotionController {
       }
 
       const freeProductPromotions =
-        await getPromotionAction.getFreeProductPromotionsAction(
+        await getPromotionAction.getFreeProductPromotionsAction({
           promotionState,
-          Number(storeId),
-        );
+          storeId: Number(storeId),
+          keyword: String(keyword),
+          page: Number(page),
+          pageSize: Number(pageSize),
+        });
 
       res.status(200).json({
         message: 'Mengambil promosi beli N gratis N berhasil',
@@ -107,7 +132,13 @@ export class GetPromotionController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      let { promotionState, storeId } = req.query;
+      let {
+        page = 1,
+        pageSize = 20,
+        keyword = '',
+        promotionState,
+        storeId,
+      } = req.query;
       if (promotionState === undefined) {
         promotionState = undefined;
       } else {
@@ -115,10 +146,13 @@ export class GetPromotionController {
       }
 
       const discountProductPromotions =
-        await getPromotionAction.getDiscountProductPromotionsAction(
+        await getPromotionAction.getDiscountProductPromotionsAction({
           promotionState,
-          Number(storeId),
-        );
+          storeId: Number(storeId),
+          keyword: String(keyword),
+          page: Number(page),
+          pageSize: Number(pageSize),
+        });
 
       res.status(200).json({
         message: 'Mengambil promosi diskon produk berhasil',

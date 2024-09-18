@@ -1,6 +1,11 @@
 import { HttpException } from '@/errors/httpException';
-import promotionQuery from '@/queries/promotionQuery';
+import searchPromotionQuery from '@/queries/searchPromotionQuery';
 import { HttpStatus } from '@/types/error';
+import {
+  InventoryData,
+  SearchGeneralPromotionInput,
+  SearchStorePromotionInput,
+} from '@/types/promotionTypes';
 import {
   $Enums,
   FreeProductPerStore,
@@ -29,51 +34,65 @@ class GetPromotionAction {
   }
 
   public async getGeneralPromotionsAction(
-    promotionState: string | undefined,
-  ): Promise<Promotion[]> {
+    props: SearchGeneralPromotionInput,
+  ): Promise<{ promotions: Promotion[]; totalCount: number }> {
+    const { promotionState } = props;
     const state = this.checkPromotionState(promotionState);
 
-    const generalPromotions = await promotionQuery.getGeneralPromotions(state);
+    const generalPromotions = await searchPromotionQuery.getGeneralPromotions({
+      ...props,
+      promotionState: state,
+    });
 
     return generalPromotions;
   }
 
   public async getStorePromotionsAction(
-    promotionState: string | undefined,
-    storeId: number,
-  ): Promise<Promotion[]> {
+    props: SearchStorePromotionInput,
+  ): Promise<{ promotions: Promotion[]; totalCount: number }> {
+    const { promotionState } = props;
     const state = this.checkPromotionState(promotionState);
 
-    const storePromotions = await promotionQuery.getStorePromotions(
-      state,
-      storeId,
-    );
+    const storePromotions = await searchPromotionQuery.getStorePromotions({
+      ...props,
+      promotionState: state,
+    });
 
     return storePromotions;
   }
 
   public async getFreeProductPromotionsAction(
-    promotionState: string | undefined,
-    storeId: number,
-  ): Promise<FreeProductPerStore[]> {
+    props: SearchStorePromotionInput,
+  ): Promise<{
+    promotions: (FreeProductPerStore & InventoryData)[];
+    totalCount: number;
+  }> {
+    const { promotionState } = props;
     const state = this.checkPromotionState(promotionState);
 
-    const freeProductPromotions = await promotionQuery.getFreeProductPromotions(
-      state,
-      storeId,
-    );
+    const freeProductPromotions =
+      await searchPromotionQuery.getFreeProductPromotions({
+        ...props,
+        promotionState: state,
+      });
 
     return freeProductPromotions;
   }
 
   public async getDiscountProductPromotionsAction(
-    promotionState: string | undefined,
-    storeId: number,
-  ): Promise<ProductDiscountPerStore[]> {
+    props: SearchStorePromotionInput,
+  ): Promise<{
+    promotions: (ProductDiscountPerStore & InventoryData)[];
+    totalCount: number;
+  }> {
+    const { promotionState } = props;
     const state = this.checkPromotionState(promotionState);
 
     const discountProductPromotions =
-      await promotionQuery.getDiscountProductPromotions(state, storeId);
+      await searchPromotionQuery.getDiscountProductPromotions({
+        ...props,
+        promotionState: state,
+      });
 
     return discountProductPromotions;
   }
