@@ -127,7 +127,7 @@ export const columns: ColumnDef<NonProductPromotionProps>[] = [
           <SeeDetailDialogButton promotion={promotion} />
           {(promotion.promotionState === State.DRAFT ||
             promotion.promotionState === State.PUBLISHED) && (
-            <ArchiveAlertButton promotion={promotion} />
+            <ArchiveAlertButton promotion={promotion} type="NONPRODUCT" />
           )}
         </div>
       );

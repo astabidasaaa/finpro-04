@@ -18,15 +18,17 @@ import { Trash2 } from 'lucide-react';
 
 export default function ArchiveAlertButton({
   promotion,
+  type,
 }: {
   promotion: { id: number; name: string };
+  type: 'NONPRODUCT' | 'FREEPRODUCT' | 'DISCOUNTPRODUCT';
 }) {
   const token = getCookie('access-token');
 
   async function handleDelete() {
     try {
       const response = await axiosInstance().patch(
-        `/promotions/archive/nonproduct/${promotion.id}`,
+        `/promotions/archive/${type.toLowerCase()}/${promotion.id}`,
         {},
         {
           headers: {
