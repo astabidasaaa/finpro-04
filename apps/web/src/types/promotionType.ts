@@ -24,6 +24,52 @@ export type NonProductPromotionProps = {
   afterMinTransaction: number;
 };
 
+export type FreeProductPromotionProps = {
+  id: number;
+  creatorId: number;
+  freeProductState: State;
+  inventoryId: number;
+  buy: number;
+  get: number;
+  startedAt: Date;
+  finishedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  inventory: {
+    product: {
+      id: number;
+      name: string;
+    };
+    store: {
+      id: number;
+      name: string;
+    };
+  };
+};
+
+export type ProductDiscountPromotionProps = {
+  id: number;
+  creatorId: number;
+  productDiscountState: State;
+  inventoryId: number;
+  discountType: DiscountType;
+  discountValue: number;
+  startedAt: Date;
+  finishedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  inventory: {
+    product: {
+      id: number;
+      name: string;
+    };
+    store: {
+      id: number;
+      name: string;
+    };
+  };
+};
+
 export enum PromotionType {
   TRANSACTION = 'TRANSACTION',
   DELIVERY = 'DELIVERY',
