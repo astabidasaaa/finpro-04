@@ -125,7 +125,7 @@ class SearchPromotionQuery {
           {
             inventory: {
               product: {
-                name: props.keyword,
+                name: { contains: props.keyword as string },
               },
             },
           },
@@ -196,7 +196,7 @@ class SearchPromotionQuery {
           {
             inventory: {
               product: {
-                name: props.keyword,
+                name: { contains: props.keyword as string },
               },
             },
           },
