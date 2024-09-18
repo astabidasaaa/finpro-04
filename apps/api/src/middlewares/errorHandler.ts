@@ -12,12 +12,12 @@ export function ErrorHandler(
 ): void {
   // For deleting attached photo(s) that are not processed
   if (req.file !== undefined) {
-    deletePhoto(req.file.filename, req.file.fieldname);
+    deletePhoto(req.file.filename, req.file.destination);
   }
 
   if (Array.isArray(req.files)) {
     for (const file of req.files) {
-      deletePhoto(file.filename, file.fieldname);
+      deletePhoto(file.filename, file.destination);
     }
   }
 
