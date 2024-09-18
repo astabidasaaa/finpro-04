@@ -16,19 +16,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import {
-  displayPromotionTypeMap,
-  FreeProductPromotionProps,
-  NonProductPromotionProps,
-} from '@/types/promotionType';
+import { ProductDiscountPromotionProps } from '@/types/promotionType';
 import moment from 'moment';
 import { DiscountType, State } from '@/types/productTypes';
 import ArchiveAlertButton from '../components/ArchivedAlertButton';
-import SeeDetailDialogButton from './SeeDetailDialogButton';
-import { StoreProps } from '@/types/storeTypes';
-import { Badge } from '@/components/ui/badge';
 
-export const columns: ColumnDef<FreeProductPromotionProps>[] = [
+export const columns: ColumnDef<ProductDiscountPromotionProps>[] = [
   {
     accessorKey: 'name',
     header: () => <div className="text">Nama Produk</div>,
@@ -54,21 +47,18 @@ export const columns: ColumnDef<FreeProductPromotionProps>[] = [
     },
   },
   {
-    accessorKey: 'buy',
-    header: () => <div className="text-left">Beli</div>,
+    accessorKey: 'discount',
+    header: () => <div className="text-left">Diskon</div>,
     cell: ({ row }) => {
-      const { buy } = row.original;
-      return <div className="font-normal flex items-center">{buy}</div>;
+      const { discountValue, discountType } = row.original;
+      return (
+        <div className="font-normal flex items-center">
+          {discountValue} {discountType === DiscountType.PERCENT ? '%' : ''}
+        </div>
+      );
     },
   },
-  {
-    accessorKey: 'get',
-    header: () => <div className="text-left">Gratis</div>,
-    cell: ({ row }) => {
-      const { get } = row.original;
-      return <div className="font-normal flex items-center">{get}</div>;
-    },
-  },
+
   {
     accessorKey: 'startedAt',
     header: () => <div className="text-left">Waktu Mulai</div>,
@@ -99,15 +89,14 @@ export const columns: ColumnDef<FreeProductPromotionProps>[] = [
 
       return (
         <div className="flex space-x-2">
-          <SeeDetailDialogButton promotion={promotion} />
-          {(promotion.freeProductState === State.DRAFT ||
-            promotion.freeProductState === State.PUBLISHED) && (
+          {(promotion.productDiscountState === State.DRAFT ||
+            promotion.productDiscountState === State.PUBLISHED) && (
             <ArchiveAlertButton
               promotion={{
                 id: promotion.id,
                 name: promotion.inventory.product.name,
               }}
-              type="FREEPRODUCT"
+              type="DISCOUNTPRODUCT"
             />
           )}
         </div>
@@ -119,7 +108,7 @@ export const columns: ColumnDef<FreeProductPromotionProps>[] = [
 export default function FreeProductPromotionTable({
   data,
 }: {
-  data: FreeProductPromotionProps[];
+  data: ProductDiscountPromotionProps[];
 }) {
   const table = useReactTable({
     data,
