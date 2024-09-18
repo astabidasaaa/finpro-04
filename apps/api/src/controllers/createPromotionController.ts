@@ -165,7 +165,7 @@ export class CreatePromotionController {
           get,
           creatorId: id,
           role,
-          storeId,
+          storeId: parseInt(storeId),
         });
 
       res.status(200).json({
