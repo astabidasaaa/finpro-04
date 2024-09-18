@@ -41,6 +41,7 @@ export class CreatePromotionController {
         ? undefined
         : parseInt(req.body.afterMinTransaction);
 
+      const isFeaturedBool = isFeatured === 'true' ? true : false;
       const generalPromotion =
         await createPromotionAction.createGeneralPromotionAction({
           creatorId: id,
@@ -57,7 +58,7 @@ export class CreatePromotionController {
           discountType,
           discountValue: parseFloat(discountValue),
           discountDurationSecs: parseInt(discountDurationSecs),
-          isFeatured: Boolean(isFeatured),
+          isFeatured: isFeaturedBool,
           minPurchase,
           maxDeduction,
           afterMinPurchase,
