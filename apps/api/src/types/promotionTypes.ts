@@ -42,3 +42,46 @@ export type CreateDiscountProductPromotionInput = {
   startedAt: Date;
   finishedAt: Date;
 };
+
+export type SearchGeneralPromotionInput = {
+  promotionState: string | undefined;
+  keyword: string;
+  page: number;
+  pageSize: number;
+};
+
+export type SearchGeneralPromotion = {
+  promotionState: $Enums.State | undefined;
+  keyword: string;
+  page: number;
+  pageSize: number;
+};
+
+export type SearchStorePromotionInput = {
+  promotionState: string | undefined;
+  storeId: number;
+  keyword: string;
+  page: number;
+  pageSize: number;
+};
+
+export type SearchStorePromotion = {
+  promotionState: $Enums.State | undefined;
+  storeId: number;
+  keyword: string;
+  page: number;
+  pageSize: number;
+};
+
+export type InventoryData = {
+  inventory: {
+    product: {
+      id: number;
+      name: string;
+    };
+    store: {
+      id: number;
+      name: string;
+    };
+  };
+};

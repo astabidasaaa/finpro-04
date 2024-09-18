@@ -35,28 +35,40 @@ export class PromotionRouter implements Route {
       `${this.path}/featured`,
       this.getPromotionController.getFeaturedPromotions,
     );
+    // filter search
     this.router.get(
       `${this.path}/general`,
-      this.getPromotionController.getGeneralPromotions, // query params promotionState
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin', 'store admin']),
+      this.getPromotionController.getGeneralPromotions,
     );
+    // filter search
     this.router.get(
       `${this.path}/store`,
-      this.getPromotionController.getStorePromotions, // query params promotionState & storeId
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin', 'store admin']),
+      this.getPromotionController.getStorePromotions,
     );
+    // filter search
     this.router.get(
       `${this.path}/freeproduct`,
-      this.getPromotionController.getFreeProductPromotions, // query params promotionState & storeId
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin', 'store admin']),
+      this.getPromotionController.getFreeProductPromotions,
     );
+    // filter search
     this.router.get(
       `${this.path}/discountproduct`,
-      this.getPromotionController.getDiscountProductPromotions, // query params promotionState & storeId
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin', 'store admin']),
+      this.getPromotionController.getDiscountProductPromotions,
     );
     this.router.post(
       `${this.path}/general`,
-      validateGeneralPromotionCreation,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin']),
       uploader('PROMOTION', '/promotion').single('file'),
+      validateGeneralPromotionCreation,
       this.createPromotionController.createGeneralPromotion,
     );
     this.router.post(
