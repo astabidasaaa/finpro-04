@@ -114,8 +114,9 @@ class SearchPromotionQuery {
       });
     }
 
+    console.log(props.promotionState);
     if (props.promotionState !== undefined) {
-      filters.AND.push({ ...filters, freeProductState: props.promotionState });
+      filters.AND.push({ freeProductState: props.promotionState });
     }
 
     if (props.keyword !== '') {
@@ -185,7 +186,6 @@ class SearchPromotionQuery {
 
     if (props.promotionState !== undefined) {
       filters.AND.push({
-        ...filters,
         productDiscountState: props.promotionState,
       });
     }
