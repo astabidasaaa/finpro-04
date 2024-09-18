@@ -209,11 +209,11 @@ export class CreatePromotionController {
           discountType,
           creatorId: id,
           role,
-          storeId,
+          storeId: parseInt(storeId),
         });
 
       res.status(200).json({
-        message: 'Promosi diskon produk toko berhasil dibuat',
+        message: 'Promosi diskon produk pada toko berhasil dibuat',
         data: discountProductPromotion,
       });
     } catch (err) {
