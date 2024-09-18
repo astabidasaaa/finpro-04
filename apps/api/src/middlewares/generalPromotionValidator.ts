@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { $Enums } from '@prisma/client';
+import { HttpStatus } from '@/types/error';
+import { deletePhoto } from '@/utils/deletePhoto';
 
 export const promotionStateValidator = body('promotionState')
   .trim()
@@ -204,7 +206,13 @@ export const validateGeneralPromotionCreation = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      if (req.file !== undefined) {
+        deletePhoto(req.file.filename, req.file.destination);
+      }
+
+      return res
+        .status(HttpStatus.VALIDATION_ERROR)
+        .json({ errors: errors.array() });
     }
 
     next();

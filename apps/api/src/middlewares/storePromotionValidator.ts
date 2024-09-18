@@ -9,6 +9,7 @@ import {
   valueValidators,
   discountValueValidator,
 } from './generalPromotionValidator';
+import { HttpStatus } from '@/types/error';
 
 const buyNgetNValidators = [
   body('buy')
@@ -52,7 +53,9 @@ export const validateStorePromotionCreation = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res
+        .status(HttpStatus.VALIDATION_ERROR)
+        .json({ errors: errors.array() });
     }
 
     next();
@@ -70,7 +73,9 @@ export const validateFreeProductPromotionCreation = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res
+        .status(HttpStatus.VALIDATION_ERROR)
+        .json({ errors: errors.array() });
     }
 
     next();
@@ -89,7 +94,9 @@ export const validateDiscountProductPromotionCreation = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res
+        .status(HttpStatus.VALIDATION_ERROR)
+        .json({ errors: errors.array() });
     }
 
     next();
