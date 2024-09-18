@@ -29,11 +29,11 @@ export default function AddStorePromotion({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Tambah Promosi Umum</DialogTitle>
+          <DialogTitle>Tambah Promosi Toko</DialogTitle>
           <div />
           <DialogDescription>
-            Promosi umum akan membagikan kupon kepada kustomer yang memenuhi
-            ketentuan promosi. Buat promosi umum anda disini.
+            Promosi toko akan membagikan kupon kepada kustomer yang memenuhi
+            ketentuan promosi. Buat promosi toko anda disini.
           </DialogDescription>
         </DialogHeader>
         <CreatePromotionForm setIsOpen={setIsOpen} stores={stores} />
