@@ -1,5 +1,13 @@
 import { DiscountType, State } from './productTypes';
 
+export type PromotionBriefProps = {
+  id: number;
+  discountType: DiscountType;
+  discountValue: number;
+  minPurchase: number;
+  maxDeduction: number;
+};
+
 export type NonProductPromotionProps = {
   id: number;
   creatorId: number;
