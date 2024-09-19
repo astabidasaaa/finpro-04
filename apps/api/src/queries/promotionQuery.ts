@@ -69,25 +69,32 @@ class PromotionQuery {
   public async getActiveGeneralPromotionBySource(
     source: $Enums.PromotionSource,
   ): Promise<Promotion[]> {
-    const promotions = await prisma.promotion.findMany({
-      where: {
-        promotionState: $Enums.State.PUBLISHED,
-        scope: $Enums.PromotionScope.GENERAL,
-        source: source,
-        storeId: null,
-        startedAt: {
-          lte: new Date(),
+    try {
+      const promotions = await prisma.promotion.findMany({
+        where: {
+          promotionState: $Enums.State.PUBLISHED,
+          scope: $Enums.PromotionScope.GENERAL,
+          source: source,
+          storeId: null,
+          startedAt: {
+            lte: new Date(),
+          },
+          finishedAt: {
+            gt: new Date(),
+          },
+          quota: {
+            gt: 0,
+          },
         },
-        finishedAt: {
-          gt: new Date(),
-        },
-        quota: {
-          gt: 0,
-        },
-      },
-    });
+      });
 
-    return promotions;
+      return promotions;
+    } catch (err) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Tidak dapat membuat kupon',
+      );
+    }
   }
 
   public async getActiveStorePromotionByStoreId(
