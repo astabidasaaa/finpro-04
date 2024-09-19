@@ -1,5 +1,5 @@
 import { RadioGroupItem } from '@/components/ui/radio-group';
-import { VoucherDetail } from './DialogUseVoucher';
+import { VoucherDetail } from '@/types/voucherType';
 import { Label } from '@/components/ui/label';
 import { DiscountType } from '@/types/productTypes';
 import moment from 'moment';

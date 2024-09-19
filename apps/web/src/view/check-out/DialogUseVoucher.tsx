@@ -195,6 +195,7 @@ export default function DialogUseVoucher({
                     totalPrice={totalPrice}
                     handleClaim={handleClaim}
                     userPromotionsId={userPromotionsId}
+                    key={promotion.id}
                   />
                 ))}
               </div>
@@ -215,6 +216,7 @@ export default function DialogUseVoucher({
                     <VoucherCardSelection
                       voucher={voucher}
                       totalPrice={totalPrice}
+                      key={voucher.id}
                     />
                   ))}
                 </RadioGroup>
@@ -240,6 +242,7 @@ export default function DialogUseVoucher({
                     <VoucherCardSelection
                       voucher={voucher}
                       totalPrice={totalPrice}
+                      key={voucher.id}
                     />
                   ))}
                 </RadioGroup>
