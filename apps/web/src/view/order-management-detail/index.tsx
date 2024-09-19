@@ -175,6 +175,36 @@ const OrderManagementDetailsView: React.FC = () => {
     }
   };
 
+  const rejectPayment = async () => {
+    if (!orderId) return;
+
+    setIsLoading(true);
+
+    try {
+      await axiosInstance().post(`/payments/reject-payment`, {
+        orderId: parseInt(orderId as string, 10),
+        userId: parseInt(userId, 10),
+      });
+
+      toast({
+        variant: 'success',
+        title: 'Payment Rejected',
+        description: 'Payment has been successfully rejected.',
+      });
+
+      // Reload the page after rejecting payment
+      window.location.reload();
+    } catch (error) {
+      console.error('Error rejecting payment:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to reject payment',
+        description: 'Please try again later.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -304,7 +334,7 @@ const OrderManagementDetailsView: React.FC = () => {
         </dl>
       </div>
       <Separator className="my-4" />
-      {['MENUNGGU_PEMBAYARAN', 'MENUNGGU_KONFIRMASI_PEMBAYARAN', 'DIPROSES'].includes(order.orderStatus) && (
+      {['MENUNGGU_PEMBAYARAN', 'DIPROSES'].includes(order.orderStatus) && (
   <div className="mt-4">
     <Button
       variant="destructive"
@@ -325,6 +355,9 @@ const OrderManagementDetailsView: React.FC = () => {
               >
                 Proses Pesanan
               </Button>
+              <Button variant="destructive" onClick={rejectPayment}>
+              Tolak Pembayaran
+            </Button>
           </div>
           )}
           

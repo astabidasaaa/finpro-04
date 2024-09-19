@@ -4,6 +4,7 @@ import { HttpException } from '@/errors/httpException';
 import upload from '@/middlewares/multerConfig';
 import { OrderStatusService } from '@/utils/orderStatusService'; 
 import { OrderStatus } from '@prisma/client'; 
+import paymentAction from '@/actions/paymentAction';
 
 export class PaymentController {
     public async uploadPaymentProof(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -55,5 +56,24 @@ export class PaymentController {
           next(new HttpException(500, 'Failed to update payment proof, order status, and status history'));
         }
       });
+    }
+    public async rejectPayment(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> {
+      try {
+        const { orderId, userId } = req.body;
+        const orderIdInt = parseInt(orderId, 10);
+        
+        const result = await paymentAction.rejectPaymentAction(orderIdInt, userId);
+    
+        res.status(200).json({
+          message: 'Order status updated to MENUNGGU_PEMBAYARAN',
+          data: result,
+        });
+      } catch (err) {
+        next(err);
+      }
     }
   }

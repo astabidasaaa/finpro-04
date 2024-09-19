@@ -11,6 +11,7 @@ import { useAppSelector } from '@/lib/hooks';
 import { DatePickerWithRange } from './date-picker';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
+import { useRouter } from 'next/navigation';
 
 // Debounce Hook
 function useDebounce(value: string, delay: number) {
@@ -47,6 +48,7 @@ type Order = {
 const OrderPageView: React.FC = () => {
   const customer = useAppSelector((state) => state.auth.user);
   const customerId = customer.id.toString();
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -147,6 +149,11 @@ const OrderPageView: React.FC = () => {
     return new Date(dateString).toLocaleDateString('en-GB', options);
   };
 
+  const handlePaymentRedirect = (totalPrice: number, orderId: string) => {
+    const paymentPageUrl = `/pembayaran?totalPrice=${totalPrice}&orderId=${orderId}&userId=${customerId}`;
+    router.push(paymentPageUrl); // Redirect to payment page
+  };
+
   return (
     <div className="container px-4 md:px-12 lg:px-24 max-w-screen-2xl py-8">
       <h1 className="text-3xl font-bold mb-8">Order History</h1>
@@ -190,6 +197,14 @@ const OrderPageView: React.FC = () => {
                     <p className="text-sm text-gray-600">Ordered On: {formatDate(order.createdAt)}</p>
                   </div>
                 </Link>
+                {order.orderStatus === 'MENUNGGU_PEMBAYARAN' && (
+                  <Button
+                    className="mt-4"
+                    onClick={() => handlePaymentRedirect(order.payment.amount, order.id)}
+                  >
+                    Bayar
+                  </Button>
+                )}
               </li>
             ))}
           </ul>

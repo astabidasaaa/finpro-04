@@ -5,6 +5,7 @@ import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAppSelector } from '@/lib/hooks';
+import { addToCart } from '@/utils/cartUtils';
 import { AxiosError } from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
 import {
@@ -40,6 +41,8 @@ export default function ProductDetailView({
   const decreaseQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id?.toString();
   async function fetchData() {
     try {
       const productResult = await axiosInstance().get(
@@ -98,6 +101,26 @@ export default function ProductDetailView({
       buy = freeProduct[0].buy;
       get = freeProduct[0].get;
     }
+
+    const handleAddToCart = () => {
+      if (!product || !userId) {
+        alert('User not logged in or product not available.');
+        return;
+      }
+  
+      const cartItem = {
+        productId: product.product.id,
+        name: product.product.name,
+        price: discountedPrice,  // The final price with any discounts applied
+        quantity,
+        storeId,                 // The store where the product is available
+        userId,                  // Include the userId in the cart item
+        image: images[0]?.title,  // Use the first image or a placeholder
+      };
+      console.log('Cart Item:', cartItem);
+      addToCart(cartItem);  // Add the product to local storage cart
+      alert('Product added to cart!');  // Optional feedback to user
+    };
 
     return (
       <div className="container mx-auto px-4 py-8">
@@ -201,7 +224,7 @@ export default function ProductDetailView({
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <Button className="w-full sm:w-max">
+              <Button className="w-full sm:w-max" onClick={handleAddToCart}>
                 <Plus className="size-4 mr-2" />
                 Keranjang
               </Button>

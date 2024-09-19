@@ -8,6 +8,8 @@ import { updateInventoryStock } from '@/utils/updateInventoryStock';
 import { findNearestStore } from '@/utils/findNearestStore';
 import { checkInventoryAvailability } from '@/utils/checkInventory';
 import orderAction from '@/actions/orderAction';
+import { generateRandomTrackingCode } from '@/utils/generateRandomTrackingCode';
+import { handleStockAndMutations } from '@/utils/stockAndMutations';
 
 
 export class OrderController {
@@ -25,15 +27,17 @@ export class OrderController {
         paymentGateway,
         deliveryAddressId,
         orderStatus,
-        shippingId,
+        shippingAmount, // New field for shipping amount
+        courier,
         additionalInfo,
         cartItems, // Array of items in the cart [{ productId, qty }]
       } = req.body;
 
       const deliveryAddress = await prisma.address.findUnique({
         where: { id: deliveryAddressId },
+        select: { latitude: true, longitude: true },
       });
-      console.log('Delivery Address:', deliveryAddress);
+  
 
       if (!deliveryAddress) {
         throw new HttpException(404, 'Delivery address not found');
@@ -44,25 +48,14 @@ export class OrderController {
         deliveryAddress.latitude,
         deliveryAddress.longitude
       );
-      console.log('Nearest Store:', nearestStore);
+      console.log('Nearest Store Distance:', nearestStore.distance);
 
-      // Validate inventory for all items
-      for (const item of cartItems) {
-        const inventory = await checkInventoryAvailability(
-          nearestStore.storeId,
-          item.productId,
-          item.qty, 
-          
-        );
-        console.log(`Inventory for Product ID ${item.productId}:`, inventory);
-
-        if (!inventory) {
-          throw new HttpException(
-            400,
-            `Insufficient stock or product not available in the store for product ID: ${item.productId}`
-          );
-        }
-      }
+      // if (nearestStore.distance > 30) {
+      //       throw new HttpException(
+      //         500,
+      //         `Jarak toko terlalu jauh dari alamat Anda, silahkan pilih alamat yang lain.`
+      //       );
+      //     }
 
       // Process order if all items are valid
       const result = await prisma.$transaction(async (prisma) => {
@@ -79,6 +72,16 @@ export class OrderController {
           },
         });
 
+        const trackingNumber = generateRandomTrackingCode();
+
+        const newShipping = await prisma.shipping.create({
+          data: {
+            amount: shippingAmount, // Use shipping amount from request body
+            courier, // Use courier from request body
+            trackingNumber, // Randomly generated tracking code
+          },
+        });
+
         // Create the order
         const newOrder = await prisma.order.create({
           data: {
@@ -88,7 +91,7 @@ export class OrderController {
             price,
             finalPrice,
             paymentId: newPayment.id,
-            shippingId: shippingId || null,
+            shippingId: newShipping.id,
             deliveryAddressId,
             orderStatus: orderStatus as OrderStatus,
             storeAddressId: nearestStore.storeAddressId,
@@ -122,24 +125,32 @@ export class OrderController {
               finalPrice: productPriceHistory.price, // Final price is the active price
             },
           });
-          const inventoryUpdated = await updateInventoryStock(
-            nearestStore.storeId,
-            item.productId,
-            -item.qty,
-            newOrder.id,
-            customerId
-          );
+          // const inventoryUpdated = await updateInventoryStock(
+          //   nearestStore.storeId,
+          //   item.productId,
+          //   -item.qty,
+          //   newOrder.id,
+          //   customerId
+          // );
   
-          if (!inventoryUpdated) {
-            throw new HttpException(
-              500,
-              `Failed to update stock for product ID: ${item.productId}`
-            );
-          }
+          // if (!inventoryUpdated) {
+          //   throw new HttpException(
+          //     500,
+          //     `Failed to update stock for product ID: ${item.productId}`
+          //   );
+          // }
         }
 
         return newOrder;
+        
       });
+      await handleStockAndMutations(
+        cartItems,
+        deliveryAddress,
+        nearestStore.storeId,
+        result.id,
+        customerId
+      );
 
       res.status(201).json({
         message: 'Order created successfully',
@@ -330,14 +341,27 @@ export class OrderController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const { deliveryLatitude, deliveryLongitude } = req.body;
-
-      if (!deliveryLatitude || !deliveryLongitude) {
-        throw new HttpException(400, 'Missing delivery latitude or longitude');
+      const { addressId } = req.body;
+  
+      if (!addressId) {
+        throw new HttpException(400, 'Missing address ID');
       }
-
-      const nearestStore = await findNearestStore(deliveryLatitude, deliveryLongitude);
-
+  
+      // Fetch the address using the addressId
+      const address = await prisma.address.findUnique({
+        where: { id: addressId },
+        select: { latitude: true, longitude: true },
+      });
+  
+      if (!address) {
+        throw new HttpException(404, 'Address not found');
+      }
+  
+      const nearestStore = await findNearestStore(
+        address.latitude,
+        address.longitude
+      );
+  
       res.status(200).json({
         message: 'Nearest store found successfully',
         data: nearestStore,
