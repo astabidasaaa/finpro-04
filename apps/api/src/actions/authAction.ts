@@ -8,6 +8,9 @@ import { registrationMail } from '@/utils/sendMail';
 import { sign } from 'jsonwebtoken';
 import verifyEmailAction from './verifyEmailAction';
 import { compare } from 'bcrypt';
+import promotionQuery from '@/queries/promotionQuery';
+import { $Enums } from '@prisma/client';
+import voucherAction from './voucherAction';
 
 type CreateUserFromCredential = {
   email: string;
@@ -58,20 +61,11 @@ class AuthAction {
       referredById = referralCheck;
     }
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        roleId: 1,
-        profile: {
-          create: {},
-        },
-        referralCode,
-        referredById,
-      },
-      select: {
-        email: true,
-      },
+    const user = await authQuery.registerUserFromCredential({
+      email,
+      password: hashedPassword,
+      referralCode,
+      referredById,
     });
 
     if (!user) {
@@ -79,6 +73,17 @@ class AuthAction {
         HttpStatus.INTERNAL_SERVER_ERROR,
         'Silakan ulangi proses registrasi',
       );
+    }
+
+    if (referredById !== null) {
+      const referralPromotion =
+        await promotionQuery.getActiveGeneralPromotionBySource(
+          $Enums.PromotionSource.REFERRAL_BONUS,
+        );
+
+      if (referralPromotion.length > 0) {
+        await voucherAction.createVoucher(referralPromotion[0].id, user.id);
+      }
     }
 
     await verifyEmailAction.verifyEmailRequest(user.email);

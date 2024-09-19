@@ -8,7 +8,7 @@ export default function ProductNotFound() {
         className="aspect-square object-cover"
         height={100}
         width={100}
-        src="/assets/not-found.png"
+        src="/not-found.png"
       />
       Produk tidak ditemukan
     </div>

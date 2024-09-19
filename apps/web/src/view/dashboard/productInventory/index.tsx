@@ -5,14 +5,14 @@ import { AxiosError } from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { UserType } from '@/types/userType';
-import StoreFilter from './StoreFilter';
+import StoreFilter from '@/components/dashboard/StoreFilter';
 import { StoreProps } from '@/types/storeTypes';
 import { StockChangeButton } from './StockChangeButton';
 import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
 import { InventoryProps } from '@/types/inventoryType';
 import InventoryTable from './InventoryTable';
-import PaginationInventory from './Pagination';
+import PaginationInventory from '@/components/dashboard/Pagination';
 
 export default function ProductInventoryView() {
   const { user } = useAppSelector((state) => state.auth);
