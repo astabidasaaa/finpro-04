@@ -373,7 +373,8 @@ model Promotion {
   isFeatured           Boolean         @default(false)
   minPurchase          Float           @default(0)
   maxDeduction         Float           @default(0)
-  minTransaction       Int?
+  afterMinPurchase     Float?
+  afterMinTransaction  Int?
   vouchers             Voucher[]       @relation("VoucherOfPromotion")
 
   store   Store? @relation(fields: [storeId], references: [id])
@@ -382,6 +383,7 @@ model Promotion {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
+  @@index([promotionState, finishedAt])
   @@map("promotions")
 }
 
@@ -412,7 +414,9 @@ enum PromotionSource {
   REFEREE_BONUS // super admin (check availability when registering, limit by 1-backend check)
   REFERRAL_BONUS // super admin (check availability when registering, limit by 1-backend check)
   PER_BRANCH // store & super admin (must include storeId)
-  ALL_BRANCH // super admin (promotion that require minimal transaction to generate voucher)
+  ALL_BRANCH // super admin (promotion that can be claim by all user)
+  AFTER_MIN_PURCHASE // super admin (promotion that require minimal purchase to generate voucher)
+  AFTER_MIN_TRANSACTION // super admin (promotion that require minimal transaction to generate voucher, limit to 1)
 }
 
 enum DiscountType {

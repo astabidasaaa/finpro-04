@@ -1,7 +1,7 @@
 import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
 import { HttpStatus } from '@/types/error';
-import { Product } from '@prisma/client';
+import { $Enums, Product } from '@prisma/client';
 import {
   CreateProductInput,
   ProductProps,
@@ -10,6 +10,28 @@ import {
 import { deletePhoto } from '@/utils/deletePhoto';
 
 class ProductQuery {
+  public async getAllProductBrief(): Promise<
+    {
+      id: number;
+      name: string;
+    }[]
+  > {
+    const products = await prisma.product.findMany({
+      where: {
+        productState: $Enums.State.PUBLISHED,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return products;
+  }
+
   public async createProduct(props: CreateProductInput): Promise<Product> {
     const { price, images, ...inputWithoutPriceAndImages } = props;
     try {

@@ -63,6 +63,12 @@ export type ProductDetailProps = {
       title: string;
       alt: string | null;
     }[];
+    subcategory: {
+      name: string;
+      productCategory: {
+        name: string;
+      };
+    };
   };
   productDiscountPerStores: ProductDiscountProps[];
   freeProductPerStores: FreeProductProps[];
@@ -83,11 +89,11 @@ export type ProductsSearchedProps = {
   products: ProductProps[];
 };
 
-enum DiscountType {
+export enum DiscountType {
   FLAT = 'FLAT',
   PERCENT = 'PERCENT',
 }
-enum State {
+export enum State {
   PUBLISHED = 'PUBLISHED',
   DRAFT = 'DRAFT',
   ARCHIVED = 'ARCHIVED',
