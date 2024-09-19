@@ -23,8 +23,8 @@ export default function VoucherCard({ voucher }: { voucher: VoucherDetail }) {
       <Image
         src={
           promotionType === PromotionType.DELIVERY
-            ? '/assets/deliverydisc.png'
-            : '/assets/transactiondisc.png'
+            ? '/deliverydisc.png'
+            : '/transactiondisc.png'
         }
         alt="Voucher Image"
         layout="responsive"
