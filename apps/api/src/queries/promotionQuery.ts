@@ -66,6 +66,60 @@ class PromotionQuery {
     }
   }
 
+  public async getActiveGeneralPromotionBySource(
+    source: $Enums.PromotionSource,
+  ): Promise<Promotion[]> {
+    const promotions = await prisma.promotion.findMany({
+      where: {
+        promotionState: $Enums.State.PUBLISHED,
+        scope: $Enums.PromotionScope.GENERAL,
+        source: source,
+        storeId: null,
+        startedAt: {
+          lte: new Date(),
+        },
+        finishedAt: {
+          gt: new Date(),
+        },
+        quota: {
+          gt: 0,
+        },
+      },
+    });
+
+    return promotions;
+  }
+
+  public async getActiveStorePromotionByStoreId(
+    storeId: number,
+  ): Promise<Promotion[]> {
+    const promotions = await prisma.promotion.findMany({
+      where: {
+        promotionState: $Enums.State.PUBLISHED,
+        scope: $Enums.PromotionScope.STORE,
+        storeId: storeId,
+        startedAt: {
+          lte: new Date(),
+        },
+        finishedAt: {
+          gt: new Date(),
+        },
+        quota: {
+          gt: 0,
+        },
+      },
+      include: {
+        vouchers: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return promotions;
+  }
+
   public async getFreeProductPromotionsByInventoryIdAndState(
     state: $Enums.State,
     inventoryId: number,

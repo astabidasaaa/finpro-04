@@ -2,6 +2,10 @@ import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import { generateReferralCode } from '@/utils/referralCode';
+import { CreateUserQueryProps } from '@/types/authTypes';
+import { $Enums, User } from '@prisma/client';
+import promotionQuery from './promotionQuery';
+import voucherAction from '@/actions/voucherAction';
 
 class AuthQuery {
   // IMPORTANT: for validating & checking purpose only! check whether the email is already used then return { id, email? } or null if no user found
@@ -134,6 +138,47 @@ class AuthQuery {
         HttpStatus.INTERNAL_SERVER_ERROR,
         'Silakan ulangi permintaan verifikasi email',
       );
+  }
+
+  public async registerUserFromCredential(
+    props: CreateUserQueryProps,
+  ): Promise<{ email: string; id: number }> {
+    const { email, password, referralCode, referredById } = props;
+    const registeredUser = await prisma.$transaction(async (prisma) => {
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password,
+          roleId: 1,
+          profile: {
+            create: {},
+          },
+          referralCode,
+          referredById,
+        },
+        select: {
+          id: true,
+          email: true,
+        },
+      });
+
+      if (referredById !== null) {
+        const refereePromotion =
+          await promotionQuery.getActiveGeneralPromotionBySource(
+            $Enums.PromotionSource.REFEREE_BONUS,
+          );
+        if (refereePromotion.length > 0) {
+          await voucherAction.createVoucher(
+            refereePromotion[0].id,
+            referredById,
+          );
+        }
+      }
+
+      return user;
+    });
+
+    return registeredUser;
   }
 }
 

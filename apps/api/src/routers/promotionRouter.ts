@@ -49,6 +49,11 @@ export class PromotionRouter implements Route {
       this.guard.verifyRole(['super admin', 'store admin']),
       this.getPromotionController.getStorePromotions,
     );
+    // all active store voucher
+    this.router.get(
+      `${this.path}/activestore/:storeId`,
+      this.getPromotionController.getActiveStorePromotions,
+    );
     // filter search
     this.router.get(
       `${this.path}/freeproduct`,

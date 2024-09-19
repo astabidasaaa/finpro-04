@@ -1,4 +1,5 @@
 import { HttpException } from '@/errors/httpException';
+import promotionQuery from '@/queries/promotionQuery';
 import searchPromotionQuery from '@/queries/searchPromotionQuery';
 import { HttpStatus } from '@/types/error';
 import {
@@ -95,6 +96,15 @@ class GetPromotionAction {
       });
 
     return discountProductPromotions;
+  }
+
+  public async getActiveStorePromotionAction(
+    storeId: number,
+  ): Promise<Promotion[]> {
+    const promotions =
+      await promotionQuery.getActiveStorePromotionByStoreId(storeId);
+
+    return promotions;
   }
 }
 

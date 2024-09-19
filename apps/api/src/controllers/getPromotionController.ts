@@ -89,6 +89,26 @@ export class GetPromotionController {
     }
   }
 
+  public async getActiveStorePromotions(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const storeId = parseInt(req.params.storeId);
+
+      const promotions =
+        await getPromotionAction.getActiveStorePromotionAction(storeId);
+
+      res.status(200).json({
+        message: 'Mengambil promosi aktif toko berhasil',
+        data: promotions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public async getFreeProductPromotions(
     req: Request,
     res: Response,
