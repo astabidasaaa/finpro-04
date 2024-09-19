@@ -75,10 +75,10 @@ export const superAdminMenuList = [
         label: 'Promosi Toko',
         href: '/dashboard/promotion/store',
       },
-      {
-        label: 'Riwayat Voucher',
-        href: '/dashboard/promotion/voucher-history',
-      },
+      // {
+      //   label: 'Riwayat Voucher',
+      //   href: '/dashboard/promotion/voucher-history',
+      // },
       {
         label: 'Diskon Produk',
         href: '/dashboard/promotion/discount-product',
