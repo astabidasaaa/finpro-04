@@ -15,6 +15,7 @@ import { BrandRouter } from './routers/brandRouter';
 import { ProductRouter } from './routers/productRouter';
 import { AdminRouter } from './routers/adminRouter';
 import { InventoryRouter } from './routers/inventoryRouter';
+import { StoreManagementRouter } from './routers/storeManagementRouter';
 
 function main() {
   // Initialize the app with all the routes
@@ -37,6 +38,7 @@ function main() {
     new ProductRouter(),
     new AdminRouter(),
     new InventoryRouter(),
+    new StoreManagementRouter(),
   ]);
   app.start();
 }
