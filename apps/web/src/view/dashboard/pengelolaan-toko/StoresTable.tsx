@@ -8,46 +8,35 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { TStoreManagement, TStoreManagementData } from '@/types/storeTypes';
+import { truncateText } from '@/lib/utils';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import EditTokoDialog from './EditTokoDialog';
+import DeleteTokoDialog from './DeleteTokoDialog';
 
 const StoresTable = ({
   stores,
+  refetch,
 }: {
-  stores: {
-    name: string;
-    address: string;
-    storeState: string;
-    createdAt: string;
-  }[];
+  stores: TStoreManagement[];
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<TStoreManagementData, Error>>;
 }) => {
   return (
-    <Table>
+    <Table className="h-full">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[240px]">Nama Toko</TableHead>
-          <TableHead className="hidden md:table-cell">Alamat</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead className="w-40 xl:w-60 2xl:w-72">Nama Toko</TableHead>
+          <TableHead className="w-56 xl:w-64 2xl:w-80 hidden lg:table-cell">
+            Alamat
+          </TableHead>
+          <TableHead className="text-center">Status</TableHead>
+          <TableHead className="hidden xl:table-cell text-center">
+            Admin Toko
+          </TableHead>
           <TableHead className="hidden sm:table-cell">Dibuat pada</TableHead>
-          <TableHead>
+          <TableHead className="w-10">
             <span className="sr-only">Actions</span>
           </TableHead>
         </TableRow>
@@ -69,80 +58,37 @@ const StoresTable = ({
 
             return (
               <TableRow key={`toko-${index}`}>
-                <TableCell className="w-[240px] font-medium">
+                <TableCell className="w-40 xl:w-60 2xl:w-72 font-medium">
                   {store.name}
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {store.address}
+                <TableCell className="w-56 xl:w-64 2xl:w-80 hidden lg:table-cell text-xs xl:text-sm">
+                  {truncateText(store.addresses[0].address, 40)}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={
-                      store.storeState === 'PUBLISHED'
-                        ? 'default'
-                        : store.storeState === 'DRAFT'
-                          ? 'outline'
-                          : 'secondary'
-                    }
-                    className={`text-[10px] ${store.storeState === 'PUBLISHED' && 'bg-emerald-500 hover:bg-emerald-500/80'}`}
-                  >
-                    {store.storeState}
-                  </Badge>
+                  <div className="w-full flex justify-center">
+                    <Badge
+                      variant={
+                        store.storeState === 'PUBLISHED'
+                          ? 'default'
+                          : store.storeState === 'DRAFT'
+                            ? 'outline'
+                            : 'secondary'
+                      }
+                      className={`mx-auto text-[8px] tracking-wider ${store.storeState === 'PUBLISHED' && 'bg-emerald-500 hover:bg-emerald-500/80'}`}
+                    >
+                      {store.storeState}
+                    </Badge>
+                  </div>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell">
+                <TableCell className="hidden xl:table-cell text-center text-xs xl:text-sm">
+                  {store._count.admins}
+                </TableCell>
+                <TableCell className="hidden sm:table-cell text-xs xl:text-sm">
                   {createdDate}
                 </TableCell>
-                <TableCell>
-                  <TableCell>
-                    <AlertDialog>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu aksi</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                          // onClick={() => {
-                          //   router.push(`/dashboard/events/${event.id}`);
-                          // }}
-                          >
-                            Edit
-                          </DropdownMenuItem>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem>Hapus</DropdownMenuItem>
-                          </AlertDialogTrigger>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Apakah Anda yakin untuk menghapus toko {store.name}?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Tindakan ini tidak dapat dibatalkan. Tindakan ini
-                            akan menghapus toko tersebut secara permanen dari
-                            server.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Batalkan</AlertDialogCancel>
-                          <AlertDialogAction
-                            className={buttonVariants({
-                              variant: 'destructive',
-                            })}
-                          >
-                            Hapus Toko
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
+                <TableCell className="flex flex-row gap-1 md:gap-2">
+                  <EditTokoDialog refetch={refetch} store={store} />
+                  <DeleteTokoDialog refetch={refetch} store={store} />
                 </TableCell>
               </TableRow>
             );

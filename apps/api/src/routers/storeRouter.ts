@@ -23,15 +23,6 @@ export class StoreRouter implements Route {
   private initializeRoutes(): void {
     this.router.get(`${this.path}/`, this.displayStoreController.getAllStore);
 
-    this.router.get(
-      `${this.path}/:storeId`,
-      this.displayStoreController.getSingleStore,
-    );
-
-    this.router.get(
-      `${this.path}/single/:adminId`,
-      this.displayStoreController.getAdminStore,
-    );
     this.router.post(
       `${this.path}/nearest-store`,
       this.displayStoreController.nearestStoreId,
@@ -43,10 +34,13 @@ export class StoreRouter implements Route {
     );
 
     this.router.get(
-      `${this.path}/search`,
-      this.guard.verifyAccessToken,
-      this.guard.verifyRole(['super admin']),
-      this.storeController.getStoresWithQuery,
+      `${this.path}/:storeId`,
+      this.displayStoreController.getSingleStore,
+    );
+
+    this.router.get(
+      `${this.path}/single/:adminId`,
+      this.displayStoreController.getAdminStore,
     );
   }
 }

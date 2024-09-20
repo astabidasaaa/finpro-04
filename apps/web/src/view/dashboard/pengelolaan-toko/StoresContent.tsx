@@ -1,77 +1,98 @@
 'use client';
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import StoresTable from './StoresTable';
 import StorePagination from './StorePagination';
-import { useSearchParams } from 'next/navigation';
-
-const store_data = [
-  {
-    name: 'Store 1',
-    address: '211 Margaretta Loaf, Suite 329',
-    storeState: 'PUBLISHED',
-    createdAt: '2024-08-28 00:27:37.000',
-  },
-  {
-    name: 'Store 2',
-    address: '9481 Ebert Burgs, Suite 395',
-    storeState: 'PUBLISHED',
-    createdAt: 'Sun Apr 07 2024 06:46:32 GMT+0700 (Western Indonesia Time)',
-  },
-  {
-    name: 'Store 3',
-    address: '306 Randal Cove, Apt. 820',
-    storeState: 'PUBLISHED',
-    createdAt: 'Fri Nov 24 2023 02:38:17 GMT+0700 (Western Indonesia Time)',
-  },
-  {
-    name: 'Store 4',
-    address: '2485 Simonis River, Apt. 455',
-    storeState: 'DRAFT',
-    createdAt: 'Fri Nov 24 2023 02:38:17 GMT+0700 (Western Indonesia Time)',
-  },
-  {
-    name: 'Store 5',
-    address: '10942 Beahan Highway, Suite 254',
-    storeState: 'ARCHIVED',
-    createdAt: 'Fri Nov 24 2023 02:38:17 GMT+0700 (Western Indonesia Time)',
-  },
-];
+import { useQuery } from '@tanstack/react-query';
+import axiosInstance from '@/lib/axiosInstance';
+import { getCookie } from 'cookies-next';
+import Loading from '@/components/Loading';
+import Error from '@/app/error';
+import {
+  TStoreManagementData,
+  TStoreManagementQuery,
+} from '@/types/storeTypes';
+import SearchField from './SearchField';
+import TambahTokoDialog from './TambahTokoDialog';
+import FilterStatus from './FilterStatus';
 
 const StoresContent = () => {
-  const searchParams = useSearchParams();
-  const rawPage = searchParams.get('page') || '1';
-  const page = parseInt(rawPage) < 1 ? 1 : parseInt(rawPage);
-  const pageSize = 20;
+  const token = getCookie('access-token');
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [query, setQuery] = useState<TStoreManagementQuery>({
+    state: null,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    page: 1,
+    pageSize: 20,
+  });
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setQuery((prevQuery) => ({
+        ...prevQuery,
+        page: 1,
+      }));
+      refetch();
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryFn: async (): Promise<TStoreManagementData> => {
+      const res = await axiosInstance().get(`/store-management`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          keyword: searchTerm,
+          state: query.state,
+          sortBy: query.sortBy,
+          sortOrder: query.sortOrder,
+          page: query.page,
+          pageSize: query.pageSize,
+        },
+      });
+
+      return res.data.data;
+    },
+    queryKey: ['store_management', query],
+  });
 
   return (
-    <div className="flex flex-col w-full space-y-4 py-4">
+    <div className="flex flex-col w-full h-full space-y-4 py-4">
       <div className="flex flex-row justify-between items-center gap-4 w-full">
-        <div className="relative w-full md:max-w-[336px]">
-          <Input
-            type="search"
-            placeholder="Tulis nama / alamat / pembuat toko"
-            className="pl-8"
-          />
-          <Search className="absolute left-2.5 top-3 size-4 text-muted-foreground" />
+        <div className="flex flex-row gap-4">
+          <SearchField searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <FilterStatus state={query.state} setQuery={setQuery} />
         </div>
-        <Button
-          variant="default"
-          className="bg-main-dark hover:bg-main-dark/80"
-        >
-          <Plus className="size-4 mr-0 md:mr-2" />
-          <span className="hidden md:inline-block">Tambah Toko</span>
-        </Button>
+        <TambahTokoDialog refetch={refetch} />
       </div>
-      <StoresTable stores={store_data} />
-      <StorePagination
-        totalStore={store_data.length}
-        page={page}
-        pageSize={pageSize}
-      />
+      <div className="flex flex-col justify-center items-center w-full h-full">
+        {isLoading ? (
+          <Loading />
+        ) : isError ? (
+          <Error error={error} reset={refetch} />
+        ) : (
+          data && (
+            <>
+              <div className="h-full w-full">
+                <StoresTable stores={data.stores} refetch={refetch} />
+              </div>
+              <StorePagination
+                totalStore={data.totalStores}
+                totalPages={data.totalPages}
+                page={data.currentPage}
+                pageSize={query.pageSize}
+                setQuery={setQuery}
+              />
+            </>
+          )
+        )}
+      </div>
     </div>
   );
 };

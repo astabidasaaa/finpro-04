@@ -85,6 +85,9 @@ class StoreQuery {
 
   public async findAllStoreAndReturnLatAndLong() {
     const stores = await prisma.store.findMany({
+      where: {
+        storeState: 'PUBLISHED',
+      },
       select: {
         id: true,
         addresses: {
@@ -104,6 +107,7 @@ class StoreQuery {
     const store = await prisma.store.findUnique({
       where: {
         id,
+        storeState: 'PUBLISHED',
       },
       select: {
         addresses: {
@@ -130,80 +134,6 @@ class StoreQuery {
     });
 
     return stores;
-  }
-
-  public async searchStores({
-    keyword = '',
-    state,
-    sortBy = 'createdAt',
-    sortOrder = 'asc',
-  }: {
-    keyword: string;
-    state: State;
-    sortBy: string;
-    sortOrder: string;
-  }) {
-    return await prisma.store.findMany({
-      where: {
-        AND: [
-          {
-            OR: [
-              {
-                name: {
-                  contains: keyword,
-                },
-              },
-              {
-                addresses: {
-                  some: {
-                    address: {
-                      contains: keyword,
-                    },
-                    deleted: false,
-                  },
-                },
-              },
-              {
-                creator: {
-                  OR: [
-                    {
-                      email: {
-                        contains: keyword,
-                      },
-                    },
-                    {
-                      profile: {
-                        name: {
-                          contains: keyword,
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-
-          state ? { storeState: state } : {},
-        ],
-      },
-
-      orderBy:
-        sortBy === 'admins'
-          ? {
-              admins: {
-                _count: sortOrder as any,
-              },
-            }
-          : {
-              createdAt: sortOrder as any,
-            },
-      include: {
-        creator: true,
-        addresses: true,
-        admins: true,
-      },
-    });
   }
 
   public async getAllAdminByStoreId(storeId: number): Promise<number[]> {

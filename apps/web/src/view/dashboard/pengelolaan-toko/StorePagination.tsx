@@ -1,48 +1,47 @@
 'use client';
 
 import React from 'react';
-import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { TStoreManagementQuery } from '@/types/storeTypes';
+
+type StorePaginationProps = {
+  totalStore: number;
+  totalPages: number;
+  page: number;
+  pageSize: number;
+  setQuery: React.Dispatch<React.SetStateAction<TStoreManagementQuery>>;
+};
 
 const StorePagination = ({
   totalStore,
+  totalPages,
   page,
   pageSize,
-}: {
-  totalStore: number;
-  page: number;
-  pageSize: number;
-}) => {
-  const pathname = usePathname();
-  const router = useRouter();
-
+  setQuery,
+}: StorePaginationProps) => {
   const startStore = (page - 1) * pageSize + 1;
   const endStore = Math.min(page * pageSize, totalStore);
 
-  // calculate the total number of pages
-  const totalPages = Math.ceil(totalStore / pageSize);
-
-  // determine the state of the "older" and "newer" buttons
   const hasOlderPage = page > 1;
   const hasNewerPage = page < totalPages;
 
-  const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      router.push(`${pathname}?page=${page}`);
-    }
+  const handlePagination = (newPage: number) => {
+    setQuery((prevQuery) => ({
+      ...prevQuery,
+      page: newPage,
+    }));
   };
 
-  // older and Newer button click handlers
-  const handleOlderClick = () => {
+  const handlePrevious = () => {
     if (hasOlderPage) {
-      goToPage(page - 1);
+      handlePagination(page - 1);
     }
   };
 
-  const handleNewerClick = () => {
+  const handleNext = () => {
     if (hasNewerPage) {
-      goToPage(page + 1);
+      handlePagination(page + 1);
     }
   };
   return (
@@ -56,7 +55,7 @@ const StorePagination = ({
         <Button
           size="icon"
           variant="link"
-          onClick={handleOlderClick}
+          onClick={handlePrevious}
           disabled={!hasOlderPage}
           className="size-6"
         >
@@ -65,7 +64,7 @@ const StorePagination = ({
         <Button
           size="icon"
           variant="link"
-          onClick={handleNewerClick}
+          onClick={handleNext}
           disabled={!hasNewerPage}
           className="size-6"
         >
