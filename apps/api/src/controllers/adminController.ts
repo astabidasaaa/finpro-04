@@ -131,4 +131,27 @@ export class AdminController {
       next(err);
     }
   }
+
+  public async getAllAdminToBeSelected(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { search, limit, offset } = req.query;
+
+      const admins = await adminAction.getAllAdminsAction({
+        search: search?.toString(),
+        limit: limit?.toString(),
+        offset: offset?.toString(),
+      });
+
+      res.status(200).json({
+        message: 'Daftar admin berhasil diambil',
+        data: { admins },
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }

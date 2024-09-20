@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { Store } from '@prisma/client';
+import { State, Store } from '@prisma/client';
 
 class StoreQuery {
   public async findSingleStore(storeId: number): Promise<Store | null> {
@@ -85,6 +85,9 @@ class StoreQuery {
 
   public async findAllStoreAndReturnLatAndLong() {
     const stores = await prisma.store.findMany({
+      where: {
+        storeState: 'PUBLISHED',
+      },
       select: {
         id: true,
         addresses: {
@@ -104,6 +107,7 @@ class StoreQuery {
     const store = await prisma.store.findUnique({
       where: {
         id,
+        storeState: 'PUBLISHED',
       },
       select: {
         addresses: {

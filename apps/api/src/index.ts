@@ -15,6 +15,7 @@ import { BrandRouter } from './routers/brandRouter';
 import { ProductRouter } from './routers/productRouter';
 import { AdminRouter } from './routers/adminRouter';
 import { InventoryRouter } from './routers/inventoryRouter';
+import { StoreManagementRouter } from './routers/storeManagementRouter';
 import { VoucherRouter } from './routers/voucherRouter';
 
 function main() {
@@ -38,6 +39,7 @@ function main() {
     new ProductRouter(),
     new AdminRouter(),
     new InventoryRouter(),
+    new StoreManagementRouter(),
     new VoucherRouter(),
   ]);
   app.start();

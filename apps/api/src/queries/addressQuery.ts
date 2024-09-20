@@ -6,6 +6,7 @@ class AddressQuery {
     const user = await prisma.user.findUnique({
       where: {
         id,
+        deletedAt: null,
       },
       select: {
         addresses: {
@@ -35,11 +36,13 @@ class AddressQuery {
     const address = await prisma.user.findUnique({
       where: {
         id: userId,
+        deletedAt: null,
       },
       select: {
         addresses: {
           where: {
             id: addressId,
+            deleted: false,
           },
           select: {
             latitude: true,
@@ -63,6 +66,7 @@ class AddressQuery {
     const createAddress = await prisma.user.update({
       where: {
         id,
+        deletedAt: null,
       },
       data: {
         addresses: {
@@ -103,12 +107,14 @@ class AddressQuery {
     const updateAddress = await prisma.user.update({
       where: {
         id,
+        deletedAt: null,
       },
       data: {
         addresses: {
           update: {
             where: {
               id: addressId,
+              deleted: false,
             },
             data: { ...dataUpdate },
           },
@@ -126,12 +132,14 @@ class AddressQuery {
     const updateAddress = await prisma.user.update({
       where: {
         id,
+        deletedAt: null,
       },
       data: {
         addresses: {
           update: {
             where: {
               id: addressId,
+              deleted: false,
             },
             data: {
               deleted: true,
@@ -159,6 +167,7 @@ class AddressQuery {
           update: {
             where: {
               id: addressId,
+              deleted: false,
             },
             data: {
               isMain: true,
