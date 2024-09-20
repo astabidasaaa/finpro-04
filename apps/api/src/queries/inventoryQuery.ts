@@ -165,13 +165,14 @@ class InventoryQuery {
     }
   }
 
-  public async addInventoryChange(
-    props: CreateInventoryChangeInput,
-  ): Promise<InventoryUpdate> {
+  public async getInventoryBuyProductIdAndStoreId(
+    productId: number,
+    storeId: number,
+  ): Promise<Inventory> {
     const inventory = await prisma.inventory.findFirst({
       where: {
-        productId: props.productId,
-        storeId: props.storeId,
+        productId: productId,
+        storeId: storeId,
       },
     });
     if (inventory === null) {
@@ -180,6 +181,16 @@ class InventoryQuery {
         'Inventaris tidak ditemukan',
       );
     }
+    return inventory;
+  }
+
+  public async addInventoryChange(
+    props: CreateInventoryChangeInput,
+  ): Promise<InventoryUpdate> {
+    const inventory = await this.getInventoryBuyProductIdAndStoreId(
+      props.productId,
+      props.storeId,
+    );
 
     const changeStock: number =
       props.updateType === $Enums.InventoryUpdateType.ADD

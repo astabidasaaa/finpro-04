@@ -11,8 +11,10 @@ import PengirimanCard from './PengirimanCard';
 import { NearestStore, OrderItem, TShipping } from '@/types/orderTypes';
 import { Address } from '@/types/addressType';
 import Image from 'next/image';
-import { BadgePercent, ChevronRight, Minus, Percent, Plus } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import DialogUseVoucher from './DialogUseVoucher';
+import { VoucherDetail } from '@/types/voucherType';
 
 const CheckoutPageView = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -21,6 +23,11 @@ const CheckoutPageView = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [nearestStore, setNearestStore] = useState<NearestStore | null>(null);
   const [shipping, setShipping] = useState<TShipping | null>(null);
+
+  const [selectedDeliveryVoucher, setSelectedDeliveryVoucher] =
+    useState<VoucherDetail | null>(null);
+  const [selectedTransactionVoucher, setSelectedTransactionVoucher] =
+    useState<VoucherDetail | null>(null);
 
   const [additionalInfo, setAdditionalInfo] = useState<string>('');
 
@@ -388,15 +395,14 @@ const CheckoutPageView = () => {
       <div className="">
         <div className="p-0 lg:p-6 lg:border rounded-lg">
           <div className="flex flex-col gap-6">
-            <Button variant="outline" asChild>
-              <div className="flex flex-row justify-between items-center w-full !p-6">
-                <span className="flex flex-row">
-                  <BadgePercent className="size-5 text-main-dark mr-2" />{' '}
-                  Gunakan promo
-                </span>
-                <ChevronRight />
-              </div>
-            </Button>
+            <DialogUseVoucher
+              selectedDeliveryVoucherId={selectedDeliveryVoucher?.id}
+              selectedTransactionVoucherId={selectedTransactionVoucher?.id}
+              setDeliveryVoucher={setSelectedDeliveryVoucher}
+              setTransactionVoucher={setSelectedTransactionVoucher}
+              nearestStore={nearestStore}
+              totalPrice={calculateTotalPrice()}
+            />
             <Separator />
             <div className="flex flex-col justify-start items-start">
               <h3 className="mb-2 font-semibold tracking-tight text-base md:text-lg">
@@ -410,6 +416,11 @@ const CheckoutPageView = () => {
                 <div className="flex flex-row justify-between w-full text-sm text-muted-foreground">
                   <span>Total Ongkos Kirim</span>
                   <span>{IDR.format(shipping?.amount || 0)}</span>
+                </div>
+                <div className="flex flex-row justify-between w-full text-sm text-muted-foreground">
+                  <span>Kupon digunakan</span>
+                  <span>Ongkir: {selectedDeliveryVoucher?.id}</span>
+                  <span>Transaksi: {selectedTransactionVoucher?.id}</span>
                 </div>
               </div>
             </div>

@@ -63,8 +63,30 @@ export const superAdminMenuList = [
     ],
   },
   {
-    label: 'Manajemen Diskon',
+    label: 'Manajemen Promosi',
     icon: <Percent className="size-5" />,
-    href: '/dashboard/discount',
+    href: '/dashboard/promotion',
+    child: [
+      {
+        label: 'Promosi Umum',
+        href: '/dashboard/promotion/general',
+      },
+      {
+        label: 'Promosi Toko',
+        href: '/dashboard/promotion/store',
+      },
+      // {
+      //   label: 'Riwayat Voucher',
+      //   href: '/dashboard/promotion/voucher-history',
+      // },
+      {
+        label: 'Diskon Produk',
+        href: '/dashboard/promotion/discount-product',
+      },
+      {
+        label: 'Gratis Produk',
+        href: '/dashboard/promotion/free-product',
+      },
+    ],
   },
 ];

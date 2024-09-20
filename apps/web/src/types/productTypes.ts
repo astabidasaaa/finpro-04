@@ -89,11 +89,11 @@ export type ProductsSearchedProps = {
   products: ProductProps[];
 };
 
-enum DiscountType {
+export enum DiscountType {
   FLAT = 'FLAT',
   PERCENT = 'PERCENT',
 }
-enum State {
+export enum State {
   PUBLISHED = 'PUBLISHED',
   DRAFT = 'DRAFT',
   ARCHIVED = 'ARCHIVED',
