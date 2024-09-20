@@ -186,6 +186,59 @@ class AdminQuery {
       );
     }
   }
+
+  public async getAllAdmins({
+    search,
+    limit,
+    offset,
+  }: {
+    search: string | undefined;
+    limit: number;
+    offset: number;
+  }) {
+    const where = {
+      role: {
+        name: 'store admin',
+      },
+      deletedAt: null,
+      ...(search
+        ? {
+            OR: [
+              { profile: { name: { contains: search } } },
+              { email: { contains: search } },
+            ],
+          }
+        : {}),
+    };
+
+    const admins = await prisma.user.findMany({
+      where,
+      // take: limit,
+      // skip: offset,
+      select: {
+        id: true,
+        email: true,
+        profile: {
+          select: {
+            name: true,
+          },
+        },
+        role: {
+          select: {
+            name: true,
+          },
+        },
+        store: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return admins;
+  }
 }
 
 export default new AdminQuery();

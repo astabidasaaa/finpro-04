@@ -114,6 +114,39 @@ class AdminAction {
 
     await adminQuery.deleteAdmin(adminId, deletedEmail);
   }
+
+  public async getAllAdminsAction({
+    search,
+    limit,
+    offset,
+  }: {
+    search: string | undefined;
+    limit: string | undefined;
+    offset: string | undefined;
+  }) {
+    const DEFAULT_LIMIT = 20;
+    const DEFAULT_OFFSET = 0;
+
+    const limitConverted = isNaN(Number(limit)) ? DEFAULT_LIMIT : Number(limit);
+    const offsetConverted = isNaN(Number(offset))
+      ? DEFAULT_OFFSET
+      : Number(offset);
+
+    const admins = await adminQuery.getAllAdmins({
+      search,
+      limit: limitConverted,
+      offset: offsetConverted,
+    });
+
+    if (!admins) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Daftar admin tidak ditemukan',
+      );
+    }
+
+    return admins;
+  }
 }
 
 export default new AdminAction();
