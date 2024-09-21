@@ -113,7 +113,6 @@ const PengirimanCard = ({
             />
           </div>
         </CardContent>
-        {/* <CardFooter className="space-x-4"></CardFooter> */}
       </Card>
     </>
   );

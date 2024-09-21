@@ -71,6 +71,21 @@ class PasswordAction {
 
     await passwordQuery.changePassword(email, hashedPassword);
   }
+
+  public async add(email: string, password: string) {
+    const user = await authQuery.findUserByEmail(email);
+
+    if (!user) {
+      throw new HttpException(
+        HttpStatus.NOT_FOUND,
+        'Akun tidak ditemukan. Pastikan email Anda benar.',
+      );
+    }
+
+    const hashedPassword = await hashingPassword(password);
+
+    await passwordQuery.changePassword(email, hashedPassword);
+  }
 }
 
 export default new PasswordAction();

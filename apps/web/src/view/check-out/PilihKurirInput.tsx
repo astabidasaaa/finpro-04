@@ -43,28 +43,32 @@ const PilihKurirInput = ({
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryFn: async () => {
-      const res = await axiosInstance().post(
-        `/courier`,
-        {
-          storeId: nearestStore?.storeId || 1,
-          addressId: parseInt(selectedAddressId),
-          itemList: orderItems.map((item: OrderItem) => {
-            return {
-              name: item.name,
-              quantity: item.quantity,
-              value: item.price,
-            };
-          }),
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+      if (selectedAddressId) {
+        const res = await axiosInstance().post(
+          `/courier`,
+          {
+            storeId: nearestStore?.storeId || 1,
+            addressId: parseInt(selectedAddressId),
+            itemList: orderItems.map((item: OrderItem) => {
+              return {
+                name: item.name,
+                quantity: item.quantity,
+                value: item.price,
+              };
+            }),
           },
-        },
-      );
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
 
-      return res.data.data.shippingPriceList as TCourier;
+        return res.data.data.shippingPriceList as TCourier;
+      }
+
+      return false;
     },
     queryKey: ['couriers', selectedAddressId, orderItems],
   });
@@ -104,7 +108,7 @@ const PilihKurirInput = ({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Kurir</SelectLabel>
-            {data?.success && data?.pricing.length > 0 && (
+            {data && data?.success && data?.pricing.length > 0 && (
               <>
                 {isLoading ? (
                   <div className="flex flex-row justify-center items-center w-full min-h-[32px]">

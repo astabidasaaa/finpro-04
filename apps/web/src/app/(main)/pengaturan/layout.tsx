@@ -17,10 +17,10 @@ const sidebarNavItems = [
     title: 'Daftar Alamat',
     href: '/pengaturan/alamat',
   },
-  {
-    title: 'Tampilan',
-    href: '/pengaturan/tampilan',
-  },
+  // {
+  //   title: 'Tampilan',
+  //   href: '/pengaturan/tampilan',
+  // },
 ];
 
 const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
@@ -28,9 +28,7 @@ const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="w-full px-4 md:px-12 lg:px-24 py-8 space-y-6">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Pengaturan</h2>
-        <p className="text-muted-foreground">
-          Kelola pengaturan akun Anda dan atur preferensi tampilan.
-        </p>
+        <p className="text-muted-foreground">Kelola pengaturan akun Anda</p>
       </div>
       <Separator className="my-6" />
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 w-full">

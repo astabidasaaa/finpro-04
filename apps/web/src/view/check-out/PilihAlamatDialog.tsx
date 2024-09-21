@@ -34,7 +34,6 @@ const PilihAlamatDialog = ({
   refetchSelectedAddress,
 }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
-  //   const [addresses, setAddresses] = useState<Address[] | null>(null);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -43,7 +42,7 @@ const PilihAlamatDialog = ({
           <div className="flex flex-col justify-start items-start">
             {selectedAddress ? (
               <>
-                <p className="font-bold text-xs md:text-sm">
+                <span className="font-bold text-xs md:text-sm">
                   {selectedAddress.isMain && (
                     <Badge
                       variant="secondary"
@@ -53,10 +52,10 @@ const PilihAlamatDialog = ({
                     </Badge>
                   )}{' '}
                   {selectedAddress.name}
-                </p>
-                <p className="text-muted-foreground text-xs md:text-sm">
+                </span>
+                <span className="text-muted-foreground text-xs md:text-sm">
                   {selectedAddress.address}
-                </p>
+                </span>
               </>
             ) : (
               <p className="text-muted-foreground text-xs md:text-sm">
@@ -79,6 +78,7 @@ const PilihAlamatDialog = ({
           setAddresses={setAddresses}
           selectedAddressId={selectedAddressId}
           setSelectedAddressId={setSelectedAddressId}
+          refetchSelectedAddress={refetchSelectedAddress}
         />
       </DialogContent>
     </Dialog>

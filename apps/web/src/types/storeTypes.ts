@@ -1,3 +1,5 @@
+import { DiscountType } from './productTypes';
+
 export type TStore = {
   name: string;
 };
@@ -8,8 +10,16 @@ export type TImage = {
 
 export type TInventory = {
   storeId: number;
-  stock: number;
   store: TStore;
+  stock: number;
+  productDiscountPerStores: {
+    discountType: DiscountType;
+    discountValue: number;
+  }[];
+  freeProductPerStores: {
+    get: number;
+    buy: number;
+  }[];
 };
 
 export type TPrice = {

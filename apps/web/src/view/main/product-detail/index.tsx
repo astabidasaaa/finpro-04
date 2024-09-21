@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAppSelector } from '@/lib/hooks';
@@ -14,6 +14,8 @@ import {
 } from '@/types/productTypes';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { Separator } from '@/components/ui/separator';
+import { IDR } from '@/lib/utils';
 
 export default function ProductDetailView({
   productId,
@@ -72,12 +74,6 @@ export default function ProductDetailView({
     setSelectedImage(index);
   };
 
-  let IDR = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  });
-
   if (product !== undefined) {
     let productPrice = product.product.prices[0].price;
     let discountedPrice = productPrice;
@@ -100,10 +96,10 @@ export default function ProductDetailView({
     }
 
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="space-y-4 w-full md:col-span-1">
-            <div className="w-full">
+      <div className="flex flex-col justify-start items-center px-4 md:px-12 lg:px-24 w-full">
+        <div className="flex flex-col md:flex-row max-w-screen-lg gap-8">
+          <div className="flex flex-col justify-start items-start gap-8">
+            <div className="w-full max-w-[480px]">
               <Image
                 src={
                   `${process.env.PRODUCT_API_URL}/${images[selectedImage].title}` ||
@@ -111,12 +107,12 @@ export default function ProductDetailView({
                 }
                 alt={images[selectedImage].alt || 'Product image'}
                 className="aspect-square w-full object-cover object-center rounded-lg shadow-lg"
-                height={400}
-                width={400}
+                height={480}
+                width={480}
                 quality={100}
               />
             </div>
-            <div className="grid grid-cols-4 gap-2 pt-4">
+            <div className="grid grid-cols-4 gap-2">
               {images.map((img, i) => (
                 <Image
                   key={i}
@@ -125,7 +121,7 @@ export default function ProductDetailView({
                     '/avatar-placeholder.png'
                   }
                   alt={img.alt || 'Product image'}
-                  className={`w-full h-auto rounded-md shadow cursor-pointer transition-all duration-300 ${
+                  className={`w-28 md:w-40 h-auto rounded-md shadow cursor-pointer transition-all duration-300 ${
                     i === selectedImage
                       ? 'ring-2 ring-main-dark'
                       : 'hover:ring-2 hover:ring-main-dark/30'
@@ -137,78 +133,102 @@ export default function ProductDetailView({
               ))}
             </div>
           </div>
-          <div className="space-y-6 md:col-span-2">
-            <div className="text-lg md:text-xl font-bold">
-              {product.product.name}
-            </div>
-            <div className="space-y-3">
-              {product.productDiscountPerStores.length > 0 ? (
-                <div>
-                  <div className="flex flex-row align-middle">
-                    <div className="text-sm md:text-md font-normal text-gray-500 line-through">
-                      {IDR.format(productPrice)}
+          <div className="flex flex-col justify-start gap-8 w-full">
+            <div className="flex flex-col justify-start gap-4 w-full">
+              <div className="flex flex-col justify-start gap-2 w-full">
+                <h1 className='className="text-lg md:text-xl font-bold'>
+                  {product.product.name}
+                </h1>
+                <p className="text-muted-foreground/80">
+                  <span>
+                    {product.product.subcategory.productCategory.name}
+                  </span>{' '}
+                  - <span>{product.product.subcategory.name}</span>
+                </p>
+              </div>
+              <div className="flex flex-col justify-start w-full gap-4">
+                {product.productDiscountPerStores.length > 0 ? (
+                  <div className="flex flex-col justify-start w-full gap-4">
+                    <div className="text-2xl md:text-[28px] font-semibold text-main-dark mt-1">
+                      {IDR.format(discountedPrice)}
                     </div>
-                    <Badge className="text-xs ml-2 bg-orange-500/70 font-normal text-black">
-                      {product.productDiscountPerStores[0].discountType ===
-                      'PERCENT' ? (
-                        <>
-                          -{product.productDiscountPerStores[0].discountValue}%
-                        </>
-                      ) : (
-                        <>
-                          -{' '}
-                          {IDR.format(
-                            product.productDiscountPerStores[0].discountValue,
-                          )}
-                        </>
-                      )}
-                    </Badge>
+                    <div className="flex flex-row align-middle">
+                      <div className="text-base md:text-lg font-normal text-muted-foreground/80 line-through">
+                        {IDR.format(productPrice)}
+                      </div>
+                      <Badge className="text-xs ml-2 bg-destructive/10 text-destructive">
+                        {product.productDiscountPerStores[0].discountType ===
+                        'PERCENT' ? (
+                          <>
+                            -{product.productDiscountPerStores[0].discountValue}
+                            %
+                          </>
+                        ) : (
+                          <>
+                            -{' '}
+                            {IDR.format(
+                              product.productDiscountPerStores[0].discountValue,
+                            )}
+                          </>
+                        )}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="text-lg md:text-xl font-semibold text-main-dark mt-1">
-                    {IDR.format(discountedPrice)}
+                ) : (
+                  <div className="text-lg md:text-xl font-semibold text-main-dark ">
+                    {IDR.format(productPrice)}
                   </div>
-                </div>
-              ) : (
-                <div className="text-lg md:text-xl font-semibold text-main-dark ">
-                  {IDR.format(productPrice)}
-                </div>
-              )}
-              {buy != 0 && get != 0 && (
-                <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black">
-                  Beli {buy} gratis {get}
-                </Badge>
-              )}
+                )}
+                {buy != 0 && get != 0 && (
+                  <div className="text-sm w-max text-center font-semibold rounded-full bg-destructive/10 text-destructive py-1 px-3">
+                    Beli {buy} gratis {get}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex flex-col sm:flex-row justify-start gap-4 md:gap-10 md:justify-end">
-              <div className="flex items-center space-x-4 justify-center md:justify-start">
+            <Separator />
+            <div className="flex flex-col justify-start gap-4 w-full md:w-max">
+              <span className="font-semibold">Atur Jumlah</span>
+              <div className="flex items-center justify-center md:justify-start w-max gap-2 p-3 border rounded-lg">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
                   onClick={decreaseQuantity}
+                  className="h-max w-max p-1"
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
                 <Input
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                  className="w-20 text-center"
+                  className="w-12 h-max p-0 text-center border-none"
                 />
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="icon"
                   onClick={increaseQuantity}
+                  className="h-max w-max p-1"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <Button className="w-full sm:w-max">
+              <div className="flex flex-row justify-between md:gap-16">
+                <span className="text-muted-foreground/80">Subtotal</span>
+                <span className="w-48 font-bold text-lg text-end">
+                  {IDR.format(quantity * discountedPrice)}
+                </span>
+              </div>
+              <Button className="w-full bg-main-dark hover:bg-main-dark/80">
                 <Plus className="size-4 mr-2" />
                 Keranjang
               </Button>
             </div>
-            <div className="font-semibold">Deskripsi Produk</div>
-            <div className="text-gray-600 text-sm">
-              {product?.product.description}
+            <Separator />
+            <div className="flex flex-col justify-start w-full gap-4">
+              <span className="font-semibold">Deskripsi Produk</span>
+              <div className="text-primary text-sm">
+                {product?.product.description}
+              </div>
             </div>
           </div>
         </div>

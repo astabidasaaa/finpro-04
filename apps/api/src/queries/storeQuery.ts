@@ -71,6 +71,28 @@ class StoreQuery {
                         name: true,
                       },
                     },
+                    freeProductPerStores: {
+                      where: {
+                        freeProductState: 'PUBLISHED',
+                        startedAt: { lte: new Date() },
+                        finishedAt: { gt: new Date() },
+                      },
+                      select: {
+                        buy: true,
+                        get: true,
+                      },
+                    },
+                    productDiscountPerStores: {
+                      where: {
+                        productDiscountState: 'PUBLISHED',
+                        startedAt: { lte: new Date() },
+                        finishedAt: { gt: new Date() },
+                      },
+                      select: {
+                        discountType: true,
+                        discountValue: true,
+                      },
+                    },
                   },
                 },
               },
