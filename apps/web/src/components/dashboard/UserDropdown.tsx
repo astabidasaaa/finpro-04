@@ -37,15 +37,12 @@ const UserDropdownDashboard = ({ user }: { user: User }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>{user.name || user.email}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <Link href="/dashboard/notifikasi" className="block md:hidden">
-          <DropdownMenuItem>Notifikasi</DropdownMenuItem>
-        </Link>
+        {/* <DropdownMenuSeparator />
         <DropdownMenuSeparator className="block md:hidden" />
         <Link href="/dashboard/pengaturan">
           <DropdownMenuItem>Pengaturan</DropdownMenuItem>
         </Link>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator /> */}
         <DropdownMenuItem
           onClick={async () => {
             await logout()(dispatch);

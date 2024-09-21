@@ -20,15 +20,13 @@ export default function SubcategoryFilter({
 }) {
   return (
     <>
-      <Collapsible>
-        <CollapsibleTrigger className="font-medium">
-          Kategori
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <ScrollArea className="h-60 lg:h-44 py-2">
+      <div>
+        <Label className="font-bold">Kategori</Label>
+        <div>
+          <ScrollArea className="h-60 lg:h-56 py-2">
             <RadioGroup
               defaultChecked={true}
-              defaultValue={categoryId !== '' ? categoryId : '0'}
+              defaultValue={categoryId ? categoryId : '0'}
               onValueChange={(value) => {
                 let number: number | undefined = Number(value);
                 if (number === 0) {
@@ -39,31 +37,40 @@ export default function SubcategoryFilter({
             >
               <div
                 key="semua"
-                className="flex py-0.5 text-gray-600 items-center space-x-2"
+                className="flex justify-start items-center py-0.5 text-muted-foreground gap-2"
               >
-                <RadioGroupItem value="0" id="0" />
+                <RadioGroupItem
+                  value="0"
+                  id="0"
+                  className="!min-w-3 w-3 !h-3"
+                />
                 <Label htmlFor="0">
-                  <span className="font-normal">Semua kategori</span>
+                  <span className="font-normal text-[13px] line-clamp-2">
+                    Semua kategori
+                  </span>
                 </Label>
               </div>
               {subcategories.map((category) => (
                 <div
                   key={category.id}
-                  className="flex py-0.5 text-gray-600 items-center space-x-2"
+                  className="flex justify-start items-center py-0.5 text-muted-foreground gap-2"
                 >
                   <RadioGroupItem
                     value={category.id.toString()}
                     id={category.id.toString()}
+                    className="!min-w-3 w-3 !h-3"
                   />
                   <Label htmlFor={category.id.toString()}>
-                    <span className="font-normal">{category.name}</span>
+                    <span className="font-normal text-[13px] line-clamp-2">
+                      {category.name}
+                    </span>
                   </Label>
                 </div>
               ))}
             </RadioGroup>
           </ScrollArea>
-        </CollapsibleContent>
-      </Collapsible>
+        </div>
+      </div>
     </>
   );
 }

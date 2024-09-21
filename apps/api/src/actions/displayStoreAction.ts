@@ -60,11 +60,14 @@ class DisplayStoreAction {
         }
       });
 
-      if (nearestStoreId) {
-        return nearestStoreId;
-      } else {
-        throw new HttpException(HttpStatus.NOT_FOUND, 'Toko tidak ditemukan');
+      if (!nearestStoreId) {
+        const firstStore = await storeQuery.getAllStore();
+        const firstStoreId = firstStore[0].id;
+
+        return firstStoreId;
       }
+
+      return nearestStoreId;
     }
   }
 

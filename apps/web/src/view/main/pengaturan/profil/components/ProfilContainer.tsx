@@ -37,7 +37,11 @@ const ProfilContainer = () => {
 
   return (
     <div className="flex flex-col md:flex-row w-full space-y-8 md:space-y-0">
-      <AvatarCard avatar={data.avatar} isPassword={data.isPassword} />
+      <AvatarCard
+        avatar={data.avatar}
+        isPassword={data.isPassword}
+        refetch={refetch}
+      />
       <ProfilForm profile={data} refetch={refetch} />
     </div>
   );

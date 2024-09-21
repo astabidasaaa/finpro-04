@@ -38,11 +38,7 @@ const UserDropdown = ({ user }: { user: User }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>{user.name || user.email}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-
-        <Link href="/notifikasi" className="block md:hidden">
-          <DropdownMenuItem>Notifikasi</DropdownMenuItem>
-        </Link>
-        <Link href="/keranjang" className="block md:hidden">
+        <Link href="/cart" className="block md:hidden">
           <DropdownMenuItem>Keranjang</DropdownMenuItem>
         </Link>
         <Link href="/voucher">
