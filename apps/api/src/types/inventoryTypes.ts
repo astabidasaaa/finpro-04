@@ -84,3 +84,20 @@ export enum UpdateTypeDesc {
   ADD = 'Tambah',
   REMOVE = 'Kurang',
 }
+
+export type ProductInventoryChange = {
+  id: number;
+  role: string;
+  month: number;
+  year: number;
+  inventoryId: number;
+  orderBy: string;
+};
+
+export type ProductStockChange = {
+  id: number;
+  name: string;
+  totalAdd: number;
+  totalRemove: number;
+  lastStock: number;
+};

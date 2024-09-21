@@ -5,6 +5,8 @@ import {
   CreateInventoryChangeInput,
   InventoryProps,
   InventoryUpdateProps,
+  ProductInventoryChange,
+  ProductStockChange,
   SearchAllInventoryInput,
   SearchAllInventoryUpdatesInput,
   SearchStoreInventoryInput,
@@ -16,6 +18,12 @@ import storeQuery from '@/queries/storeQuery';
 import productQuery from '@/queries/productQuery';
 import { $Enums, InventoryUpdate } from '@prisma/client';
 import inventoryUpdatesQuery from '@/queries/inventoryUpdatesQuery';
+import createPromotionAction from './createPromotionAction';
+import {
+  SearchAllStoreProductPerMonth,
+  SearchPerStoreProductPerMonth,
+} from '@/types/reportTypes';
+import inventoryReportQuery from '@/queries/inventoryReportQuery';
 
 class InventoryAction {
   public async getAllInventoryAction(props: SearchAllInventoryInput): Promise<{
@@ -34,14 +42,7 @@ class InventoryAction {
     totalCount: number;
   }> {
     const { id, storeId, role } = props;
-    const adminStore = await storeQuery.getAllAdminByStoreId(storeId);
-
-    if (role === 'store admin' && !adminStore.includes(id)) {
-      throw new HttpException(
-        HttpStatus.UNAUTHORIZED,
-        'Admin tidak memiliki akses ke toko ini',
-      );
-    }
+    await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const storeInventories =
       await inventoryQuery.getStoreInventoriesByStoreId(props);
@@ -68,14 +69,7 @@ class InventoryAction {
     totalCount: number;
   }> {
     const { id, storeId, role } = props;
-    const adminStore = await storeQuery.getAllAdminByStoreId(storeId);
-
-    if (role === 'store admin' && !adminStore.includes(id)) {
-      throw new HttpException(
-        HttpStatus.UNAUTHORIZED,
-        'Admin tidak memiliki akses ke toko ini',
-      );
-    }
+    await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const storeInventories =
       await inventoryUpdatesQuery.getStoreInventoryUpdates(props);
@@ -96,15 +90,7 @@ class InventoryAction {
         'Inventaris tidak ditemukan',
       );
     }
-
-    const adminStore = await storeQuery.getAllAdminByStoreId(inventory.storeId);
-
-    if (role === 'store admin' && !adminStore.includes(id)) {
-      throw new HttpException(
-        HttpStatus.UNAUTHORIZED,
-        'Admin tidak memiliki akses ke toko ini',
-      );
-    }
+    await createPromotionAction.checkAdminAccess(role, id, inventory.storeId);
 
     const storeInventories =
       await inventoryUpdatesQuery.getProductInventoryUpdatesByInventoryId(
@@ -119,14 +105,7 @@ class InventoryAction {
   ): Promise<InventoryUpdate> {
     const { id, role, storeId, productId, updateType, updateDetail } = props;
 
-    const adminStore = await storeQuery.getAllAdminByStoreId(storeId);
-
-    if (role === 'store admin' && !adminStore.includes(id)) {
-      throw new HttpException(
-        HttpStatus.UNAUTHORIZED,
-        'Admin tidak memiliki akses ke toko ini',
-      );
-    }
+    await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const product = await productQuery.getProductById(productId);
     if (product === null) {
@@ -166,7 +145,7 @@ class InventoryAction {
     ) {
       throw new HttpException(
         HttpStatus.BAD_REQUEST,
-        `Tipe perubahan ${updateTypeMap.get(updateType)?.toUpperCase()} dan detail perubahan ${updateDetailMap.get(updateDetail)?.toUpperCase()}  tidak selaras`,
+        `Tipe perubahan ${updateTypeMap.get(updateType)?.toUpperCase()} dan detail perubahan ${updateDetailMap.get(updateDetail)?.toUpperCase()} tidak selaras`,
       );
     }
 
@@ -174,6 +153,39 @@ class InventoryAction {
 
     return inventoryUpdates;
   }
+
+  public async getAllStoreProductStockPerMonthAction(
+    props: SearchAllStoreProductPerMonth,
+  ): Promise<{
+    products: ProductStockChange[];
+    totalCount: number;
+  }> {
+    const allProductStock =
+      await inventoryReportQuery.getStoresProductStockPerMonth(props);
+
+    return allProductStock;
+  }
+
+  public async getStoreProductStockPerMonthAction(
+    props: SearchPerStoreProductPerMonth,
+  ): Promise<{
+    products: ProductStockChange[];
+    totalCount: number;
+  }> {
+    const { id, role, storeId, ...otherProps } = props;
+    await createPromotionAction.checkAdminAccess(role, id, storeId);
+
+    const storeProductStock =
+      await inventoryReportQuery.getStoresProductStockPerMonth({
+        ...otherProps,
+        storeId,
+      });
+    return storeProductStock;
+  }
+
+  public async getProductInventoryChangePerMonthAction(
+    props: ProductInventoryChange,
+  ) {}
 }
 
 export default new InventoryAction();
