@@ -47,7 +47,7 @@ export default function NavigationList() {
                           pathname.startsWith(item.href) && 'text-primary'
                         }`}
                       >
-                        <span className="flex flex-row items-center gap-4">
+                        <span className="flex flex-row items-center gap-4 text-left">
                           {item.icon}
                           {item.label}
                         </span>
