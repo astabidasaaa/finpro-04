@@ -12,13 +12,20 @@ import {
 import { Button } from '@/components/ui/button';
 import AvatarForm from './AvatarForm';
 import PasswordUbah from './PasswordUbah';
+import PasswordBuat from './PasswordBuat';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { AxiosResponse } from 'axios';
 
 const AvatarCard = ({
   avatar,
   isPassword,
+  refetch,
 }: {
   avatar: string;
   isPassword: boolean;
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<AxiosResponse<any, any>, Error>>;
 }) => {
   const user = useAppSelector((state) => state.auth);
 
@@ -64,13 +71,7 @@ const AvatarCard = ({
         </Card>
       )}
 
-      {isPassword ? (
-        <PasswordUbah />
-      ) : (
-        <Button variant="outline" type="button">
-          Buat password
-        </Button>
-      )}
+      {isPassword ? <PasswordUbah /> : <PasswordBuat refetch={refetch} />}
     </div>
   );
 };

@@ -109,3 +109,16 @@ export const validateChangePassword = [
     next();
   },
 ];
+
+export const validateAddPassword = [
+  new_password_validator,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).send({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
