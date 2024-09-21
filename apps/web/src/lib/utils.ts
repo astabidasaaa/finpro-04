@@ -29,3 +29,9 @@ export const truncateText = (text: string, maxLength: number): string => {
   }
   return text;
 };
+
+export const IDR = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0,
+});

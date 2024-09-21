@@ -1,25 +1,20 @@
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import Image from 'next/image';
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from '@/components/ui/card';
-import { Plus, LucideStore } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ProductProps } from '@/types/productTypes';
+import { LucideStore, Plus } from 'lucide-react';
 import { IDR } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { TProduct } from '@/types/storeTypes';
+import Link from 'next/link';
 
-export default function ProductCard({
-  product,
-  storeName,
-}: {
-  product: ProductProps;
-  storeName: string | undefined;
-}) {
+const ProductSwiperSlide = ({ product }: { product: TProduct }) => {
   const productDiscount = product.inventories[0]?.productDiscountPerStores?.[0];
   const freeProduct = product.inventories[0]?.freeProductPerStores?.[0];
 
@@ -42,13 +37,14 @@ export default function ProductCard({
             height={400}
             width={400}
             src={
-              `${process.env.PRODUCT_API_URL}/${product?.images[0]?.title}` ||
+              `${process.env.PRODUCT_API_URL}/${product.images[0].title}` ||
               '/avatar-placeholder.png'
             }
           />
+
           <CardTitle className="sr-only">{product.name}</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col items-start gap-1.5 h-full p-0 sm:p-4 sm:pt-0 sm:pb-2.5 md:p-6 md:pt-0 md:pb-2.5 mt-1">
+        <CardContent className="flex flex-col items-start flex-1 gap-1.5 h-full p-0 sm:p-4 sm:pt-0 sm:pb-2.5 md:p-6 md:pt-0 md:pb-2.5 mt-1">
           <div className="flex justify-start items-center">
             <div className="text-xs font-semibold line-clamp-2">
               {product.name}
@@ -81,7 +77,7 @@ export default function ProductCard({
             <span className="p-1 rounded-full bg-muted mr-1.5">
               <LucideStore className="size-3" />
             </span>
-            {storeName}
+            {product.inventories[0].store.name}
           </div>
           <Button
             variant="outline"
@@ -105,4 +101,6 @@ export default function ProductCard({
       </Card>
     </Link>
   );
-}
+};
+
+export default ProductSwiperSlide;
