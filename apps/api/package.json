@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "cross-env NODE_ENV=development ts-node-dev -r tsconfig-paths/register src/index.ts",
-    "build": "tsc && tsc-alias",
+    "build": "tsc && tsc-alias && npm run copy-files",
+    "copy-files": "copyfiles -u 1 src/templates/**/* dist",
     "serve": "cross-env NODE_ENV=production node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prisma": "npx prisma",
@@ -47,6 +48,7 @@
     "@types/passport": "^1.0.16",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/uuid": "^10.0.0",
+    "copyfiles": "^2.4.1",
     "prisma": "^5.7.1",
     "tsconfig-paths": "^4.2.0"
   }
