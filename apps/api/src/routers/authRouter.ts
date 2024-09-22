@@ -4,6 +4,7 @@ import { PasswordController } from '@/controllers/passwordController';
 import { SocialController } from '@/controllers/socialController';
 import { VerifyEmailController } from '@/controllers/verifyEmailController';
 import {
+  validateAddPassword,
   validateChangePassword,
   validateEmail,
   validateLogin,
@@ -94,8 +95,9 @@ export class AuthRouter implements Route {
 
     this.router.patch(
       `${this.path}/add-password`,
+      validateAddPassword,
       this.guard.verifyAccessToken,
-      this.authController.refreshAccessToken,
+      this.passwordController.addPassword,
     );
 
     this.router.get(

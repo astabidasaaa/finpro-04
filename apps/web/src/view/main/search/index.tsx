@@ -31,6 +31,12 @@ import ProductPagination from './component/ProductPagination';
 export default function SearchMainView() {
   const nearestStore = useAppSelector((state) => state.storeId);
   const { storeId } = nearestStore;
+
+  const routerNav = useRouter();
+  const searchParams = useSearchParams();
+  const keyword = searchParams.get('keyword') || '';
+  const subcategoryHeaderId = searchParams.get('subcategoryId') || '';
+
   const [store, setStore] = useState<TStore>();
   const [products, setProducts] = useState<ProductProps[]>([]);
   const [brands, setBrands] = useState<BrandProps[]>([]);
@@ -43,12 +49,9 @@ export default function SearchMainView() {
   const [highPrice, setHighPrice] = useState<number>();
   const [orderBy, setOrderBy] = useState<string>('nameAsc');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const searchParams = useSearchParams();
-  const keyword = searchParams.get('keyword') || '';
-  const subcategoryHeaderId = searchParams.get('subcategoryId') || '';
-  const routerNav = useRouter();
-  const pageSize = 12;
+
   const [page, setPage] = useState<number>(1);
+  const pageSize = 12;
   const totalPages = Math.ceil(total / pageSize);
   const pages = [];
   for (let i = 1; i <= totalPages; i++) {
@@ -82,6 +85,7 @@ export default function SearchMainView() {
       );
       setProducts(result.data.data.products);
       setTotal(result.data.data.totalCount);
+      setIsFilterOpen(false);
     } catch (err) {
       if (err instanceof AxiosError) {
         alert(err.response?.data.message);
@@ -130,7 +134,7 @@ export default function SearchMainView() {
   }
 
   return (
-    <div className="px-4 md:px-12 lg:px-24 max-w-screen-2xl grid grid-cols-5 gap-4 -mt-2">
+    <div className="px-4 md:px-12 lg:px-24 max-w-screen-2xl grid grid-cols-5 gap-4">
       <div className="hidden lg:block">
         <div className="col-span-1 p-4 bg-gray-50 rounded-lg shadow-sm">
           <SubcategoryFilter
@@ -151,7 +155,10 @@ export default function SearchMainView() {
             />
           </div>
           <Separator className="my-4" />
-          <Button onClick={handleSubmit(handleProductSearch)}>
+          <Button
+            onClick={handleSubmit(handleProductSearch)}
+            className="!w-full !text-xs"
+          >
             Tampilkan Produk
           </Button>
         </div>
@@ -162,7 +169,7 @@ export default function SearchMainView() {
           <SelectOrderBy orderBy={orderBy} setOrderBy={setOrderBy} />
         </div>
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-8 pt-4">
             {products.map((product: ProductProps) => (
               <ProductCard
                 key={product.id}
@@ -189,11 +196,11 @@ export default function SearchMainView() {
               Filters
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[80vh]">
+          <SheetContent side="bottom" className="px-3">
             <SheetHeader>
               <SheetTitle>Filter</SheetTitle>
             </SheetHeader>
-            <div className="grid grid-cols-2 pt-4">
+            <div className="grid grid-cols-2 gap-2 pt-4">
               <SubcategoryFilter
                 categoryId={subcategoryHeaderId}
                 categories={subcategories}
@@ -212,7 +219,10 @@ export default function SearchMainView() {
               />
             </div>
             <Separator className="my-4" />
-            <Button onClick={handleSubmit(handleProductSearch)}>
+            <Button
+              onClick={handleSubmit(handleProductSearch)}
+              className="w-full"
+            >
               Tampilkan Produk
             </Button>
           </SheetContent>

@@ -58,4 +58,25 @@ export class PasswordController {
       next(error);
     }
   }
+
+  public async addPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { email } = req.user as User;
+
+      const { newPassword } = req.body;
+
+      const test = await passwordAction.add(email, newPassword);
+
+      res.status(200).json({
+        message: 'Password berhasil ditambahkan',
+        data: { test },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

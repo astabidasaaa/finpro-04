@@ -1,5 +1,9 @@
 import axiosInstance from '@/lib/axiosInstance';
-import { useQuery } from '@tanstack/react-query';
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  useQuery,
+} from '@tanstack/react-query';
 import { getCookie } from 'cookies-next';
 import React, { useEffect, useState } from 'react';
 import TambahAlamatDialog from '../main/pengaturan/alamat/components/TambahAlamatDialog';
@@ -13,15 +17,25 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Search } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  FileWarning,
+  MessageSquareWarning,
+  Search,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { BsDash } from 'react-icons/bs';
 
 type Props = {
   addresses: Address[] | null;
   setAddresses: React.Dispatch<React.SetStateAction<Address[] | null>>;
   selectedAddressId: string;
   setSelectedAddressId: React.Dispatch<React.SetStateAction<string>>;
+  refetchSelectedAddress: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<any, Error>>;
 };
 
 const PilihAlamatDialogContent = ({
@@ -29,6 +43,7 @@ const PilihAlamatDialogContent = ({
   setAddresses,
   selectedAddressId,
   setSelectedAddressId,
+  refetchSelectedAddress,
 }: Props) => {
   const token = getCookie('access-token');
 
@@ -87,7 +102,7 @@ const PilihAlamatDialogContent = ({
         refetch={refetch}
         buttonStyle="bg-transparent border border-main-dark text-main-dark hover:bg-transparent "
       />
-      <div className="flex flex-col gap-4 h-[320px] overflow-y-auto mt-4">
+      <div className="flex flex-col gap-4 max-h-[320px] overflow-y-auto mt-2">
         {addresses && addresses.length > 0 ? (
           addresses.map((address: Address, index: number) => {
             return (
@@ -142,9 +157,13 @@ const PilihAlamatDialogContent = ({
             );
           })
         ) : (
-          <p className="text-muted-foreground text-xs md:text-sm">
-            Anda belum memiliki alamat
-          </p>
+          <div className="flex justify-center items-center gap-2 w-full h-full text-muted-foreground">
+            <span className="text-sm text-center">
+              Anda belum memiliki alamat.
+              <br />
+              Klik tombol di atas untuk menambah alamat.
+            </span>
+          </div>
         )}
       </div>
     </>

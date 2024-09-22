@@ -15,5 +15,3 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default MainLayout;
-
-// px-4 md:px-12 lg:px-24

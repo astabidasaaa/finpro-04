@@ -11,8 +11,7 @@ import { Plus, LucideStore } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ProductProps } from '@/types/productTypes';
-import { truncateText } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { IDR } from '@/lib/utils';
 
 export default function ProductCard({
   product,
@@ -21,93 +20,87 @@ export default function ProductCard({
   product: ProductProps;
   storeName: string | undefined;
 }) {
-  let IDR = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  });
+  const productDiscount = product.inventories[0]?.productDiscountPerStores?.[0];
+  const freeProduct = product.inventories[0]?.freeProductPerStores?.[0];
 
-  let discountedPrice = 0;
-  let buy = 0;
-  let get = 0;
-  const productDiscount = product.inventories[0].productDiscountPerStores;
-  const freeProduct = product.inventories[0].freeProductPerStores;
-  if (productDiscount.length > 0) {
-    if (productDiscount[0].discountType === 'PERCENT') {
-      discountedPrice =
-        (product.prices[0].price * (100 - productDiscount[0].discountValue)) /
-        100;
-    } else {
-      discountedPrice =
-        product.prices[0].price - productDiscount[0].discountValue;
-    }
-  }
-  if (freeProduct.length > 0) {
-    buy = freeProduct[0].buy;
-    get = freeProduct[0].get;
-  }
+  const discountedPrice = productDiscount
+    ? productDiscount.discountType === 'PERCENT'
+      ? (product.prices[0].price * (100 - productDiscount.discountValue)) / 100
+      : product.prices[0].price - productDiscount.discountValue
+    : 0;
+
+  const buy = freeProduct?.buy ?? 0;
+  const get = freeProduct?.get ?? 0;
 
   return (
     <Link href={`/product/${product.id}`}>
-      <Card>
-        <CardHeader>
+      <Card className="flex flex-col border-0 sm:border shadow-none sm:shadow-sm h-full">
+        <CardHeader className="p-0 sm:p-4 sm:pb-0 md:p-6 md:pb-0">
           <Image
             alt={product.name}
             className="aspect-square object-cover"
             height={400}
             width={400}
             src={
-              `${process.env.PRODUCT_API_URL}/${product.images[0].title}` ||
+              `${process.env.PRODUCT_API_URL}/${product?.images[0]?.title}` ||
               '/avatar-placeholder.png'
             }
           />
-          <div className="flex justify-start items-center h-8 md:h-10">
-            <CardTitle className="text-xs md:text-sm lg:text-xs font-semibold">
-              {truncateText(product.name, 35)}
-            </CardTitle>
+          <CardTitle className="sr-only">{product.name}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-start gap-1.5 h-full p-0 sm:p-4 sm:pt-0 sm:pb-2.5 md:p-6 md:pt-0 md:pb-2.5 mt-1">
+          <div className="flex justify-start items-center">
+            <div className="text-xs font-semibold line-clamp-2">
+              {product.name}
+            </div>
           </div>
-          <CardDescription className="flex flex-col justify-start pt-1 md:text-sm h-10">
-            {productDiscount.length > 0 ? (
-              <div>
-                <div className="text-xs font-normal text-gray-500 line-through">
-                  {IDR.format(product.prices[0].price)}
-                </div>
-                <div className="md:text-sm font-semibold text-main-dark mt-1">
+          <div className="flex flex-col justify-start gap-1 md:text-sm">
+            {discountedPrice ? (
+              <div className="flex flex-col justify-start items-start w-full">
+                <CardDescription className="text-xs md:text-sm font-bold text-main-dark">
                   {IDR.format(discountedPrice)}
+                </CardDescription>
+                <div className="text-[10px] text-muted-foreground/80 font-medium line-through">
+                  {IDR.format(product.prices[0].price)}
                 </div>
               </div>
             ) : (
-              <div className="md:text-sm font-semibold text-main-dark">
+              <CardDescription className="text-xs md:text-sm font-semibold text-main-dark">
                 {IDR.format(product.prices[0].price)}
-              </div>
+              </CardDescription>
             )}
             {buy != 0 && get != 0 && (
-              <div className="text-[10px] max-w-20 text-center font-medium rounded-lg mt-1 bg-orange-500/70 text-black">
+              <div className="text-[10px] w-max text-center font-semibold rounded-full bg-destructive/10 text-destructive px-2.5">
                 Beli {buy} gratis {get}
               </div>
             )}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="-my-2">
-          <Badge variant="outline" className="text-xs">
-            <LucideStore className="size-3 mr-2" />
-            {storeName}
-          </Badge>
+          </div>
         </CardContent>
-        <CardFooter>
-          {product.inventories[0].stock > 0 ? (
-            <Button
-              variant="outline"
-              className="w-full max-w-[360px] h-8 lg:h-9 text-xs text-main-dark border-main-dark -p-3"
-            >
-              <Plus className="h-3 w-3 mr-1 text-main-dark" />
-              <span className="text-xs">Keranjang</span>
-            </Button>
-          ) : (
-            <Button className="w-full max-w-[360px] h-8 lg:h-9 text-xs bg-gray-600 font-normal border-main-dark -p-3">
+        <CardFooter className="flex-col items-start gap-1.5 p-0 sm:p-4 sm:pt-0 md:p-6 md:pt-0 mt-1">
+          <div className="flex flex-row items-center text-muted-foreground text-[10px]">
+            <span className="p-1 rounded-full bg-muted mr-1.5">
+              <LucideStore className="size-3" />
+            </span>
+            {storeName}
+          </div>
+          <Button
+            variant="outline"
+            className={`w-full max-w-[360px] h-8 lg:h-9 text-xs text-main-dark border-main-dark -p-3 hover:text-main-dark/80 ${product.inventories[0].stock <= 0 && 'border-border text-muted-foreground bg-muted'}`}
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('first');
+            }}
+            disabled={product.inventories[0].stock <= 0}
+          >
+            {product.inventories[0].stock > 0 ? (
+              <>
+                <Plus className="h-3 w-3 mr-1" />
+                <span className="text-xs">Keranjang</span>
+              </>
+            ) : (
               <span className="text-xs">Stok kosong</span>
-            </Button>
-          )}
+            )}
+          </Button>
         </CardFooter>
       </Card>
     </Link>

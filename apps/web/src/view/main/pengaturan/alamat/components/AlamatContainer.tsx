@@ -95,7 +95,13 @@ const AlamatContainer = () => {
             );
           })
         ) : (
-          <div></div>
+          <div className="flex justify-center items-center gap-2 w-full h-32 p-4 rounded-lg bg-muted text-muted-foreground">
+            <span className="text-sm text-center">
+              Anda belum memiliki alamat.
+              <br />
+              Klik tombol di atas untuk menambah alamat.
+            </span>
+          </div>
         )}
       </div>
     </div>

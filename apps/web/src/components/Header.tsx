@@ -33,7 +33,6 @@ export const Header = () => {
           <CartBtn />
           {status.isLogin ? (
             <>
-              {user.role === 'user' && <NotificationBtn />}
               <UserDropdown user={user} />
             </>
           ) : (

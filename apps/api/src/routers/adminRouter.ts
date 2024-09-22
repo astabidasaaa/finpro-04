@@ -39,6 +39,13 @@ export class AdminRouter implements Route {
       this.adminController.getUsers,
     );
 
+    this.router.get(
+      `${this.path}/select`,
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['super admin']),
+      this.adminController.getAllAdminToBeSelected,
+    );
+
     this.router.patch(
       `${this.path}/update/:adminId`,
       validateAdminUpdate,

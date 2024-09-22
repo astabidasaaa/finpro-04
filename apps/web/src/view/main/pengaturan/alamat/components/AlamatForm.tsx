@@ -174,7 +174,6 @@ const AlamatForm = ({ refetch, open, setOpen, defaultAlamat }: TForm) => {
         }, 1500);
       }
     } catch (error: any) {
-      console.log(error);
       let message = '';
       if (error instanceof AxiosError) {
         message = error.response?.data.message;
