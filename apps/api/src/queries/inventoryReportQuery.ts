@@ -61,12 +61,13 @@ class InventoryReportQuery {
     const productSummary = productInventory.reduce<
       Record<number, ProductStockChange>
     >((acc, inventory) => {
-      const { id, name } = inventory.product;
+      const { id } = inventory;
+      const { name } = inventory.product;
       const updates = inventory.updates;
 
       if (!acc[id]) {
         acc[id] = {
-          id,
+          inventoryId: id,
           name,
           totalAdd: 0,
           totalRemove: 0,

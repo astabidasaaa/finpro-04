@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '@/types/express';
 import inventoryAction from '@/actions/inventoryAction';
-import inventoryQuery from '@/queries/inventoryQuery';
+import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
+import { HttpStatus } from '@/types/error';
 
 export class InventoryReportController {
   public async getAllStoreProductStockPerMonth(
@@ -86,18 +88,21 @@ export class InventoryReportController {
   ): Promise<void> {
     try {
       const { id, role } = req.user as User;
-      const {
-        month,
-        year,
-        orderBy = 'timeDesc',
-        productId,
-        storeId,
-      } = req.query;
+      const { month, year, orderBy = 'timeDesc', inventoryId } = req.query;
 
-      const inventory = await inventoryQuery.getInventoryBuyProductIdAndStoreId(
-        Number(productId),
-        Number(storeId),
-      );
+      console.log(`hai ini apa yaaaa`);
+      const inventory = await prisma.inventory.findUnique({
+        where: {
+          id: Number(inventoryId),
+        },
+        select: {
+          storeId: true,
+        },
+      });
+
+      if (inventory === null) {
+        throw new HttpException(HttpStatus.NOT_FOUND, 'Toko tidak ditemukan');
+      }
 
       const allProductStockOverall =
         await inventoryAction.getProductInventoryChangePerMonthAction({
@@ -105,8 +110,9 @@ export class InventoryReportController {
           role,
           month: Number(month),
           year: Number(year),
-          inventoryId: inventory.id,
+          inventoryId: Number(inventoryId),
           orderBy: String(orderBy),
+          storeId: inventory.storeId,
         });
 
       res.status(200).json({

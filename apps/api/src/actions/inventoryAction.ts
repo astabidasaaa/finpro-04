@@ -14,7 +14,6 @@ import {
   UpdateDetailDesc,
   UpdateTypeDesc,
 } from '@/types/inventoryTypes';
-import storeQuery from '@/queries/storeQuery';
 import productQuery from '@/queries/productQuery';
 import { $Enums, InventoryUpdate } from '@prisma/client';
 import inventoryUpdatesQuery from '@/queries/inventoryUpdatesQuery';
@@ -185,7 +184,14 @@ class InventoryAction {
 
   public async getProductInventoryChangePerMonthAction(
     props: ProductInventoryChange,
-  ) {}
+  ): Promise<InventoryUpdate[]> {
+    const { id, role, storeId } = props;
+    await createPromotionAction.checkAdminAccess(role, id, storeId);
+
+    const inventoryUpdateProductPerMonth =
+      await inventoryReportQuery.productChangeDetailByInventoryId(props);
+    return inventoryUpdateProductPerMonth;
+  }
 }
 
 export default new InventoryAction();

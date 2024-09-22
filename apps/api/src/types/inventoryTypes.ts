@@ -92,10 +92,11 @@ export type ProductInventoryChange = {
   year: number;
   inventoryId: number;
   orderBy: string;
+  storeId: number;
 };
 
 export type ProductStockChange = {
-  id: number;
+  inventoryId: number;
   name: string;
   totalAdd: number;
   totalRemove: number;

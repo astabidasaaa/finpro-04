@@ -47,7 +47,7 @@ export class InventoryRouter implements Route {
       this.inventoryReportController.getStoreProductStockPerMonth,
     );
     this.router.get(
-      `${this.path}/productdetail`,
+      `${this.path}/detail/change`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['store admin', 'super admin']),
       this.inventoryReportController.getProductInventoryChangePerMonth,
