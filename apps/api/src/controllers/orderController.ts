@@ -7,8 +7,15 @@ import { generateOrderCode } from '@/utils/orderUtils';
 import { updateInventoryStock } from '@/utils/updateInventoryStock';
 import { findNearestStore } from '@/utils/findNearestStore';
 import { checkInventoryAvailability } from '@/utils/checkInventory';
+import orderAction from '@/actions/orderAction';
+import { generateRandomTrackingCode } from '@/utils/generateRandomTrackingCode';
+import productDetailQuery from '@/queries/productDetailQuery';
+import { handleStockAndMutations } from '@/utils/stockAndMutations';
 
-
+type Voucher = {
+  id: number; // Assuming ID is a number
+  type: 'DELIVERY' | 'TRANSACTION'; // Adjust based on your application
+};
 export class OrderController {
   public async createOrder(
     req: Request,
@@ -24,15 +31,20 @@ export class OrderController {
         paymentGateway,
         deliveryAddressId,
         orderStatus,
-        shippingId,
+        shippingAmount, // New field for shipping amount
+        courier,
         additionalInfo,
+        vouchers,
         cartItems, // Array of items in the cart [{ productId, qty }]
       } = req.body;
 
+      console.log('cart items:', cartItems)
+
       const deliveryAddress = await prisma.address.findUnique({
         where: { id: deliveryAddressId },
+        select: { latitude: true, longitude: true },
       });
-      console.log('Delivery Address:', deliveryAddress);
+  
 
       if (!deliveryAddress) {
         throw new HttpException(404, 'Delivery address not found');
@@ -43,25 +55,39 @@ export class OrderController {
         deliveryAddress.latitude,
         deliveryAddress.longitude
       );
-      console.log('Nearest Store:', nearestStore);
+      console.log('Nearest Store Distance:', nearestStore.distance);
 
-      // Validate inventory for all items
-      for (const item of cartItems) {
-        const inventory = await checkInventoryAvailability(
-          nearestStore.storeId,
-          item.productId,
-          item.qty, 
-          
-        );
-        console.log(`Inventory for Product ID ${item.productId}:`, inventory);
+      // if (nearestStore.distance > 30) {
+      //       throw new HttpException(
+      //         500,
+      //         `Jarak toko terlalu jauh dari alamat Anda, silahkan pilih alamat yang lain.`
+      //       );
+      //     }
 
-        if (!inventory) {
-          throw new HttpException(
-            400,
-            `Insufficient stock or product not available in the store for product ID: ${item.productId}`
-          );
-        }
-      }
+      const validatedVouchers = await Promise.all(
+        vouchers.map(async (voucher: Voucher) => {
+          const { id } = voucher; // Extract ID from the voucher object
+          const existingVoucher = await prisma.voucher.findUnique({
+            where: { id },
+            select: { status: true, expiredAt: true },
+          });
+  
+          if (!existingVoucher) {
+            throw new HttpException(404, `Voucher with ID ${id} not found`);
+          }
+  
+          if (existingVoucher.status !== 'UNUSED') {
+            throw new HttpException(400, `Voucher with ID ${id} is not valid for use`);
+          }
+  
+          const now = new Date();
+          if (existingVoucher.expiredAt <= now) {
+            throw new HttpException(400, `Voucher with ID ${id} is expired`);
+          }
+  
+          return id; // Return valid voucher ID
+        })
+      );
 
       // Process order if all items are valid
       const result = await prisma.$transaction(async (prisma) => {
@@ -78,6 +104,16 @@ export class OrderController {
           },
         });
 
+        const trackingNumber = generateRandomTrackingCode();
+
+        const newShipping = await prisma.shipping.create({
+          data: {
+            amount: shippingAmount, // Use shipping amount from request body
+            courier, // Use courier from request body
+            trackingNumber, // Randomly generated tracking code
+          },
+        });
+
         // Create the order
         const newOrder = await prisma.order.create({
           data: {
@@ -87,58 +123,101 @@ export class OrderController {
             price,
             finalPrice,
             paymentId: newPayment.id,
-            shippingId: shippingId || null,
+            shippingId: newShipping.id,
             deliveryAddressId,
             orderStatus: orderStatus as OrderStatus,
             storeAddressId: nearestStore.storeAddressId,
           },
         });
+        await prisma.orderStatusUpdate.create({
+          data: {
+            userId: customerId,
+            orderId: newOrder.id,
+            orderStatus: OrderStatus.MENUNGGU_PEMBAYARAN,
+            description: 'Order created, awaiting payment.',
+          },
+        });
+
+        await Promise.all(
+          validatedVouchers.map((id) => {
+            return prisma.voucher.update({
+              where: { id },
+              data: {
+                status: 'USED',
+                orderId: newOrder.id, // Link the order ID to the voucher
+              },
+            });
+          })
+        );
 
         // Create order items and update inventory
         for (const item of cartItems) {
-          // Fetch the active product price from ProductPriceHistory
-          const productPriceHistory = await prisma.productPriceHistory.findFirst({
-            where: {
-              productId: item.productId,
-              active: true,
-            },
-            orderBy: {
-              startDate: 'desc',
-            },
-          });
-
-          if (!productPriceHistory) {
-            throw new HttpException(404, 'Active price not found for the product');
+          // Fetch the active product price, discount, and free product details
+          const inventoryProduct = await productDetailQuery.getProductByIdAndStoreId(
+            item.productId,
+            nearestStore.storeId
+          );
+  
+          if (!inventoryProduct) {
+            throw new HttpException(404, 'Product not found');
           }
-
+  
+          // Validate the free product promotion
+          let freeProductPromotion = null;
+          if (inventoryProduct.freeProductPerStores.length > 0) {
+            const freeProduct = inventoryProduct.freeProductPerStores[0];
+            if (item.qty >= freeProduct.buy) {
+              // Calculate free products based on the buy/get promotion
+              const setsOfBuy = Math.floor(item.qty / freeProduct.buy);
+              freeProductPromotion = setsOfBuy * freeProduct.get;
+            }
+          }
+  
+          // Validate product discounts
+          let discountAmount = 0;
+          if (inventoryProduct.productDiscountPerStores.length > 0) {
+            const discount = inventoryProduct.productDiscountPerStores[0];
+            if (discount.discountType === 'PERCENT') {
+              discountAmount = (inventoryProduct.product.prices[0].price * discount.discountValue) / 100;
+            } else if (discount.discountType === 'FLAT') {
+              discountAmount = discount.discountValue;
+            }
+          }
+  
+          // Final price calculation
+          const productPrice = inventoryProduct.product.prices[0].price;
+          const finalPrice = productPrice - discountAmount;
+  
           // Create the order item
           await prisma.orderItem.create({
             data: {
               orderId: newOrder.id,
               productId: item.productId,
               qty: item.qty,
-              price: productPriceHistory.price,
-              finalPrice: productPriceHistory.price, // Final price is the active price
+              price: productPrice,
+              productDiscountPerStoreId: inventoryProduct.productDiscountPerStores.length > 0
+              ? inventoryProduct.productDiscountPerStores[0].id
+              : null,
+            freeProductPerStoreId: inventoryProduct.freeProductPerStores.length > 0
+              ? inventoryProduct.freeProductPerStores[0].id
+              : null,
+              finalPrice: finalPrice,
             },
           });
-          const inventoryUpdated = await updateInventoryStock(
+  
+          // Handle stock deduction and free product inventory updates
+          await handleStockAndMutations(
+            cartItems,
+            deliveryAddress,
             nearestStore.storeId,
-            item.productId,
-            -item.qty,
             newOrder.id,
             customerId
           );
-  
-          if (!inventoryUpdated) {
-            throw new HttpException(
-              500,
-              `Failed to update stock for product ID: ${item.productId}`
-            );
-          }
         }
-
+  
         return newOrder;
       });
+      
 
       res.status(201).json({
         message: 'Order created successfully',
@@ -175,168 +254,34 @@ export class OrderController {
     }
   }
   
-  public async getAddressesByUserId(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const userId = req.query.userId as string;
-      const userIdInt = parseInt(userId, 10);
-
-      if (isNaN(userIdInt)) {
-        throw new HttpException(400, 'Invalid userId format');
-      }
-
-      const addresses = await prisma.address.findMany({
-        where: {
-          userId: userIdInt,
-          deleted: false,
-        },
-        select: {
-          id: true,
-          address: true,
-          zipCode: true,
-          latitude: true,
-          longitude: true,
-          isMain: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        orderBy: {
-          isMain: 'desc', // Main address first
-        },
-      });
-
-      if (!addresses || addresses.length === 0) {
-        throw new HttpException(404, 'No addresses found for the specified user');
-      }
-
-      res.status(200).json({
-        message: 'Addresses retrieved successfully',
-        data: addresses,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve addresses', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve addresses', 'An unknown error occurred'));
-      }
-    }
-  }
-  public async getAllProducts(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const products = await prisma.$transaction(async (prisma) => {
-        const productList = await prisma.product.findMany({
-          include: {
-            creator: true,
-            prices: {
-              where: {
-                active: true,
-              },
-              select: {
-                price: true,
-              },
-            },
-            images: true,
-            inventories: true,
-            brand: true,
-            subcategory: true,
-            orderItems: true,
-          },
-        });
   
-        if (productList.length === 0) {
-          throw new HttpException(404, 'No products found');
-        }
-  
-        return productList;
-      });
-  
-      res.status(200).json({
-        message: 'All products retrieved successfully',
-        data: products,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve all products', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve all products', 'An unknown error occurred'));
-      }
-    }
-  }
-  
-  public async getProductById(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    // Convert productId from string to number if necessary
-    const productId = parseInt(req.params.productId, 10);
-  
-    if (isNaN(productId)) {
-      return next(new HttpException(400, 'Invalid product ID format'));
-    }
-  
-    try {
-      const product = await prisma.$transaction(async (prisma) => {
-        const productDetail = await prisma.product.findUnique({
-          where: {
-            id: productId,  // Now productId is a number
-          },
-          include: {
-            creator: true,
-            prices: true,
-            images: true,
-            inventories: true,
-            brand: true,
-            subcategory: true,
-            orderItems: true,
-          },
-        });
-  
-        if (!productDetail) {
-          throw new HttpException(404, 'Product not found');
-        }
-  
-        const productPrice = productDetail.prices.length > 0 ? productDetail.prices[0].price : null;
-
-        return {
-          ...productDetail,
-          price: productPrice, // Include the price in the response
-        };
-      });
-  
-      res.status(200).json({
-        message: 'Product retrieved successfully',
-        data: product,
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        next(new HttpException(500, 'Failed to retrieve product', err.message));
-      } else {
-        next(new HttpException(500, 'Failed to retrieve product', 'An unknown error occurred'));
-      }
-    }
-  }
   public async findNearestStore(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
-      const { deliveryLatitude, deliveryLongitude } = req.body;
-
-      if (!deliveryLatitude || !deliveryLongitude) {
-        throw new HttpException(400, 'Missing delivery latitude or longitude');
+      const { addressId } = req.body;
+  
+      if (!addressId) {
+        throw new HttpException(400, 'Missing address ID');
       }
-
-      const nearestStore = await findNearestStore(deliveryLatitude, deliveryLongitude);
-
+  
+      // Fetch the address using the addressId
+      const address = await prisma.address.findUnique({
+        where: { id: addressId },
+        select: { latitude: true, longitude: true },
+      });
+  
+      if (!address) {
+        throw new HttpException(404, 'Address not found');
+      }
+  
+      const nearestStore = await findNearestStore(
+        address.latitude,
+        address.longitude
+      );
+  
       res.status(200).json({
         message: 'Nearest store found successfully',
         data: nearestStore,
@@ -389,4 +334,23 @@ export class OrderController {
       }
     }
   }
+  public async getUserById(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userIdStr = req.query.userId as string;
+
+    const user = await orderAction.getUserAction(userIdStr);
+
+    res.status(200).json({
+      message: 'User retrieved successfully',
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 }

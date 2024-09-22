@@ -7,8 +7,11 @@ export type OrderItem = {
   id: string;
   name: string;
   quantity: number;
+  discountedPrice: number;
   price: number;
   image: string;
+  buy?: number;               // For "Beli x"
+  get?: number; 
 };
 
 export type TShipping = {

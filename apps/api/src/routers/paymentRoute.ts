@@ -20,5 +20,6 @@ export class PaymentRoute implements Route {
       
       
       this.router.post(`${this.path}/upload-payment-proof`, this.paymentController.uploadPaymentProof);
+      this.router.post(`${this.path}/reject-payment`, this.paymentController.rejectPayment);
     }
   }
