@@ -62,7 +62,7 @@ class DisplayStoreAction {
 
       if (!nearestStoreId) {
         const firstStore = await storeQuery.getAllStore();
-        const firstStoreId = firstStore[0].id;
+        const firstStoreId = firstStore[0]?.id || null;
 
         return firstStoreId;
       }
