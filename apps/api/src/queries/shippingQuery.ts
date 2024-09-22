@@ -3,9 +3,6 @@ import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { OrderStatusService } from '@/utils/orderStatusService';
 import { HttpException } from '@/errors/httpException';
 
-
-
-
 class ShippingQuery {
   public async confirmShipping(order: any, userId: number) {
     try {

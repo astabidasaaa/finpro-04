@@ -148,10 +148,6 @@ export class GetOrderController {
           next(err);
         }
       }
-    
-      
-      
-      
       
       public async getOrdersByStoreId(
         req: Request,

@@ -17,6 +17,8 @@ import { AxiosError } from 'axios';
 import DialogUseVoucher from './DialogUseVoucher';
 import { VoucherDetail } from '@/types/voucherType';
 import { Badge } from '@/components/ui/badge';
+import { getCartItems, updateCartForUser } from '@/utils/cartUtils';
+import { CartItem } from '@/types/cartType';
 
 type Props = {
   addresses: Address[] | null;
@@ -132,7 +134,7 @@ const CheckoutPageView = () => {
         deliveryAddressId: parseInt(selectedAddressId, 10),
         orderStatus: 'MENUNGGU_PEMBAYARAN',
         additionalInfo: { note: additionalInfo },
-        shippingAmount: shipping?.amount || hardcodedShipping.amount,  // Include the shipping amount
+        shippingAmount: calculateReducedShippingCost(),  // Include the shipping amount
       courier: shipping?.courier || hardcodedShipping.courier, // Include the courier information
         cartItems: updatedCartItems,
         vouchers: appliedVouchers,
@@ -147,9 +149,33 @@ const CheckoutPageView = () => {
         description:
           'Your order has been placed and you will be redirected to the payment page.',
       });
-      console.log('Order ID:', orderId);
-      console.log('Total Price:', totalPrice);
-      console.log('User ID:', userId);
+      // Parse the checkedCart and convert strings to CartItem objects
+const storedCheckedItems: CartItem[] = JSON.parse(localStorage.getItem('checkedCart') || '[]').map((item: string) => JSON.parse(item));
+
+const userCart: CartItem[] = getCartItems(userId);
+
+console.log('Stored Checked Items:', storedCheckedItems);
+console.log('User Cart Before Filter:', userCart);
+
+// Ensure that product IDs are being compared correctly
+const filteredCart = userCart.filter(
+  (cartItem: CartItem) => {
+    const isInCheckedCart = storedCheckedItems.some((checkedItem: CartItem) => checkedItem.productId === cartItem.productId);
+    console.log(`Checking item: ${cartItem.productId}, isInCheckedCart: ${isInCheckedCart}`);
+    return !isInCheckedCart; // Filter out items in the checkedCart
+  }
+);
+
+console.log('Filtered Cart After Removal:', filteredCart);
+
+// Save the updated cart back to localStorage
+updateCartForUser(userId, filteredCart);
+
+// Clear the checkedCart
+localStorage.removeItem('checkedCart');
+
+// Double-check if the cart has been updated properly
+console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[userId]);
 
       const paymentPageUrl = `/pembayaran?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
       console.log('Redirect URL:', paymentPageUrl);

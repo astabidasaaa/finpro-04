@@ -79,7 +79,7 @@ export default function ProductDetailView({
 
   if (product !== undefined) {
     let productPrice = product.product.prices[0].price;
-    let discountedPrice = null;
+    let discountedPrice = productPrice;
     let buy = 0;
     let get = 0;
     if (discountProduct !== undefined && discountProduct.length > 0) {
@@ -103,12 +103,15 @@ export default function ProductDetailView({
         alert('User not logged in or product not available.');
         return;
       }
+
+      const finalDiscountedPrice = discountedPrice === productPrice ? null : discountedPrice;
+
   
       const cartItem = {
         productId: product.product.id,
         name: product.product.name,
         price: productPrice,        // Original price
-        discountedPrice,            // Discounted price
+        discountedPrice: finalDiscountedPrice,            // Discounted price
         quantity,
         storeId,
         userId,

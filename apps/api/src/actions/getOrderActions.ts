@@ -1,35 +1,28 @@
 import { HttpException } from '@/errors/httpException';
 import getOrderQuery from '@/queries/getOrderQuery';
 import { HttpStatus } from '@/types/error';
+import countOrderQuery from '@/queries/countOrderQuery';
+import getFinishedOrderQuery from '@/queries/getFinishedOrderQuery';
 
 class GetOrderAction {
   public async getAllOrdersAction(page: number, limit: number, search?: string) {
     const offset = (page - 1) * limit;
-  
-    // Fetch paginated orders and total count in parallel with search
     const [orders, total] = await Promise.all([
-      getOrderQuery.getAllOrders(limit, offset, search), // Pass search term
-      getOrderQuery.countAllOrders(search), // Count of all orders (can be filtered based on search)
+      getOrderQuery.getAllOrders(limit, offset, search), 
+      countOrderQuery.countAllOrders(search), 
     ]);
-  
     if (orders.length === 0) {
       throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found');
     }
-  
     const totalPages = Math.ceil(total / limit);
-  
     return {
       data: orders,
       total,
       totalPages,
     };
   }
-  
-  
-  
     public async getOrderByIdAction(orderIdStr: string) {
         const orderId = parseInt(orderIdStr, 10);
-    
         if (isNaN(orderId)) {
           throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid orderId format');
         }
@@ -39,7 +32,6 @@ class GetOrderAction {
         if (!order) {
           throw new HttpException(HttpStatus.NOT_FOUND, 'Order not found');
         }
-    
         return order;
       }
       public async getOrdersAction({
@@ -62,7 +54,6 @@ class GetOrderAction {
         if (isNaN(customerIdInt)) {
           throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid customerId format');
         }
-        
         let fromDate: Date | undefined;
         let toDate: Date | undefined;
         
@@ -73,17 +64,13 @@ class GetOrderAction {
           if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
             throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid date format');
           }
-        
           if (fromDate > toDate) {
             throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid date range: from date cannot be after to date');
           }
         }
-        
-        // Parse page and pageSize with default values
         const currentPage = page ? parseInt(page, 10) : 1;
         const pageSizeInt = pageSize ? parseInt(pageSize, 10) : 10;
         
-        // Get orders based on pagination
         const orders = await getOrderQuery.getOrdersByUserId(
           customerIdInt,
           fromDate,
@@ -93,15 +80,13 @@ class GetOrderAction {
           pageSizeInt
         );
         
-        // Count total orders without pagination
-        const totalOrders = await getOrderQuery.countOrdersByUserId(
+        const totalOrders = await countOrderQuery.countOrdersByUserId(
           customerIdInt,
           fromDate,
           toDate,
           search
         );
         
-        // Calculate total pages
         const totalPages = Math.ceil(totalOrders / pageSizeInt);
         
         return {
@@ -114,9 +99,6 @@ class GetOrderAction {
           },
         };
       }
-      
-      
-      
       public async getFinishedOrdersAction({
         customerIdStr,
         from,
@@ -141,7 +123,6 @@ class GetOrderAction {
         let fromDate: Date | undefined;
         let toDate: Date | undefined;
       
-        // Parse and validate date range if provided
         if (from && to) {
           fromDate = new Date(from);
           toDate = new Date(to);
@@ -158,8 +139,7 @@ class GetOrderAction {
         const pageNumber = page ? parseInt(page, 10) : 1;
         const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 10;
       
-        // Retrieve finished orders with pagination, search, and date range
-        const orders = await getOrderQuery.getFinishedOrders(
+        const orders = await getFinishedOrderQuery.getFinishedOrders(
           customerId,
           fromDate,
           toDate,
@@ -168,8 +148,7 @@ class GetOrderAction {
           pageSizeNumber
         );
       
-        // Count total finished orders for pagination info
-        const totalOrders = await getOrderQuery.countFinishedOrders(
+        const totalOrders = await countOrderQuery.countFinishedOrders(
           customerId,
           fromDate,
           toDate,
@@ -205,23 +184,18 @@ class GetOrderAction {
         pageSize?: string;
       }): Promise<any> {
         const customerId = parseInt(customerIdStr, 10);
-      
         if (isNaN(customerId)) {
           throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid customerId format');
         }
-      
         let fromDate: Date | undefined;
         let toDate: Date | undefined;
       
-        // Parse and validate date range if provided
         if (from && to) {
           fromDate = new Date(from);
           toDate = new Date(to);
-      
           if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
             throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid date format');
           }
-      
           if (fromDate > toDate) {
             throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid date range: from date cannot be after to date');
           }
@@ -231,7 +205,7 @@ class GetOrderAction {
         const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 10;
       
         // Retrieve finished orders with pagination, search, and date range
-        const orders = await getOrderQuery.getUnfinishedOrders(
+        const orders = await getFinishedOrderQuery.getUnfinishedOrders(
           customerId,
           fromDate,
           toDate,
@@ -239,17 +213,13 @@ class GetOrderAction {
           pageNumber,
           pageSizeNumber
         );
-      
-        // Count total finished orders for pagination info
-        const totalOrders = await getOrderQuery.countUnfinishedOrders(
+        const totalOrders = await countOrderQuery.countUnfinishedOrders(
           customerId,
           fromDate,
           toDate,
           search
-        );
-      
+        ); 
         const totalPages = Math.ceil(totalOrders / pageSizeNumber);
-      
         return {
           orders,
           pagination: {
@@ -260,9 +230,6 @@ class GetOrderAction {
           },
         };
       }
-      
-
-      
   public async getOrdersByStoreAction(storeIdStr: string, pageStr: string, limitStr: string, search?: string) {
     const storeId = parseInt(storeIdStr, 10);
     const page = parseInt(pageStr, 10) || 1; // Default to page 1 if not provided
@@ -272,28 +239,19 @@ class GetOrderAction {
     if (isNaN(storeId)) {
       throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid storeId format');
     }
-  
     const orders = await getOrderQuery.getOrdersByStoreId(storeId, limit, offset, search); // Pass search term
-    const totalOrders = await getOrderQuery.countOrdersByStoreId(storeId, search); // Total order count
-  
+    const totalOrders = await countOrderQuery.countOrdersByStoreId(storeId, search); // Total order count
     if (!orders.length) {
       throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found for the specified store');
     }
-  
     return { orders, totalOrders };
   }
-  
-  
   public async getAllStoresAction() {
-    const stores = await getOrderQuery.getAllStores();
-  
+    const stores = await countOrderQuery.getAllStores();
     if (!stores.length) {
       throw new HttpException(HttpStatus.NOT_FOUND, 'No stores found');
     }
-  
     return stores;
   }
-  
 }
-
 export default new GetOrderAction();

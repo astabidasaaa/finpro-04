@@ -242,32 +242,63 @@ const OrderManagementView = () => {
                   </Table>
 
                   {/* Pagination */}
-      <Pagination className="mt-5 flex justify-center">
-        <PaginationPrevious
-          onClick={() => handlePageChange(currentPage - 1)}
-          className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}
-        >
-          Previous
-        </PaginationPrevious>
-        <PaginationContent>
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <PaginationItem key={i + 1}>
-              <PaginationLink
-                isActive={currentPage === i + 1}
-                onClick={() => handlePageChange(i + 1)}
-              >
-                {i + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-        </PaginationContent>
-        <PaginationNext
-          onClick={() => handlePageChange(currentPage + 1)}
-          className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}
-        >
-          Next
-        </PaginationNext>
-      </Pagination>
+                  <Pagination className="mt-5 flex justify-center">
+  <PaginationPrevious
+    href="#"
+    onClick={() => handlePageChange(currentPage - 1)}
+    className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}
+  >
+    Previous
+  </PaginationPrevious>
+
+  <PaginationContent>
+    {/* Ellipsis before current page block */}
+    {currentPage > 3 && (
+      <PaginationItem>
+        <span className="ellipsis">...</span>
+      </PaginationItem>
+    )}
+
+    {/* Dynamic range of pages around the current page */}
+    {Array.from({ length: totalPages })
+      .map((_, i) => i + 1)
+      .filter(
+        (page) =>
+          page >= Math.max(currentPage - 1, 1) &&
+          page <= Math.min(currentPage + 1, totalPages)
+      )
+      .map((page) => (
+        <PaginationItem key={page}>
+          {currentPage === page ? (
+            <strong>{page}</strong> // Highlight the active page
+          ) : (
+            <PaginationLink href="#" onClick={() => handlePageChange(page)}>
+              {page}
+            </PaginationLink>
+          )}
+        </PaginationItem>
+      ))}
+
+    {/* Ellipsis after current page block */}
+    {currentPage < totalPages - 2 && (
+      <PaginationItem>
+        <span className="ellipsis">...</span>
+      </PaginationItem>
+    )}
+  </PaginationContent>
+
+  <PaginationNext
+    href="#"
+    onClick={() => handlePageChange(currentPage + 1)}
+    className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}
+  >
+    Next
+  </PaginationNext>
+</Pagination>
+
+
+
+
                 </>
               )}
             </CardContent>

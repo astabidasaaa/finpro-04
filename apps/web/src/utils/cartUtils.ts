@@ -1,3 +1,5 @@
+import { CartItem } from "@/types/cartType";
+
 // Function to get the cart items for a specific user from local storage
 export const getCartItems = (userId: string) => {
   if (typeof window !== 'undefined') {
@@ -63,3 +65,32 @@ export const getCartItems = (userId: string) => {
     }
   };
   
+  // Function to update the cart for a specific user
+export const updateCartForUser = (userId: string, updatedCart: any[]) => {
+  if (typeof window !== 'undefined') {
+    const cartData = localStorage.getItem('cart');
+    const cart = cartData ? JSON.parse(cartData) : {};
+    
+    // Update the cart with the filtered items
+    cart[userId] = updatedCart;
+
+    // Save the updated cart back to localStorage
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+};
+
+export const removeItemsFromCart = (userId: string, itemsToRemove: CartItem[]) => {
+  if (typeof window !== 'undefined') {
+    const userCart: CartItem[] = getCartItems(userId); // Use CartItem[] as the type for userCart
+
+    // Filter out the items that are in the itemsToRemove list
+    const filteredCart = userCart.filter(
+      (cartItem: CartItem) =>
+        !itemsToRemove.some((item: CartItem) => item.productId === cartItem.productId)
+    );
+
+    // Update the cart
+    updateCartForUser(userId, filteredCart);
+  }
+};
+

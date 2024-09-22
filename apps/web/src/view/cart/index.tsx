@@ -9,22 +9,9 @@ import { useAppSelector } from '@/lib/hooks';
 import { Minus, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { CartItem } from '@/types/cartType';
 
-type CartItem = {
-  productId: string;
-  storeId: string;
-  name: string;
-  price: number;              // Original price
-  discountedPrice: number;    // Discounted price
-  quantity: number;
-  userId: string;             // userId is now part of CartItem
-  image: {
-    title: string;
-    alt?: string;
-  };
-  buy?: number;               // For "Beli x"
-  get?: number;               // For "Gratis y"
-};
+
 
 const CartPageView = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -53,7 +40,7 @@ const CartPageView = () => {
       return newCheckedItems;
     });
   };
-
+  
   const handleQuantityChange = (
     productId: string,
     storeId: string,
@@ -70,27 +57,49 @@ const CartPageView = () => {
           ) {
             const newQuantity = item.quantity + delta;
             if (newQuantity > 0) {
-              return { ...item, quantity: newQuantity }; // Update quantity if it's positive
+              // Update quantity if it's positive
+              return { ...item, quantity: newQuantity };
+            }
+            // Remove from checkedItems if quantity goes to zero
+            if (checkedItems.has(JSON.stringify(item))) {
+              setCheckedItems((prevChecked) => {
+                const newCheckedItems = new Set(prevChecked);
+                newCheckedItems.delete(JSON.stringify(item));
+                return newCheckedItems;
+              });
             }
             return { ...item, quantity: 0 }; // Set quantity to 0 if it's less than or equal to 0
           }
           return item;
         })
         .filter((item) => item.quantity > 0); // Filter out items with quantity 0
-
+  
       // Update the cart in localStorage
       localStorage.setItem('cart', JSON.stringify({
         ...getCartItems(userId).reduce((acc: any, item: CartItem) => {
           if (!acc[userId]) acc[userId] = [];
           acc[userId].push(item);
           return acc;
-        }, {}), 
+        }, {}),
         [userId]: updatedCart
       }));
-
+  
+      // Update checkedItems in localStorage as well
+      const currentCheckedItems = Array.from(checkedItems).filter((checkedItem) => {
+        const parsedItem = JSON.parse(checkedItem);
+        return updatedCart.some((cartItem) =>
+          cartItem.productId === parsedItem.productId &&
+          cartItem.storeId === parsedItem.storeId &&
+          cartItem.userId === parsedItem.userId
+        );
+      });
+      localStorage.setItem('checkedCart', JSON.stringify(currentCheckedItems));
+  
       return updatedCart;
     });
   };
+  
+  
 
   const handleCheckoutClick = () => {
     // Save checked items to local storage
@@ -125,12 +134,12 @@ const CartPageView = () => {
                   alt={item.image.alt || item.name}
                   width={240}
                   height={240}
-                  className="object-cover object-center size-20 rounded-md"
+                  className="object-cover object-center size-20 rounded-md hidden md:block"
                 />
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-normal">{item.name}</p>
                   <p className="text-sm font-semibold">
-                    {item.discountedPrice && item.discountedPrice > 0 ? (
+                    { item.discountedPrice > 0 ? (
                       <span className="line-through text-gray-500">{IDR.format(item.price)}</span>
                     ) : (
                       IDR.format(item.price)

@@ -196,7 +196,7 @@ const OrderPageView: React.FC = () => {
       {Array.isArray(orders) && orders.length > 0 ? (
         <div>
           <h2 className="text-2xl font-semibold mb-4">Pesanan Anda</h2>
-          <ul className="space-y-4">
+          <ul className="space-y-4 mb-4">
             {orders.map((order) => (
               <li key={order.id} className="border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow">
                 <Link href={`/order-list/${order.id}`}>
@@ -213,8 +213,8 @@ const OrderPageView: React.FC = () => {
                 : 'bg-main-dark hover:bg-main-dark/80'
             }`}
           >{formatOrderStatus(order.orderStatus)}</Badge>
-                    <p className="text-sm mb-1">Total Pembayaran: {IDR.format(order.payment.amount)}</p>
-                    <p className="text-sm">Tanggal Pemesanan: {formatDate(order.createdAt)}</p>
+                    <p className="mt-2 text-xs md:text-lg">Total Pembayaran: {IDR.format(order.payment.amount)}</p>
+                    <p className="mt-2 text-xs md:text-lg">Tanggal Pemesanan: {formatDate(order.createdAt)}</p>
                     
                   </div>
                 </Link>
@@ -232,31 +232,59 @@ const OrderPageView: React.FC = () => {
 
           {/* Pagination */}
           <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPages }).map((_, index) => (
-                <PaginationItem key={index}>
-                  <PaginationLink
-                    href="#"
-                    onClick={() => handlePageChange(index + 1)}
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious
+        href="#"
+        onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+      />
+    </PaginationItem>
+
+    {/* Ellipsis before current page block */}
+    {currentPage > 3 && (
+      <PaginationItem>
+        <span className="ellipsis">...</span>
+      </PaginationItem>
+    )}
+
+    {/* Dynamic range of pages around the current page */}
+    {Array.from({ length: totalPages })
+      .map((_, index) => index + 1)
+      .filter(
+        (page) =>
+          page >= Math.max(currentPage - 1, 1) &&
+          page <= Math.min(currentPage + 1, totalPages)
+      )
+      .map((page) => (
+        <PaginationItem key={page}>
+          {page === currentPage ? (
+            <strong>{page}</strong> // Highlight the current page
+          ) : (
+            <PaginationLink href="#" onClick={() => handlePageChange(page)}>
+              {page}
+            </PaginationLink>
+          )}
+        </PaginationItem>
+      ))}
+
+    {/* Ellipsis after current page block */}
+    {currentPage < totalPages - 2 && (
+      <PaginationItem>
+        <span className="ellipsis">...</span>
+      </PaginationItem>
+    )}
+
+    <PaginationItem>
+      <PaginationNext
+        href="#"
+        onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+      />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+
+
+
         </div>
       ) : (
         <div className="text-center">
