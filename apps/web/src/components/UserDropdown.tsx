@@ -44,6 +44,9 @@ const UserDropdown = ({ user }: { user: User }) => {
         <Link href="/voucher">
           <DropdownMenuItem>Kupon saya</DropdownMenuItem>
         </Link>
+        <Link href="/order-list">
+          <DropdownMenuItem>Pesanan saya</DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator className="block md:hidden" />
         <Link href="/pengaturan">
           <DropdownMenuItem>Pengaturan</DropdownMenuItem>

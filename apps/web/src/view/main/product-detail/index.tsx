@@ -5,6 +5,7 @@ import { Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAppSelector } from '@/lib/hooks';
+import { addToCart } from '@/utils/cartUtils';
 import { AxiosError } from 'axios';
 import axiosInstance from '@/lib/axiosInstance';
 import {
@@ -42,6 +43,8 @@ export default function ProductDetailView({
   const decreaseQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
+  const user = useAppSelector((state) => state.auth.user);
+  const userId = user?.id?.toString();
   async function fetchData() {
     try {
       const productResult = await axiosInstance().get(
@@ -94,6 +97,32 @@ export default function ProductDetailView({
       buy = freeProduct[0].buy;
       get = freeProduct[0].get;
     }
+
+    const handleAddToCart = () => {
+      if (!product || !userId) {
+        alert('User not logged in or product not available.');
+        return;
+      }
+
+      const finalDiscountedPrice = discountedPrice === productPrice ? null : discountedPrice;
+
+  
+      const cartItem = {
+        productId: product.product.id,
+        name: product.product.name,
+        price: productPrice,        // Original price
+        discountedPrice: finalDiscountedPrice,            // Discounted price
+        quantity,
+        storeId,
+        userId,
+        image: images[0]?.title,
+        buy,                        // Include buy value
+        get,                        // Include get value
+      };
+      console.log('Cart Item:', cartItem);
+      addToCart(cartItem);  // Add the product to local storage cart
+      alert('Product added to cart!');  // Optional feedback to user
+    };
 
     return (
       <div className="flex flex-col justify-start items-center px-4 md:px-12 lg:px-24 w-full">
@@ -218,7 +247,7 @@ export default function ProductDetailView({
                   {IDR.format(quantity * discountedPrice)}
                 </span>
               </div>
-              <Button className="w-full bg-main-dark hover:bg-main-dark/80">
+              <Button className="w-full bg-main-dark hover:bg-main-dark/80" onClick={handleAddToCart}>
                 <Plus className="size-4 mr-2" />
                 Keranjang
               </Button>

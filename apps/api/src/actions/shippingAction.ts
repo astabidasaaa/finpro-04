@@ -7,6 +7,19 @@ import shippingQuery from '@/queries/shippingQuery';
 
 
 class ShippingAction {
+  public async confirmShippingAction(orderId: number, userId: number) {
+    // Fetch the order from the query layer
+    const order = await getOrderQuery.getOrderById(orderId);
+
+    if (!order) {
+      throw new HttpException(404, 'Order not found');
+    }
+
+    // Call the query layer to confirm shipping and schedule automatic confirmation
+    const result = await shippingQuery.confirmShipping(order, userId);
+    return result;
+  }
+
     public async processingOrderAction(orderId: string | number, userId: number) {
         const orderIdInt = parseInt(orderId as string, 10);
       

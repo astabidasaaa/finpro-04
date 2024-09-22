@@ -18,7 +18,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
 
   return (
     <nav
-      className={cn('flex flex-row md:flex-col gap-1', className)}
+      className={cn('flex flex-row lg:flex-col gap-1', className)}
       {...props}
     >
       {items.map((item) => (

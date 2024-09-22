@@ -6,6 +6,7 @@ import {
   Percent,
   Store,
   ChartColumn,
+  NotebookText,
 } from 'lucide-react';
 
 export const storeAdminMenuList = [
@@ -76,6 +77,11 @@ export const storeAdminMenuList = [
         href: '/dashboard/promotion/free-product',
       },
     ],
+  },
+  {
+    label: 'Pesanan',
+    icon: <NotebookText className="size-5" />,
+    href: '/dashboard/order-management',
   },
   {
     label: 'Laporan',

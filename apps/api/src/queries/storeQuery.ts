@@ -149,6 +149,9 @@ class StoreQuery {
 
   public async getAllStore() {
     const stores = await prisma.store.findMany({
+      where: {
+        storeState: 'PUBLISHED',
+      },
       select: {
         id: true,
         name: true,

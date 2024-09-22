@@ -22,7 +22,7 @@ export async function updateInventoryStock(
   if (!inventory) {
     return null;
   }
-
+  const absoluteQtyChange = Math.abs(qtyChange);
   if (inventory.stock + qtyChange < 0) {
     // Insufficient stock
     return null;
@@ -42,7 +42,7 @@ export async function updateInventoryStock(
       type: qtyChange > 0 ? InventoryUpdateType.ADD : InventoryUpdateType.REMOVE,
       detail: qtyChange > 0 ? InventoryUpdateDetail.CANCELLED_ORDER : InventoryUpdateDetail.STOCK_OUT,
       description: `Order #${orderId} - Stock ${qtyChange > 0 ? 'restored' : 'deducted'}`,
-      stockChange: qtyChange,
+      stockChange: absoluteQtyChange,
     },
   });
 
