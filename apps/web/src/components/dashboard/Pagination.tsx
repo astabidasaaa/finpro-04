@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Pagination,
   PaginationContent,
@@ -47,7 +49,17 @@ export default function PaginationInventory({
         {start > 1 && (
           <>
             <PaginationItem>
-              <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+              <PaginationLink
+                onClick={() => {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                  });
+                  setPage(1);
+                }}
+              >
+                1
+              </PaginationLink>
             </PaginationItem>
             {start > 2 && <PaginationItem>..</PaginationItem>}
           </>
@@ -56,7 +68,13 @@ export default function PaginationInventory({
         {pages.map((pageNumber, index) => (
           <PaginationItem key={index}>
             <PaginationLink
-              onClick={() => setPage(pageNumber)}
+              onClick={() => {
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth',
+                });
+                setPage(pageNumber);
+              }}
               isActive={pageNumber === page}
             >
               {pageNumber}
@@ -68,7 +86,15 @@ export default function PaginationInventory({
           <>
             {end < totalPages - 1 && <PaginationItem>..</PaginationItem>}
             <PaginationItem>
-              <PaginationLink onClick={() => setPage(totalPages)}>
+              <PaginationLink
+                onClick={() => {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                  });
+                  setPage(totalPages);
+                }}
+              >
                 {totalPages}
               </PaginationLink>
             </PaginationItem>

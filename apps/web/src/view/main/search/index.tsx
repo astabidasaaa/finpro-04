@@ -26,7 +26,8 @@ import { HighPriceFilter, LowPriceFilter } from './component/PriceFilters';
 import { useAppSelector } from '@/lib/hooks';
 import { TStore } from '@/types/storeTypes';
 import ProductNotFound from './component/ProductNotFound';
-import ProductPagination from './component/ProductPagination';
+import PaginationInventory from '@/components/dashboard/Pagination';
+import { Label } from '@/components/ui/label';
 
 export default function SearchMainView() {
   const nearestStore = useAppSelector((state) => state.storeId);
@@ -52,11 +53,6 @@ export default function SearchMainView() {
 
   const [page, setPage] = useState<number>(1);
   const pageSize = 12;
-  const totalPages = Math.ceil(total / pageSize);
-  const pages = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
-  }
 
   const { handleSubmit } = useForm();
 
@@ -136,7 +132,7 @@ export default function SearchMainView() {
   return (
     <div className="px-4 md:px-12 lg:px-24 max-w-screen-2xl grid grid-cols-5 gap-4">
       <div className="hidden lg:block">
-        <div className="col-span-1 p-4 bg-gray-50 rounded-lg shadow-sm">
+        <div className="col-span-1 p-4 bg-muted/30 rounded-lg shadow-sm">
           <SubcategoryFilter
             categoryId={subcategoryHeaderId}
             categories={subcategories}
@@ -145,14 +141,15 @@ export default function SearchMainView() {
           <Separator className="my-4" />
           <BrandFilter brands={brands} setBrandId={setBrandId} />
           <Separator className="my-4" />
-          <span className="font-medium">Harga</span>
-          <div className="h-3" />
-          <div className="flex flex-row gap-2">
-            <LowPriceFilter lowPrice={lowPrice} setLowPrice={setLowPrice} />
-            <HighPriceFilter
-              highPrice={highPrice}
-              setHighPrice={setHighPrice}
-            />
+          <div className="flex flex-col gap-2 w-full">
+            <Label className="font-bold">Harga</Label>
+            <div className="flex flex-row gap-2">
+              <LowPriceFilter lowPrice={lowPrice} setLowPrice={setLowPrice} />
+              <HighPriceFilter
+                highPrice={highPrice}
+                setHighPrice={setHighPrice}
+              />
+            </div>
           </div>
           <Separator className="my-4" />
           <Button
@@ -163,29 +160,35 @@ export default function SearchMainView() {
           </Button>
         </div>
       </div>
-      <div className="col-span-5 lg:col-span-4 rounded-sm">
-        <div className="flex items-start justify-between">
-          <div className="flex flex-row gap-2" />
-          <SelectOrderBy orderBy={orderBy} setOrderBy={setOrderBy} />
-        </div>
-        {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 gap-y-8 pt-4">
-            {products.map((product: ProductProps) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                storeName={store?.name}
-              />
-            ))}
+      <div className="flex flex-col h-full col-span-5 lg:col-span-4">
+        <div className="flex flex-col w-full h-full">
+          <div className="flex items-start justify-end">
+            <SelectOrderBy orderBy={orderBy} setOrderBy={setOrderBy} />
           </div>
-        ) : (
-          <ProductNotFound />
-        )}
-        <div className="flex flex-col justify-between mt-4 text-gray-600">
-          <div className="text-xs">
+          {products.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 pt-4">
+              {products.map((product: ProductProps) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  storeName={store?.name}
+                />
+              ))}
+            </div>
+          ) : (
+            <ProductNotFound />
+          )}
+        </div>
+        <div className="flex flex-col justify-between mt-8 gap-3 text-muted-foreground">
+          <div className="text-xs text-center">
             Menampilkan {products.length} dari {total} produk
           </div>
-          <ProductPagination pages={pages} setPage={setPage} />
+          <PaginationInventory
+            page={page}
+            setPage={setPage}
+            total={total}
+            pageSize={pageSize}
+          />
         </div>
       </div>
       <div className="lg:hidden fixed bottom-4 right-4">
@@ -209,14 +212,15 @@ export default function SearchMainView() {
               <BrandFilter brands={brands} setBrandId={setBrandId} />
             </div>
             <Separator className="my-4" />
-            Harga
-            <div className="h-3" />
-            <div className="flex flex-row gap-2">
-              <LowPriceFilter lowPrice={lowPrice} setLowPrice={setLowPrice} />
-              <HighPriceFilter
-                highPrice={highPrice}
-                setHighPrice={setHighPrice}
-              />
+            <div className="flex flex-col gap-2 w-full">
+              <Label className="font-bold">Harga</Label>
+              <div className="flex flex-row gap-2">
+                <LowPriceFilter lowPrice={lowPrice} setLowPrice={setLowPrice} />
+                <HighPriceFilter
+                  highPrice={highPrice}
+                  setHighPrice={setHighPrice}
+                />
+              </div>
             </div>
             <Separator className="my-4" />
             <Button
