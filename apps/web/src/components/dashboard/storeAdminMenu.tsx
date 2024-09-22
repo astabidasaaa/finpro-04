@@ -5,6 +5,7 @@ import {
   LayoutGrid,
   Percent,
   Store,
+  ChartColumn,
 } from 'lucide-react';
 
 export const storeAdminMenuList = [
@@ -73,6 +74,21 @@ export const storeAdminMenuList = [
       {
         label: 'Gratis Produk',
         href: '/dashboard/promotion/free-product',
+      },
+    ],
+  },
+  {
+    label: 'Laporan',
+    icon: <ChartColumn className="size-5" />,
+    href: '/dashboard/report',
+    child: [
+      {
+        label: 'Penjualan',
+        href: '/dashboard/report/sales',
+      },
+      {
+        label: 'Stok',
+        href: '/dashboard/report/stock',
       },
     ],
   },
