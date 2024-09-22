@@ -126,15 +126,24 @@ const OrderManagementView = () => {
     setCurrentPage(1); // Reset the page to 1 when a new store is selected
   };
 
+  const formatOrderStatus = (status: string) => {
+    return status.replace(/_/g, ' ');
+  };
+
+  let IDR = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  });
+
   return (
-    <div className="container px-4 md:px-12 lg:px-24 max-w-screen-2xl py-8">
+    <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <Tabs defaultValue="week">
         <div className="flex items-center">
           <div className="flex-grow">
-            {/* Search Bar */}
             <Input
               type="search"
-              placeholder="Search orders..."
+              placeholder="Cari pesanan..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} // Update search term on input change
               className="w-full max-w-md"
@@ -172,8 +181,8 @@ const OrderManagementView = () => {
         <TabsContent value="week">
           <Card>
             <CardHeader className="px-7">
-              <CardTitle>Orders</CardTitle>
-              <CardDescription>Recent orders from your store.</CardDescription>
+              <CardTitle>Pesanan</CardTitle>
+              <CardDescription>Pesanan terbaru dari toko Anda.</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -187,7 +196,8 @@ const OrderManagementView = () => {
                         <TableHead className="hidden sm:table-cell">Status</TableHead>
                         <TableHead className="hidden sm:table-cell">Store</TableHead>
                         <TableHead>Amount</TableHead>
-                        <TableHead className="hidden md:table-cell">Date</TableHead>
+                        <TableHead className="hidden sm:table-cell">Date</TableHead>
+                        <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -198,11 +208,19 @@ const OrderManagementView = () => {
                               <div className="font-medium">{order.customer?.profile?.name || 'Unknown Customer'}</div>
                             </TableCell>
                             <TableCell className="hidden sm:table-cell">
-                              <Badge className="text-xs">{order.orderStatus}</Badge>
+                            <Badge
+            className={`text-xs px-3 font-semibold ${
+              order.orderStatus === 'DIKONFIRMASI'
+                ? 'bg-green-400'
+                : order.orderStatus === 'DIBATALKAN'
+                ? 'bg-red-900'
+                : 'bg-main-dark hover:bg-main-dark/80'
+            }`}
+          >{formatOrderStatus(order.orderStatus)}</Badge>
                             </TableCell>
-                            <TableCell>{order.store?.name || 'Unknown Store'}</TableCell>
-                            <TableCell>Rp{order.finalPrice.toFixed(2)}</TableCell>
-                            <TableCell>{formatDate(order.createdAt)}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{order.store?.name || 'Unknown Store'}</TableCell>
+                            <TableCell>{IDR.format(order.finalPrice)}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{formatDate(order.createdAt)}</TableCell>
                             <TableCell>
                               <Link href={`/dashboard/order-management/${order.id}`} passHref>
                                 <Button variant="outline" size="sm" className="ml-auto">

@@ -49,8 +49,10 @@ class ProductDetailQuery {
               finishedAt: { gt: new Date() },
             },
             select: {
+              id: true,
               buy: true,
               get: true,
+              
             },
           },
           productDiscountPerStores: {
@@ -60,8 +62,10 @@ class ProductDetailQuery {
               finishedAt: { gt: new Date() },
             },
             select: {
+              id: true,
               discountType: true,
               discountValue: true,
+              
             },
           },
         },

@@ -61,21 +61,23 @@ const UploadPaymentView = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 md:px-12 lg:px-24 py-8 max-w-screen-md">
-      <h1 className="text-3xl font-bold mb-6">Upload Payment Proof</h1>
+    <div className="container px-4 md:px-12 lg:px-24 max-w-screen-2xl py-8">
+      <h1 className="text-3xl font-bold mb-6">Upload Bukti Pembayaran</h1>
       <div className="border border-gray-300 rounded-lg p-6 bg-white shadow-sm">
         <Input 
           type="file" 
           onChange={handleFileChange} 
           className="mb-4"
         />
+        <div className="mt-6 flex justify-center">
         <Button 
           onClick={handleUpload} 
           disabled={isSubmitting || !file}
-          className="w-full"
+          className="w-full max-w-md bg-main-dark hover:bg-main-dark/80"
         >
           {isSubmitting ? 'Uploading...' : 'Upload'}
         </Button>
+        </div>
       </div>
     </div>
   );

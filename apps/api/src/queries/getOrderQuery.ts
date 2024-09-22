@@ -68,43 +68,66 @@ class OrderQuery {
       const orderData = await prisma.$transaction(async (prisma) => {
         const order = await prisma.order.findUnique({
           where: { id: orderId },
-          include: {
-            orderItems: {
-              include: {
-                product: {
-                  select: {
-                    name: true  // Only the product name
-                  }
+        include: {
+          orderItems: {
+            include: {
+              product: {
+                select: {
+                  name: true,  // Only the product name
                 },
-                productDiscountPerStore: true,
-                freeProductPerStore: true
               },
-            
+              productDiscountPerStore: {
+                select: {
+                  discountType: true,
+                  discountValue: true,
+                  startedAt: true,
+                  finishedAt: true
+                },
+              },
+              freeProductPerStore: {
+                select: {
+                  buy: true,  // Minimum quantity required to get a free product
+                  get: true,  // Number of free products received
+                  startedAt: true,
+                  finishedAt: true
+                },
+              },
             },
-            payment: {
-              select: {
-                paymentStatus: true,
-                paymentGateway: true,
-                paymentDate: true,
-                paymentProof: true,  // Make sure paymentProof is included
-                transactionId: true,
-                amount: true
-              }
+          },
+          payment: {
+            select: {
+              paymentStatus: true,
+              paymentGateway: true,
+              paymentDate: true,
+              paymentProof: true,  // Include paymentProof
+              transactionId: true,
+              amount: true,
             },
-            shipping: true,
-            orderStatusUpdates: true,
-            deliveryAddress: true,
-            customer: {
-              include: {
-                profile: {
-                  select: {
-                    name: true  // Only the customer's name
-                  }
-                }
-              }
-            }
-          }
-        });
+          },
+          shipping: true,
+          orderStatusUpdates: true,
+          deliveryAddress: true,
+          customer: {
+            include: {
+              profile: {
+                select: {
+                  name: true,  // Only the customer's name
+                },
+              },
+            },
+          },
+          vouchers: {  // Include vouchers related to the order
+            include: {
+              promotion: {
+                select: {
+                  description: true,
+                  discountValue: true,
+                },
+              },
+            },
+          },
+        },
+      });
   
         console.log(`Order data retrieved: ${JSON.stringify(order)}`);
         return order;

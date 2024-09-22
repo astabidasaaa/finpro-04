@@ -83,7 +83,7 @@ export default function ProductDetailView({
 
   if (product !== undefined) {
     let productPrice = product.product.prices[0].price;
-    let discountedPrice = productPrice;
+    let discountedPrice = null;
     let buy = 0;
     let get = 0;
     if (discountProduct !== undefined && discountProduct.length > 0) {
@@ -111,11 +111,14 @@ export default function ProductDetailView({
       const cartItem = {
         productId: product.product.id,
         name: product.product.name,
-        price: discountedPrice,  // The final price with any discounts applied
+        price: productPrice,        // Original price
+        discountedPrice,            // Discounted price
         quantity,
-        storeId,                 // The store where the product is available
-        userId,                  // Include the userId in the cart item
-        image: images[0]?.title,  // Use the first image or a placeholder
+        storeId,
+        userId,
+        image: images[0]?.title,
+        buy,                        // Include buy value
+        get,                        // Include get value
       };
       console.log('Cart Item:', cartItem);
       addToCart(cartItem);  // Add the product to local storage cart
@@ -187,9 +190,11 @@ export default function ProductDetailView({
                       )}
                     </Badge>
                   </div>
-                  <div className="text-lg md:text-xl font-semibold text-main-dark mt-1">
-                    {IDR.format(discountedPrice)}
-                  </div>
+                  {discountedPrice !== null && (
+  <div className="text-lg md:text-xl font-semibold text-main-dark mt-1">
+    {IDR.format(discountedPrice)}
+  </div>
+)}
                 </div>
               ) : (
                 <div className="text-lg md:text-xl font-semibold text-main-dark ">

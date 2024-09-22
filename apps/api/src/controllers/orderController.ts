@@ -9,9 +9,13 @@ import { findNearestStore } from '@/utils/findNearestStore';
 import { checkInventoryAvailability } from '@/utils/checkInventory';
 import orderAction from '@/actions/orderAction';
 import { generateRandomTrackingCode } from '@/utils/generateRandomTrackingCode';
+import productDetailQuery from '@/queries/productDetailQuery';
 import { handleStockAndMutations } from '@/utils/stockAndMutations';
 
-
+type Voucher = {
+  id: number; // Assuming ID is a number
+  type: 'DELIVERY' | 'TRANSACTION'; // Adjust based on your application
+};
 export class OrderController {
   public async createOrder(
     req: Request,
@@ -30,8 +34,11 @@ export class OrderController {
         shippingAmount, // New field for shipping amount
         courier,
         additionalInfo,
+        vouchers,
         cartItems, // Array of items in the cart [{ productId, qty }]
       } = req.body;
+
+      console.log('cart items:', cartItems)
 
       const deliveryAddress = await prisma.address.findUnique({
         where: { id: deliveryAddressId },
@@ -56,6 +63,31 @@ export class OrderController {
       //         `Jarak toko terlalu jauh dari alamat Anda, silahkan pilih alamat yang lain.`
       //       );
       //     }
+
+      const validatedVouchers = await Promise.all(
+        vouchers.map(async (voucher: Voucher) => {
+          const { id } = voucher; // Extract ID from the voucher object
+          const existingVoucher = await prisma.voucher.findUnique({
+            where: { id },
+            select: { status: true, expiredAt: true },
+          });
+  
+          if (!existingVoucher) {
+            throw new HttpException(404, `Voucher with ID ${id} not found`);
+          }
+  
+          if (existingVoucher.status !== 'UNUSED') {
+            throw new HttpException(400, `Voucher with ID ${id} is not valid for use`);
+          }
+  
+          const now = new Date();
+          if (existingVoucher.expiredAt <= now) {
+            throw new HttpException(400, `Voucher with ID ${id} is expired`);
+          }
+  
+          return id; // Return valid voucher ID
+        })
+      );
 
       // Process order if all items are valid
       const result = await prisma.$transaction(async (prisma) => {
@@ -97,60 +129,95 @@ export class OrderController {
             storeAddressId: nearestStore.storeAddressId,
           },
         });
+        await prisma.orderStatusUpdate.create({
+          data: {
+            userId: customerId,
+            orderId: newOrder.id,
+            orderStatus: OrderStatus.MENUNGGU_PEMBAYARAN,
+            description: 'Order created, awaiting payment.',
+          },
+        });
+
+        await Promise.all(
+          validatedVouchers.map((id) => {
+            return prisma.voucher.update({
+              where: { id },
+              data: {
+                status: 'USED',
+                orderId: newOrder.id, // Link the order ID to the voucher
+              },
+            });
+          })
+        );
 
         // Create order items and update inventory
         for (const item of cartItems) {
-          // Fetch the active product price from ProductPriceHistory
-          const productPriceHistory = await prisma.productPriceHistory.findFirst({
-            where: {
-              productId: item.productId,
-              active: true,
-            },
-            orderBy: {
-              startDate: 'desc',
-            },
-          });
-
-          if (!productPriceHistory) {
-            throw new HttpException(404, 'Active price not found for the product');
+          // Fetch the active product price, discount, and free product details
+          const inventoryProduct = await productDetailQuery.getProductByIdAndStoreId(
+            item.productId,
+            nearestStore.storeId
+          );
+  
+          if (!inventoryProduct) {
+            throw new HttpException(404, 'Product not found');
           }
-
+  
+          // Validate the free product promotion
+          let freeProductPromotion = null;
+          if (inventoryProduct.freeProductPerStores.length > 0) {
+            const freeProduct = inventoryProduct.freeProductPerStores[0];
+            if (item.qty >= freeProduct.buy) {
+              // Calculate free products based on the buy/get promotion
+              const setsOfBuy = Math.floor(item.qty / freeProduct.buy);
+              freeProductPromotion = setsOfBuy * freeProduct.get;
+            }
+          }
+  
+          // Validate product discounts
+          let discountAmount = 0;
+          if (inventoryProduct.productDiscountPerStores.length > 0) {
+            const discount = inventoryProduct.productDiscountPerStores[0];
+            if (discount.discountType === 'PERCENT') {
+              discountAmount = (inventoryProduct.product.prices[0].price * discount.discountValue) / 100;
+            } else if (discount.discountType === 'FLAT') {
+              discountAmount = discount.discountValue;
+            }
+          }
+  
+          // Final price calculation
+          const productPrice = inventoryProduct.product.prices[0].price;
+          const finalPrice = productPrice - discountAmount;
+  
           // Create the order item
           await prisma.orderItem.create({
             data: {
               orderId: newOrder.id,
               productId: item.productId,
               qty: item.qty,
-              price: productPriceHistory.price,
-              finalPrice: productPriceHistory.price, // Final price is the active price
+              price: productPrice,
+              productDiscountPerStoreId: inventoryProduct.productDiscountPerStores.length > 0
+              ? inventoryProduct.productDiscountPerStores[0].id
+              : null,
+            freeProductPerStoreId: inventoryProduct.freeProductPerStores.length > 0
+              ? inventoryProduct.freeProductPerStores[0].id
+              : null,
+              finalPrice: finalPrice,
             },
           });
-          // const inventoryUpdated = await updateInventoryStock(
-          //   nearestStore.storeId,
-          //   item.productId,
-          //   -item.qty,
-          //   newOrder.id,
-          //   customerId
-          // );
   
-          // if (!inventoryUpdated) {
-          //   throw new HttpException(
-          //     500,
-          //     `Failed to update stock for product ID: ${item.productId}`
-          //   );
-          // }
+          // Handle stock deduction and free product inventory updates
+          await handleStockAndMutations(
+            cartItems,
+            deliveryAddress,
+            nearestStore.storeId,
+            newOrder.id,
+            customerId
+          );
         }
-
+  
         return newOrder;
-        
       });
-      await handleStockAndMutations(
-        cartItems,
-        deliveryAddress,
-        nearestStore.storeId,
-        result.id,
-        customerId
-      );
+      
 
       res.status(201).json({
         message: 'Order created successfully',

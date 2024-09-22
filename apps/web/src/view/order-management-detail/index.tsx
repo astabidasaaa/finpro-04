@@ -9,14 +9,6 @@ import { toast } from '@/components/ui/use-toast';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import {
-   
-    Copy,
-    CreditCard,
-  
-  } from "lucide-react"
-
-
   import {
     Card,
     CardContent,
@@ -29,7 +21,14 @@ import {
 
   import { Separator } from "@/components/ui/separator"
  
+  type Promotion = {
+    discountType: 'FLAT' | 'PERCENT'; // Type of discount (flat or percentage)
+    discountValue: number;            // Discount value based on type
+  };
   
+  type Voucher = {
+    promotion: Promotion;              // Promotion details for the voucher
+  };
 
 type Payment = {
   amount: number;
@@ -41,6 +40,12 @@ type Payment = {
 type OrderItem = {
   qty: number;
   price: number;
+  finalPrice: number;                 // Final price after discount
+  productDiscountPerStore?: Promotion; // Discount details if applicable
+  freeProductPerStore?: {
+    buy: number;
+    get: number;
+  };                                  // "Buy X get Y" promotion if applicable
   product: {
     name: string;
   };
@@ -53,7 +58,7 @@ type Order = {
   totalAmount: number;
   createdAt: string;
   payment: Payment;
-  orderItems: OrderItem[];
+  orderItems: OrderItem[];            // List of order items
   customer: {
     profile: {
       name: string;
@@ -64,8 +69,17 @@ type Order = {
     address: string;
     zipCode: string;
   };
-  
+  shipping: {
+    courier: string;
+    trackingNumber: string;
+    amount: number;
+  };
+  selectedTransactionVoucher?: Voucher; // Transaction-level voucher for discounts
+  selectedDeliveryVoucher?: Voucher;    // Delivery voucher for reduced shipping
 };
+
+  
+
 
 const OrderManagementDetailsView: React.FC = () => {
   const { orderId } = useParams();
@@ -215,77 +229,216 @@ const OrderManagementDetailsView: React.FC = () => {
   }
   const apiUrl = process.env.PAYMENT_PROOF_API_URL;
 
+  const formatOrderStatus = (status: string) => {
+    return status.replace(/_/g, ' ');
+  };
+
+  let IDR = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  });
+
+  const calculateTotalPrice = (orderItems: OrderItem[]): number => {
+    return orderItems.reduce((total, item) => {
+      // Check if a discount is applied, otherwise use the original price
+      const itemPrice = item.productDiscountPerStore
+        ? item.finalPrice // Use the final price with discount applied
+        : item.price;     // Use the original price if no discount
+  
+      // Calculate the quantity of paid items (exclude the free ones)
+      const paidQuantity = calculatePaidQuantity(item);
+  
+      // Multiply the price by the paid quantity (not including free items)
+      return total + itemPrice * paidQuantity;
+    }, 0);
+  };
+  
+
+  const calculateTotalPriceWithShipping = (order: Order): number => {
+    const originalTotalPrice = calculateTotalPrice(order.orderItems); // Original price before discounts
+    const storeDiscount = calculateStoreDiscount(order.selectedTransactionVoucher, order.orderItems); // Store discount
+    const itemsTotalWithDiscount = originalTotalPrice - storeDiscount;
+  
+    // Calculate the shipping cost (use hardcoded shipping if no shipping info available)
+    const shippingAmount = order.shipping?.amount 
+    const finalShippingAmount = order.selectedDeliveryVoucher
+      ? calculateReducedShippingCost(order.selectedDeliveryVoucher, order.shipping?.amount)
+      : shippingAmount;
+  
+    // Ensure the total price doesn't go negative and then add the shipping cost
+    return Math.max(itemsTotalWithDiscount, 0) + finalShippingAmount;
+  };
+
+  const calculatePaidQuantity = (item: OrderItem): number => {
+    let paidQuantity = item.qty;
+  
+    // Check if there's a "buy X get Y" promotion for this item
+    if (item.freeProductPerStore && item.freeProductPerStore.buy > 0 && item.freeProductPerStore.get > 0) {
+      // Calculate how many sets of "buy X" are present in the quantity
+      const setsOfBuy = Math.floor(item.qty / item.freeProductPerStore.buy);
+  
+      // Subtract the number of free items from the paid quantity
+      const freeItems = setsOfBuy * item.freeProductPerStore.get;
+      paidQuantity -= freeItems; // Remove free items from the paid quantity
+    }
+  
+    return paidQuantity;
+  };
+
+  const calculateReducedShippingCost = (voucher: Voucher, shippingAmount?: number): number => {
+   
+  
+    const { discountType, discountValue } = voucher.promotion;
+    const originalShippingCost = shippingAmount 
+  
+    let reducedShippingCost;
+    if (discountType === 'FLAT') {
+      // Flat discount: reduce the shipping cost by a fixed amount
+      reducedShippingCost = originalShippingCost - discountValue;
+    } else if (discountType === 'PERCENT') {
+      // Percentage discount: reduce the shipping by a percentage of the original amount
+      reducedShippingCost = originalShippingCost * (1 - discountValue / 100);
+    } else {
+      reducedShippingCost = originalShippingCost; // No discount if type is unknown
+    }
+  
+    return Math.max(reducedShippingCost, 0); // Ensure the shipping cost doesn't go below zero
+  };
+
+  const calculateStoreDiscount = (voucher: Voucher | undefined, orderItems: OrderItem[]): number => {
+    if (!voucher) return 0;
+  
+    const { discountType, discountValue } = voucher.promotion;
+    const originalTotalPrice = calculateTotalPrice(orderItems);
+  
+    if (discountType === 'PERCENT') {
+      // Percentage discount: calculate discount based on a percentage of the total price
+      return Math.max((originalTotalPrice * discountValue) / 100, 0);
+    } else if (discountType === 'FLAT') {
+      // Flat discount: subtract a fixed amount from the total price
+      return Math.max(discountValue, 0);
+    }
+  
+    return 0; // No discount if type is unknown
+  };
+  
+  
+  
+  
+
   return (
-    <div className="container px-4 md:px-12 lg:px-24 max-w-screen-2xl py-8">
+    <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       
       <Card
     className="overflow-hidden" x-chunk="dashboard-05-chunk-4"
   >
-    <CardHeader className="flex flex-row items-start bg-muted/50">
-      <div className="grid gap-0.5">
-        <CardTitle className="group flex items-center gap-2 text-lg">
-        {order.orderCode}
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            <Copy className="h-3 w-3" />
-            <span className="sr-only">Copy Order ID</span>
-          </Button>
-        </CardTitle>
-        <CardDescription>Date: {formatDate(order.createdAt)}</CardDescription>
-        
-        <Badge variant="default" className="text-xs">{order.orderStatus}</Badge>
-      </div>
-      
-    </CardHeader>
-    <CardContent className="p-6 text-sm">
+    <CardHeader className="flex flex-col items-start bg-muted/50 text-lg">
+  <div className="grid gap-2">
+    <CardTitle className="group flex items-center gap-2">
+      {order.orderCode}
+    </CardTitle>
+    <CardDescription className="text-lg">
+      Tanggal Pemesanan: {formatDate(order.createdAt)}
+    </CardDescription>
+  </div>
+  {/* Move Badge out of the grid and ensure it's inline-block */}
+  <Badge
+    className={`text-xs px-2 font-semibold inline-block self-start ${
+      order.orderStatus === 'DIKONFIRMASI'
+        ? 'bg-green-400'
+        : order.orderStatus === 'DIBATALKAN'
+        ? 'bg-red-900'
+        : 'bg-main-dark hover:bg-main-dark/80'
+    }`}
+  >
+    {formatOrderStatus(order.orderStatus)}
+  </Badge>
+</CardHeader>
+    <CardContent className="p-6 text-lg">
       <div className="grid gap-3">
-        <div className="font-semibold">Order Details</div>
-        <ul className="grid gap-3">
-              {order.orderItems.map((item, index) => (
-                <li key={index} className="flex items-center justify-between">
-                  <span className="text-muted-foreground">
-                    {item.product.name} x <span>{item.qty}</span>
-                  </span>
-                  <span>Rp{(item.price * item.qty).toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-        <Separator className="my-2" />
-        <ul className="grid gap-3">
-          <li className="flex items-center justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>$299.00</span>
-          </li>
-          <li className="flex items-center justify-between">
-            <span className="text-muted-foreground">Shipping</span>
-            <span>$5.00</span>
-          </li>
-          <li className="flex items-center justify-between">
-            <span className="text-muted-foreground">Tax</span>
-            <span>$25.00</span>
-          </li>
-          <li className="flex items-center justify-between font-semibold">
-            <span className="text-muted-foreground">Total</span>
-            <span>Rp{order.payment.amount.toFixed(2)}</span>
-          </li>
-        </ul>
+      <div className="font-semibold">Order Details</div>
+<ul className="grid gap-3">
+  {order.orderItems.map((item, index) => (
+    <li key={index} className="flex items-center justify-between">
+      <span className="text-muted-foreground">
+        {item.product.name} x <span>{item.qty}</span>
+      </span>
+      <div className="flex items-center">
+        {/* Check if there's a discount and display the original price */}
+        {item.finalPrice < item.price ? (
+          <>
+            <span className="line-through text-muted-foreground mr-2">
+              {IDR.format(item.price * item.qty)}
+            </span>
+            <span>{IDR.format(item.finalPrice * item.qty)}</span>
+          </>
+        ) : (
+          <span>{IDR.format(item.price * item.qty)}</span>
+        )}
+      </div>
+    </li>
+  ))}
+
+  {/* Handle "Buy X get Y" promotion */}
+  {order.orderItems.map((item, index) =>
+    item.freeProductPerStore ? (
+      <li key={`promo-${index}`} className="text-sm text-muted-foreground">
+        Buy {item.freeProductPerStore.buy}, Get {item.freeProductPerStore.get} Free!
+      </li>
+    ) : null
+  )}
+</ul>
+
+<Separator className="my-2" />
+
+<ul className="grid gap-3">
+  <li className="flex items-center justify-between">
+    <span className="text-muted-foreground">Subtotal</span>
+    <span>{IDR.format(calculateTotalPrice(order.orderItems))}</span>
+  </li>
+  <li className="flex items-center justify-between">
+    <span className="text-muted-foreground">Pengiriman</span>
+    <span>{IDR.format(order.shipping.amount)}</span>
+  </li>
+  {/* <li className="flex items-center justify-between">
+    <span className="text-muted-foreground">Tax</span>
+    <span>{IDR.format(calculateTax(order))}</span>
+  </li> */}
+  <li className="flex items-center justify-between font-semibold">
+    <span className="text-muted-foreground">Total</span>
+    <span>{IDR.format(order.payment.amount)}</span>
+  </li>
+</ul>
+
       </div>
       <Separator className="my-4" />
-      <div className="grid grid-cols-2 gap-4">
+      
         <div className="grid gap-3">
           <div className="font-semibold">Shipping Information</div>
-          <address className="grid gap-0.5 not-italic text-muted-foreground">
-          <span>{order.customer.profile.name}</span>
-          <span>{order.deliveryAddress.address}</span>
+          
+          <ul className="grid gap-3">
+          <li className="flex items-center justify-between">
+            <span className="text-muted-foreground">Alamat</span>
+            <span>{order.deliveryAddress.address}</span>
+          </li>
+          <li className="flex items-center justify-between">
+            <span className="text-muted-foreground">Kurir</span>
+            <span>{order.shipping.courier}</span>
+          </li>
+          <li className="flex items-center justify-between">
+            <span className="text-muted-foreground">Kode Tracking</span>
+            <span>{order.shipping.trackingNumber}</span>
+          </li>
+          </ul>
+          
+          
             
-          </address>
+         
         </div>
         
         
-      </div>
+     
       <Separator className="my-4" />
       <div className="grid gap-3">
         <div className="font-semibold">Customer Information</div>

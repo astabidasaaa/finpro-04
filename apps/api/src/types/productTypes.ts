@@ -96,10 +96,12 @@ export type ProductDetailProps = Inventory & {
   };
 } & {
   productDiscountPerStores: {
+    id: number;
     discountType: $Enums.DiscountType;
     discountValue: number;
   }[];
   freeProductPerStores: {
+    id: number;
     get: number;
     buy: number;
   }[];

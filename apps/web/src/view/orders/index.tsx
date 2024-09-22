@@ -12,6 +12,7 @@ import { DatePickerWithRange } from './date-picker';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useRouter } from 'next/navigation';
+import { Badge } from "@/components/ui/badge";
 
 // Debounce Hook
 function useDebounce(value: string, delay: number) {
@@ -154,25 +155,35 @@ const OrderPageView: React.FC = () => {
     router.push(paymentPageUrl); // Redirect to payment page
   };
 
+  const formatOrderStatus = (status: string) => {
+    return status.replace(/_/g, ' ');
+  };
+
+  let IDR = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  });
+
   return (
     <div className="container px-4 md:px-12 lg:px-24 max-w-screen-2xl py-8">
-      <h1 className="text-3xl font-bold mb-8">Order History</h1>
+      <h1 className="text-3xl font-bold mb-8">Riwayat Pesanan</h1>
 
-      <div className="mb-4 flex gap-4">
-        <Button onClick={handleViewAllOrders}>View All Orders</Button>
+      <div className="mb-4 flex flex-wrap gap-4">
+        <Button onClick={handleViewAllOrders} variant="outline">Semua Pesanan</Button>
         <Button onClick={handleViewFinishedOrders} variant="outline">
-          View Finished Orders
+          Pesanan Selesai
         </Button>
         <Button onClick={handleViewInProgressOrders} variant="outline">
-          View In-Progress Orders
+          Pesanan Dalam Progress
         </Button>
       </div>
 
       <div className="mb-4 flex gap-4">
         <Input
           type="text"
-          placeholder="Search by Order Code"
-          className="p-2 border rounded"
+          placeholder="Cari Kode Pesanan"
+          className="p-2 border rounded w-[300px]"
           value={searchTerm}
           onChange={handleSearchChange}
         />
@@ -184,17 +195,27 @@ const OrderPageView: React.FC = () => {
 
       {Array.isArray(orders) && orders.length > 0 ? (
         <div>
-          <h2 className="text-2xl font-semibold mb-4">Your Orders</h2>
+          <h2 className="text-2xl font-semibold mb-4">Pesanan Anda</h2>
           <ul className="space-y-4">
             {orders.map((order) => (
               <li key={order.id} className="border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow">
                 <Link href={`/order-list/${order.id}`}>
                   <div className="cursor-pointer">
-                    <p className="text-lg font-medium text-blue-600">{order.orderCode}</p>
+                    <p className="text-lg font-medium">{order.orderCode}</p>
+                    
                     <hr className="my-2 border-gray-300" />
-                    <p className="text-sm text-gray-600">Status: {order.orderStatus}</p>
-                    <p className="text-sm text-gray-600">Total Amount: Rp{order.payment.amount.toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">Ordered On: {formatDate(order.createdAt)}</p>
+                    <Badge
+            className={`text-xs px-3 font-semibold mb-1 ${
+              order.orderStatus === 'DIKONFIRMASI'
+                ? 'bg-green-400'
+                : order.orderStatus === 'DIBATALKAN'
+                ? 'bg-red-900'
+                : 'bg-main-dark hover:bg-main-dark/80'
+            }`}
+          >{formatOrderStatus(order.orderStatus)}</Badge>
+                    <p className="text-sm mb-1">Total Pembayaran: {IDR.format(order.payment.amount)}</p>
+                    <p className="text-sm">Tanggal Pemesanan: {formatDate(order.createdAt)}</p>
+                    
                   </div>
                 </Link>
                 {order.orderStatus === 'MENUNGGU_PEMBAYARAN' && (
