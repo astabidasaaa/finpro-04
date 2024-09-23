@@ -27,6 +27,7 @@ export const buildOrderSearchQuery = (search?: string): Prisma.OrderWhereInput =
         },
       },
       {
+
         orderStatus: matchingStatuses.length > 0 ? { in: matchingStatuses } : undefined,
       },
       {
@@ -39,7 +40,6 @@ export const buildOrderSearchQuery = (search?: string): Prisma.OrderWhereInput =
           },
         },
       },
-      
     ],
   };
 };

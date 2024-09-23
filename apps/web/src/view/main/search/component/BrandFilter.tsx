@@ -39,10 +39,10 @@ export default function BrandFilter({
               >
                 <RadioGroupItem
                   value="0"
-                  id="0"
+                  id="brand-0"
                   className="!min-w-3 w-3 !h-3"
                 />
-                <Label htmlFor="0">
+                <Label htmlFor="brand-0">
                   <span className="font-normal text-[13px] line-clamp-2">
                     Semua brand
                   </span>
@@ -50,15 +50,15 @@ export default function BrandFilter({
               </div>
               {brands.map((brand) => (
                 <div
-                  key={brand.id}
+                  key={`brand-${brand.id.toString()}`}
                   className="flex justify-start items-center py-0.5 text-muted-foreground gap-2"
                 >
                   <RadioGroupItem
                     value={brand.id.toString()}
-                    id={brand.id.toString()}
+                    id={`brand-${brand.id.toString()}`}
                     className="!min-w-3 w-3 !h-3"
                   />
-                  <Label htmlFor={brand.id.toString()}>
+                  <Label htmlFor={`brand-${brand.id.toString()}`}>
                     <span className="font-normal text-[13px] line-clamp-2">
                       {brand.name}
                     </span>

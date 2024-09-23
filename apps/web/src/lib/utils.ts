@@ -30,6 +30,16 @@ export const truncateText = (text: string, maxLength: number): string => {
   return text;
 };
 
+export const truncateTextNoDot = (text: string, maxLength: number): string => {
+  if (!text) {
+    return '';
+  }
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength);
+  }
+  return text;
+};
+
 export const IDR = new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',

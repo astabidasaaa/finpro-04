@@ -203,9 +203,7 @@ export class OrderController {
               : null,
               finalPrice: finalPrice,
             },
-          });
-  
-          
+          });         
         }
 
         // Handle stock deduction and free product inventory updates
@@ -218,8 +216,6 @@ export class OrderController {
         );
   
         return newOrder;
-
-        
       });
       
 
