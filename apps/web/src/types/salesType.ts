@@ -14,8 +14,8 @@ export enum MONTHS {
 }
 
 export type SalesOverall = {
-  cleanRevenue: number;
-  productRevenue: number;
+  cleanRevenue: number | null;
+  productRevenue: number | null;
   deliveryRevenue: number;
   transactionCount: number;
   itemCount: number | null;
@@ -58,8 +58,8 @@ export enum OrderByReport {
 export enum OrderByReportDisplay {
   nameAsc = 'Nama A-Z',
   nameDesc = 'Nama Z-A',
-  qtyDesc = 'Stok terbanyak',
-  qtyAsc = 'Stok terendah',
+  qtyDesc = 'Paling banyak',
+  qtyAsc = 'Paling sedikit',
 }
 
 export const displayOrderByMap = new Map<string, string>(

@@ -1,39 +1,85 @@
+'use client';
+
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import axiosInstance from '@/lib/axiosInstance';
 import { IDR } from '@/lib/utils';
 import { SalesOverall } from '@/types/salesType';
-import {
-  CreditCard,
-  DollarSign,
-  Package,
-  ShoppingCart,
-  Truck,
-} from 'lucide-react';
+import { CookieValueTypes } from 'cookies-next';
+import { CreditCard, DollarSign, Package } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const mockData: SalesOverall = {
-  cleanRevenue: 150000000,
-  productRevenue: 130000000,
-  deliveryRevenue: 20000000,
-  transactionCount: 1000,
-  itemCount: 1500,
+const defaultSales: SalesOverall = {
+  cleanRevenue: 0,
+  productRevenue: 0,
+  deliveryRevenue: 0,
+  transactionCount: 0,
+  itemCount: 0,
 };
 
-export default function FinancialDashboard() {
+export default function FinancialDashboard({
+  storeId,
+  token,
+  month,
+  year,
+}: {
+  storeId: number | undefined;
+  token: CookieValueTypes;
+  month: number;
+  year: number;
+}) {
+  const [salesData, setSalesData] = useState<SalesOverall>(defaultSales);
+
+  async function fetchData() {
+    if (storeId === undefined) {
+      const salesResult = await axiosInstance().get(
+        `${process.env.API_URL}/sales/overall/all-store?month=${month}&year=${year}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setSalesData(salesResult.data.data);
+    } else {
+      const salesResult = await axiosInstance().get(
+        `${process.env.API_URL}/sales/overall/single/${storeId}?month=${month}&year=${year}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setSalesData(salesResult.data.data);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [year, storeId, month]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 py-3">
       <MetricCard
         title="Pendapatan"
-        value={IDR.format(mockData.cleanRevenue)}
+        value={
+          salesData.cleanRevenue !== null
+            ? IDR.format(salesData.cleanRevenue)
+            : '0'
+        }
         icon={DollarSign}
       />
       <MetricCard
         title="Jumlah Transaksi"
-        value={mockData.transactionCount.toString()}
+        value={salesData.transactionCount.toString()}
         icon={CreditCard}
       />
       <MetricCard
         title="Jumlah Barang Dibeli"
-        value={mockData.itemCount?.toString() ?? 'N/A'}
+        value={salesData.itemCount?.toString() ?? '0'}
         icon={Package}
       />
     </div>

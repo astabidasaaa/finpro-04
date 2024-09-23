@@ -9,105 +9,80 @@ import StoreFilter from '@/components/dashboard/StoreFilter';
 import { StoreProps } from '@/types/storeTypes';
 import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
-import { InventoryUpdateProps, SortTime } from '@/types/inventoryType';
-import PaginationInventory from '@/components/dashboard/Pagination';
 import SelectYear from './SelectYear';
 import SelectMonth from './SelectMonth';
 import FinancialDashboard from './FinancialDashboard';
 import { TopProductChart } from './TopProduct';
 import { PieChartCategory } from './PieChartCategory';
 import CategoryReportTable from './CategoryReportTable';
-import { CategoryMock, ProductMock } from '@/types/salesType';
+import { ProductAndCategoryReport } from '@/types/salesType';
 import ProductReportTable from './ProductReportTable';
 import SelectOrderBy from './SelectOrderBy';
+import {
+  fetchCategoryStoreAdmin,
+  fetchCategorySuperAdmin,
+  fetchProductStoreAdmin,
+  fetchProductSuperAdmin,
+  fetchStore,
+} from './fetchSales';
+import PaginationInventory from '@/components/dashboard/Pagination';
+import ProductSalesDashboard from './ProductSales';
 
 export default function SalesReportView() {
   const { user } = useAppSelector((state) => state.auth);
-  const [inventoryUpdates, setInventoryUpdates] = useState<
-    InventoryUpdateProps[]
-  >([]);
-  const [total, setTotal] = useState<number>(0);
   const [isMounted, setIsMounted] = useState(false);
-  const pageSize = 10;
-  const [page, setPage] = useState<number>(1);
   const [years, setYears] = useState<number[]>([2024]);
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth() + 1,
   );
   const [selectedYear, setSelectedYear] = useState<number>(years[0]);
-  const [orderBy, setOrderBy] = useState<string>('nameAsc');
+  const [categorySales, setCategorySales] = useState<
+    ProductAndCategoryReport[]
+  >([]);
   const [storeId, setStoreId] = useState<number>();
   const [stores, setStores] = useState<StoreProps[]>([]);
   const router = useRouter();
-  const [inputValue, setInputValue] = useState<string>('');
-  const [keyword, setKeyword] = useState<string>('');
   const searchParams = useSearchParams();
   const token = getCookie('access-token');
 
   async function fetchData() {
     try {
-      //   const params = new URLSearchParams(searchParams as any);
-      //   const filters = {
-      //     keyword: keyword,
-      //     storeId: storeId,
-      //     page: page,
-      //     pageSize: pageSize,
-      //     sortCol: sortCol,
-      //     filterType: filterType,
-      //   };
+      const params = new URLSearchParams(searchParams as any);
+      const filters = {
+        storeId: storeId,
+        month: selectedMonth,
+        year: selectedYear,
+      };
 
-      //   Object.entries(filters).forEach(([key, value]) => {
-      //     if (value !== undefined) {
-      //       params.set(key, value.toString());
-      //     } else {
-      //       params.delete(key);
-      //     }
-      //   });
-      //   router.push(
-      //     `/dashboard/inventory/inventory-history?${params.toString()}`,
-      //   );
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          params.set(key, value.toString());
+        } else {
+          params.delete(key);
+        }
+      });
+      router.push(`/dashboard/report/sales?${params.toString()}`);
 
       if (user.role === UserType.STOREADMIN) {
-        const storeResult = await axiosInstance().get(
-          `${process.env.API_URL}/stores/single/${user.id}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        const storeAdminId = storeResult.data.data.id;
+        const storeAdminId = await fetchStore(user.id, token);
         setStoreId(storeAdminId);
 
-        // const inventoryResult = await axiosInstance().get(
-        //   `${process.env.API_URL}/inventories/update/${storeAdminId}?${params.toString()}`,
-        //   {
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       Authorization: `Bearer ${token}`,
-        //     },
-        //   },
-        // );
-
-        // setInventoryUpdates(inventoryResult.data.data.inventoryUpdates);
-        // setTotal(inventoryResult.data.data.totalCount);
+        const categoryResult = await fetchCategoryStoreAdmin(
+          storeAdminId,
+          token,
+          selectedMonth,
+          selectedYear,
+        );
+        setCategorySales(categoryResult);
+      } else if (user.role == UserType.SUPERADMIN) {
+        const categoryResult = await fetchCategorySuperAdmin(
+          storeId,
+          token,
+          selectedMonth,
+          selectedYear,
+        );
+        setCategorySales(categoryResult);
       }
-
-      //   if (user.role === UserType.SUPERADMIN) {
-      //     const inventoryResult = await axiosInstance().get(
-      //       `${process.env.API_URL}/inventories/update/all-store?${params.toString()}`,
-      //       {
-      //         headers: {
-      //           'Content-Type': 'application/json',
-      //           Authorization: `Bearer ${token}`,
-      //         },
-      //       },
-      //     );
-
-      //     setInventoryUpdates(inventoryResult.data.data.inventoryUpdates);
-      //     setTotal(inventoryResult.data.data.totalCount);
-      //   }
 
       const storeResult = await axiosInstance().get(
         `${process.env.API_URL}/stores`,
@@ -131,18 +106,8 @@ export default function SalesReportView() {
   }
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setKeyword(inputValue);
-    }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [inputValue]);
-
-  useEffect(() => {
     fetchData();
-  }, [page, keyword, pageSize, storeId, orderBy, selectedYear]);
+  }, [storeId, selectedMonth, selectedYear]);
 
   if (!isMounted) {
     return null;
@@ -155,38 +120,49 @@ export default function SalesReportView() {
       </div>
       <div className="w-full">
         <div className="space-y-4">
-          <div className="flex flex-row gap-y-3 gap-x-1 justify-between">
-            <div className="min-w-[170px] md:max-w-[300px] w-full">
+          <div className="flex flex-col md:flex-row gap-y-3 gap-x-1 justify-between w-full">
+            <div className="md:max-w-[300px]">
               {user.role === UserType.SUPERADMIN ? (
                 <StoreFilter stores={stores} setStoreId={setStoreId} />
               ) : (
                 <div className="h-10" />
               )}
             </div>
-            <div className="flex flex-col items-end gap-y-3">
+            <div className="flex flex-row items-end md:items-center gap-2">
               <SelectYear years={years} setSelectedYear={setSelectedYear} />
               <SelectMonth setSelectedMonth={setSelectedMonth} />
             </div>
           </div>
         </div>
-        <FinancialDashboard />
+        <FinancialDashboard
+          storeId={storeId}
+          token={token}
+          month={selectedMonth}
+          year={selectedYear}
+        />
         <div className="grid grid-cols-10 gap-4 pb-4">
-          <TopProductChart />
-          <PieChartCategory />
+          <TopProductChart
+            storeId={storeId}
+            token={token}
+            month={selectedMonth}
+            year={selectedYear}
+          />
+          <PieChartCategory
+            storeId={storeId}
+            token={token}
+            month={selectedMonth}
+            year={selectedYear}
+          />
           <div className="col-span-10 xl:col-span-4">
-            <CategoryReportTable data={CategoryMock} />
+            <CategoryReportTable data={categorySales} />
           </div>
         </div>
-        <div className="flex items-start justify-between py-4">
-          <Input
-            placeholder="Cari produk..."
-            className="max-w-sm"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <SelectOrderBy setOrderBy={setOrderBy} />
-        </div>
-        <ProductReportTable data={ProductMock} />
+        <ProductSalesDashboard
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          storeId={storeId}
+          user={user}
+        />
       </div>
     </div>
   );

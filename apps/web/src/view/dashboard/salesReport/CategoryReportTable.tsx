@@ -100,7 +100,7 @@ export default function CategoryReportTable({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Inventaris tidak ditemukan.
+                  Kategori terjual tidak ditemukan.
                 </TableCell>
               </TableRow>
             )}
