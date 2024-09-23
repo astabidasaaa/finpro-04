@@ -123,12 +123,12 @@ class SalesQuery {
       if (productMap.has(productId)) {
         const existingProduct = productMap.get(productId)!;
         existingProduct.totalQty += qty;
-        existingProduct.totalPrice += finalPrice;
+        existingProduct.totalPrice += finalPrice * qty;
       } else {
         productMap.set(productId, {
           name: product.name,
           totalQty: qty,
-          totalPrice: finalPrice,
+          totalPrice: finalPrice * qty,
         });
       }
     });
@@ -201,12 +201,12 @@ class SalesQuery {
       if (categoryMap.has(categoryId)) {
         const existingCategory = categoryMap.get(categoryId)!;
         existingCategory.totalQty += qty;
-        existingCategory.totalPrice += finalPrice;
+        existingCategory.totalPrice += finalPrice * qty;
       } else {
         categoryMap.set(categoryId, {
           name: product.subcategory.productCategory.name,
           totalQty: qty,
-          totalPrice: finalPrice,
+          totalPrice: finalPrice * qty,
         });
       }
     });
