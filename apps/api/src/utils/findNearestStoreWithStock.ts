@@ -9,6 +9,7 @@ export async function findAnotherStoreWithStock(
   // Fetch stores that have stock for the given product and quantity
   const storesWithStock = await prisma.store.findMany({
     where: {
+      storeState: 'PUBLISHED',
       inventories: {
         some: {
           productId,

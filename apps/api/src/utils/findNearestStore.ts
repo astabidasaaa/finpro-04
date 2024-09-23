@@ -9,6 +9,9 @@ export const findNearestStore = async (
 ) => {
   // Fetch all stores with non-deleted addresses
   const stores = await prisma.store.findMany({
+    where: {
+      storeState: 'PUBLISHED', 
+    },
     include: {
       addresses: {
         where: { deleted: false },
