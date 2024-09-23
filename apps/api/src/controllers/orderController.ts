@@ -203,17 +203,17 @@ export class OrderController {
               : null,
               finalPrice: finalPrice,
             },
-          });
-  
-          // Handle stock deduction and free product inventory updates
-          await handleStockAndMutations(
-            cartItems,
-            deliveryAddress,
-            nearestStore.storeId,
-            newOrder.id,
-            customerId
-          );
+          });         
         }
+
+        // Handle stock deduction and free product inventory updates
+        await handleStockAndMutations(
+          cartItems,
+          deliveryAddress,
+          nearestStore.storeId,
+          newOrder.id,
+          customerId
+        );
   
         return newOrder;
       });

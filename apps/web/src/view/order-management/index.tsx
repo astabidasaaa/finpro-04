@@ -143,7 +143,7 @@ const OrderManagementView = () => {
           <div className="flex-grow">
             <Input
               type="search"
-              placeholder="Cari pesanan..."
+              placeholder="Cari customer/status pesanan..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} // Update search term on input change
               className="w-full max-w-md"
