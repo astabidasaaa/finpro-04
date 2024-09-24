@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from '@/components/ui/use-toast';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { getCookie } from 'cookies-next';
+
 
   import {
     Card,
@@ -33,6 +35,7 @@ import OrderActions from './OrderActions';
 
 
 const OrderDetailsView: React.FC = () => {
+  const token = getCookie('access-token');
   const { orderId } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,7 +50,10 @@ const OrderDetailsView: React.FC = () => {
 
       try {
         const response = await axiosInstance().get(`/get-order/get-order-by-id`, {
-          params: { orderId: parseInt(orderId as string, 10) },
+          params: { orderId: parseInt(orderId as string, 10), headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          }, },
         });
         const fetchedOrder = response.data.data;
         if (fetchedOrder.vouchers && fetchedOrder.vouchers.length > 0) {

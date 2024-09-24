@@ -19,6 +19,7 @@ import { VoucherDetail } from '@/types/voucherType';
 import { Badge } from '@/components/ui/badge';
 import { getCartItems, updateCartForUser } from '@/utils/cartUtils';
 import { CartItem } from '@/types/cartType';
+import { getCookie } from 'cookies-next';
 
 type Props = {
   addresses: Address[] | null;
@@ -29,6 +30,7 @@ type Props = {
   nearestStore: any; 
 };
 const CheckoutPageView = () => {
+  const token = getCookie('access-token');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [addresses, setAddresses] = useState<Address[] | null>([]);
 
@@ -141,7 +143,14 @@ const CheckoutPageView = () => {
       courier: shipping?.courier ,
         cartItems: updatedCartItems,
         vouchers: appliedVouchers,
-        })
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
       
       const orderId = response.data.data.orderId;
       const totalPrice = calculateTotalPriceWithShipping().toString();
@@ -205,7 +214,13 @@ localStorage.removeItem('checkedCart');
           '/orders/find-nearest-store',
           {
             addressId: addressId,
-          }
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
   
         const nearestStoreData = storeResponse.data.data;

@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import axiosInstance from '@/lib/axiosInstance';
+import { getCookie } from 'cookies-next';
 import { toast } from '@/components/ui/use-toast';
 
 const UploadPaymentView = () => {
+  const token = getCookie('access-token');
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -39,7 +41,12 @@ const UploadPaymentView = () => {
     formData.append('userId', userId || '0');   
 
     try {
-      await axiosInstance().post('/payments/upload-payment-proof', formData);
+      await axiosInstance().post('/payments/upload-payment-proof', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },);
 
       toast({
         variant: 'default',

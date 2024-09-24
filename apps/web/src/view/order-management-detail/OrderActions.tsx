@@ -3,15 +3,16 @@
 import React, { useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { Button } from '@/components/ui/button';
-
+import { getCookie } from 'cookies-next';
 import { toast } from '@/components/ui/use-toast';
-import { Order, OrderItem } from '@/types/paymentTypes';
+import { Order } from '@/types/paymentTypes';
 
 
 
 
   const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }> = ({ order, userId, orderId }) => {
     const [isLoading, setIsLoading] = useState(false);
+    const token = getCookie('access-token');
   
     const updateOrderStatus = async (status: string) => {
       if (!orderId) return;
@@ -25,6 +26,10 @@ import { Order, OrderItem } from '@/types/paymentTypes';
         await axiosInstance().post(endpoint, {
           orderId: parseInt(orderId, 10), 
           userId: parseInt(userId, 10),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         });
   
         toast({
@@ -55,6 +60,10 @@ import { Order, OrderItem } from '@/types/paymentTypes';
         await axiosInstance().post(`/orders/cancel`, {
           orderId: parseInt(orderId, 10),
           userId: parseInt(userId, 10),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         });
   
         toast({
@@ -85,6 +94,10 @@ import { Order, OrderItem } from '@/types/paymentTypes';
         await axiosInstance().post(`/payments/reject-payment`, {
           orderId: parseInt(orderId, 10),
           userId: parseInt(userId, 10),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         });
   
         toast({

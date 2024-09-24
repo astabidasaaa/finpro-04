@@ -5,9 +5,11 @@ import axiosInstance from '@/lib/axiosInstance';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { Order } from '@/types/paymentTypes';
+import { getCookie } from 'cookies-next';
 
 const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }> = ({ order, userId, orderId }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const token = getCookie('access-token');
 
   const cancelOrder = async () => {
     if (!orderId) return;
@@ -18,6 +20,10 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
       await axiosInstance().post(`/orders/cancel`, {
         orderId: parseInt(orderId, 10),
         userId: parseInt(userId, 10),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       toast({
@@ -47,6 +53,10 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
       await axiosInstance().post(`/shipping/confirm`, {
         orderId: parseInt(orderId, 10),
         userId: parseInt(userId, 10),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       toast({

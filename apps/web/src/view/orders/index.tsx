@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from "@/components/ui/badge";
 import PaginationComponent from './PaginationComponent';
 import { Order } from '@/types/paymentTypes';
+import { getCookie } from 'cookies-next';
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -31,6 +32,7 @@ function useDebounce(value: string, delay: number) {
 }
 
 const OrderPageView: React.FC = () => {
+  const token = getCookie('access-token');
   const customer = useAppSelector((state) => state.auth.user);
   const customerId = customer.id.toString();
   const router = useRouter();
@@ -73,7 +75,10 @@ const OrderPageView: React.FC = () => {
       } else {
         endpoint = '/get-order/get-orders-by-user'; 
       }
-      const response = await axiosInstance().get(endpoint, { params });
+      const response = await axiosInstance().get(endpoint, { params, headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }, });
       if (isFinishedOrders || isInProgressOrders) {
         setOrders(response.data.data.orders); 
       } else {

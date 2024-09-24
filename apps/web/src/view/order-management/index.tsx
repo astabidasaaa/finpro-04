@@ -1,13 +1,13 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { File, ListFilter } from "lucide-react";
+import { ListFilter } from "lucide-react";
 import { useAppSelector } from '@/lib/hooks';
-import { Badge } from "@/components/ui/badge";
 import axiosInstance from '@/lib/axiosInstance';
+import { getCookie } from 'cookies-next';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent  } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { toast } from '@/components/ui/use-toast';
 import PaginationComponent from './PaginationComponent';
@@ -18,6 +18,7 @@ type Store = {
 }
 
 const OrderManagementView = () => {
+  const token = getCookie('access-token');
   const [orders, setOrders] = useState<any[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
@@ -46,8 +47,13 @@ const OrderManagementView = () => {
   const fetchUserStoreData = async () => {
     try {
       const response = await axiosInstance().get(`/orders/get-user-by-id`, {
-        params: { userId }
-      });
+        params: { userId }, headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      
+    );
       const userData = response.data;
 
       if (userData.data && userData.data.store) {
@@ -59,7 +65,12 @@ const OrderManagementView = () => {
   };
   const fetchStores = async () => {
     try {
-      const response = await axiosInstance().get('/get-order/get-all-stores');
+      const response = await axiosInstance().get('/get-order/get-all-stores',{
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },);
       setStores(response.data.data);
     } catch (error) {
       console.error('Error fetching stores:', error);
@@ -73,7 +84,10 @@ const OrderManagementView = () => {
         : '/get-order/get-all-order';
 
       const response = await axiosInstance().get(endpoint, {
-        params: { storeId, page, limit: itemsPerPage, search: debouncedSearchTerm } 
+        params: { storeId, page, limit: itemsPerPage, search: debouncedSearchTerm }, headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
     
 
