@@ -12,7 +12,6 @@ class PaymentQuery {
     public async rejectPayment(order: any, userId: number) {
         try {
           return await prisma.$transaction(async (prisma) => {
-            // Update the order status to MENUNGGU_PEMBAYARAN
             const orderStatusResult = await OrderStatusService.updateOrderStatus(
               order.id,
               OrderStatus.MENUNGGU_PEMBAYARAN,

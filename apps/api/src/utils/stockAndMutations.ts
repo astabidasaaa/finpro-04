@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { HttpException } from '@/errors/httpException'; // Replace with your HttpException import
-import { checkInventoryAvailability } from './checkInventory'; // Adjust the import path
+import { HttpException } from '@/errors/httpException'; 
+import { checkInventoryAvailability } from './checkInventory'; 
 import { findAnotherStoreWithStock } from './findNearestStoreWithStock';
 import { updateInventoryStock } from './updateInventoryStock';
 
@@ -19,9 +19,7 @@ export async function handleStockAndMutations(
     
     for (const item of cartItems) {
       const { productId, finalQty } = item;
-      console.log(`Checking stock for product ID: ${productId}, Total Final Qty: ${finalQty}`);
 
-      // Check how much stock the nearest store has
       const inventory = await checkInventoryAvailability(nearestStoreId, productId, finalQty);
 
       if (inventory.availableStock > 0) {
@@ -33,7 +31,6 @@ export async function handleStockAndMutations(
           await processAlternateStore(latitude, longitude, productId, remainingQty, nearestStoreId, orderId, customerId);
         }
       } else {
-        // Directly look for an alternate store only if the nearest store has no stock
         await processAlternateStore(latitude, longitude, productId, finalQty, nearestStoreId, orderId, customerId);
       }
     }
@@ -54,9 +51,8 @@ async function processAlternateStore(
 ) {
   const alternateStore = await findAnotherStoreWithStock(latitude, longitude, productId, qty);
   if (alternateStore) {
-    console.log(`Alternate store found with stock:`, alternateStore);
 
-    // Create mutation record for transferring stock between stores
+ 
     const mutation = await prisma.mutation.create({
       data: {
         fromStoreId: alternateStore.id,
@@ -65,7 +61,6 @@ async function processAlternateStore(
       },
     });
 
-    // Create a MutationStatusUpdate after the mutation
     await prisma.mutationStatusUpdate.create({
       data: {
         creatorId: customerId,
@@ -75,7 +70,6 @@ async function processAlternateStore(
       },
     });
 
-    // Update the inventory for the quantity in the alternate store
     await updateInventoryStock(alternateStore.id, productId, -qty, orderId, customerId);
   } else {
     throw new HttpException(400, `No store found with sufficient stock for product ID: ${productId}`);

@@ -22,15 +22,15 @@ const OrderItemsList: React.FC<{ order: Order }> = ({ order }) => {
               <div className="flex flex-col gap-1">
                 <p className="font-normal">{item.product.name} x {item.qty}</p>
                 {item.freeProductPerStore && item.freeProductPerStore.buy > 0 && (
-                  <Badge className="text-xs md:text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black">
+                  <Badge className="text-xs md:text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[155px]">
                     Buy {item.freeProductPerStore.buy}, Get {item.freeProductPerStore.get} Free!
                   </Badge>
                 )}
               </div>
               <div className="flex flex-col items-end">
-                <p className="text-xs md:text-sm font-semibold text-black">
+                <p className="text-xs md:text-lg text-black">
                   {item.finalPrice < item.price ? (
-                    <span className="line-through text-gray-500">
+                    <span className="line-through text-gray-500 text-xs md:text-sm">
                       {IDR.format(item.price * item.qty)}
                     </span>
                   ) : (

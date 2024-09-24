@@ -33,7 +33,7 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: `Order status updated to ${status}.`,
         });
   
-        // Reload the page after updating the status
+
         window.location.reload();
       } catch (error) {
         console.error(`Error updating order status to ${status}:`, error);
@@ -64,7 +64,7 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: 'Your order has been successfully cancelled.',
         });
   
-        // Reload the page after cancellation
+
         window.location.reload();
       } catch (error) {
         console.error('Error cancelling order:', error);
@@ -95,7 +95,6 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: 'Payment has been successfully rejected.',
         });
   
-        // Reload the page after rejecting payment
         window.location.reload();
       } catch (error) {
         console.error('Error rejecting payment:', error);
@@ -112,11 +111,12 @@ import { Order, OrderItem } from '@/types/paymentTypes';
     return (
         <div className="mt-6">
           {['MENUNGGU_PEMBAYARAN', 'DIPROSES'].includes(order.orderStatus) && (
-            <div className="text-xs md:text-lg">
+            <div className=" mb-2">
               <Button
                 variant="destructive"
                 onClick={cancelOrder}
                 disabled={isLoading}
+                className="text-xs md:text-lg"
               >
                 Batalkan Pesanan
               </Button>

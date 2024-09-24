@@ -7,7 +7,6 @@ class ShippingQuery {
   public async confirmShipping(order: any, userId: number) {
     try {
       return await prisma.$transaction(async (prisma) => {
-        // Update the order status to DIKIRIM
         const orderStatusResult = await OrderStatusService.updateOrderStatus(
           order.id,
           OrderStatus.DIKONFIRMASI,
@@ -15,8 +14,7 @@ class ShippingQuery {
           'Order confirmed and status updated to DIKONFIRMASI'
         );
 
-        // Schedule automatic update to DIKONFIRMASI after 7 days
-        await this.scheduleAutomaticConfirmation(order.id, userId);
+        
 
         return orderStatusResult;
       });
@@ -25,18 +23,16 @@ class ShippingQuery {
     }
   }
 
-  // Schedule automatic confirmation after 7 days
+
   
     public async processingOrder(order: any, userId: number) {
         try {
           return await prisma.$transaction(async (prisma) => {
-            // Update payment status to COMPLETED
             await prisma.payment.update({
               where: { id: order.paymentId },
               data: { paymentStatus: PaymentStatus.COMPLETED },
             });
       
-            // Update the order status to DIPROSES
             const orderStatusResult = await OrderStatusService.updateOrderStatus(
               order.id,
               OrderStatus.DIPROSES,
@@ -54,14 +50,14 @@ class ShippingQuery {
         try {
           return await prisma.$transaction(async (prisma) => {
             
-      
-            // Update the order status to DIPROSES
             const orderStatusResult = await OrderStatusService.updateOrderStatus(
               order.id,
               OrderStatus.DIKIRIM,
               userId,
               'Order processed and status updated to DIKIRIM'
             );
+
+        await this.scheduleAutomaticConfirmation(order.id, userId);
       
             return orderStatusResult;
           });
@@ -70,33 +66,45 @@ class ShippingQuery {
         }
       }
       public async scheduleAutomaticConfirmation(orderId: number, userId: number) {
-        const sevenDaysInMs = 0.2 * 24 * 60 * 60 * 1000;
-    
-        setTimeout(async () => {
-          try {
-            // Check if the current status is still 'DIKIRIM'
-            const latestOrderStatus = await prisma.orderStatusUpdate.findFirst({
-              where: {
-                orderId,
-                orderStatus: OrderStatus.DIKIRIM,
-              },
-              orderBy: { createdAt: 'desc' },
-            });
-    
-            // If the order is still in 'DIKIRIM', update to 'DIKONFIRMASI'
-            if (latestOrderStatus) {
-              await OrderStatusService.updateOrderStatus(
-                orderId,
-                OrderStatus.DIKONFIRMASI,
-                userId,
-                'Order automatically confirmed after 7 days'
-              );
-              console.log(`Order ${orderId} status automatically updated to DIKONFIRMASI`);
-            }
-          } catch (err) {
-            console.error(`Failed to automatically update order ${orderId} status:`, err);
+        try {
+          const latestOrderStatus = await prisma.orderStatusUpdate.findFirst({
+            where: {
+              orderId,
+              orderStatus: OrderStatus.DIKIRIM,
+            },
+            orderBy: { createdAt: 'desc' },
+          });
+      
+          if (latestOrderStatus) {
+            const createdAt = latestOrderStatus.createdAt;
+            const sevenDaysInMs = 2 * 24 * 60 * 60 * 1000;
+            const confirmationTime = new Date(createdAt.getTime() + sevenDaysInMs);
+      
+            setTimeout(async () => {
+              try {
+                const currentOrderStatus = await prisma.orderStatusUpdate.findFirst({
+                  where: {
+                    orderId,
+                    orderStatus: OrderStatus.DIKIRIM,
+                  },
+                  orderBy: { createdAt: 'desc' },
+                });
+                if (currentOrderStatus) {
+                  await OrderStatusService.updateOrderStatus(
+                    orderId,
+                    OrderStatus.DIKONFIRMASI,
+                    userId,
+                    'Order automatically confirmed after 7 days'
+                  );
+                  }
+              } catch (err) {
+                console.error(`Failed to automatically update order ${orderId} status:`, err);
+              }
+            }, confirmationTime.getTime() - Date.now()); 
           }
-        }, sevenDaysInMs);
+        } catch (err) {
+          console.error(`Failed to schedule automatic confirmation for order ${orderId}:`, err);
+        }
       }
     }
   

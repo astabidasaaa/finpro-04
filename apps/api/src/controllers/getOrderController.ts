@@ -9,7 +9,6 @@ export class GetOrderController {
     next: NextFunction
   ): Promise<void> {
     try {
-      // Extract page, limit, and search from query
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const search = req.query.search as string || undefined;
@@ -50,8 +49,8 @@ export class GetOrderController {
         message: 'Orders retrieved successfully',
         data: ordersData.orders,
         pagination: {
-          totalPages: ordersData.totalPages, // Ensure this value is correctly calculated
-          ...ordersData.pagination, // Other pagination fields
+          totalPages: ordersData.totalPages,
+          ...ordersData.pagination, 
         },
       });
     } catch (err) {
@@ -106,8 +105,8 @@ export class GetOrderController {
             message: 'Finished orders retrieved successfully',
             data: orders,
             pagination: {
-              totalPages: orders.totalPages, // Ensure this value is correctly calculated
-              ...orders.pagination, // Other pagination fields
+              totalPages: orders.totalPages,
+              ...orders.pagination,
             },
           });
         } catch (err) {
@@ -140,8 +139,8 @@ export class GetOrderController {
             message: 'Finished orders retrieved successfully',
             data: orders,
             pagination: {
-              totalPages: orders.totalPages, // Ensure this value is correctly calculated
-              ...orders.pagination, // Other pagination fields
+              totalPages: orders.totalPages, 
+              ...orders.pagination, 
             },
           });
         } catch (err) {
@@ -156,9 +155,9 @@ export class GetOrderController {
       ): Promise<void> {
         try {
           const storeIdStr = req.query.storeId as string;
-          const pageStr = req.query.page as string; // Get the page from query
-          const limitStr = req.query.limit as string; // Get the limit from query
-          const search = req.query.search as string; // Get the search term from query
+          const pageStr = req.query.page as string;
+          const limitStr = req.query.limit as string; 
+          const search = req.query.search as string; 
       
           const { orders, totalOrders } = await getOrderActions.getOrdersByStoreAction(storeIdStr, pageStr, limitStr, search);
       

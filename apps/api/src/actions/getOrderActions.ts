@@ -203,8 +203,7 @@ class GetOrderAction {
       
         const pageNumber = page ? parseInt(page, 10) : 1;
         const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 10;
-      
-        // Retrieve finished orders with pagination, search, and date range
+
         const orders = await getFinishedOrderQuery.getUnfinishedOrders(
           customerId,
           fromDate,
@@ -232,15 +231,15 @@ class GetOrderAction {
       }
   public async getOrdersByStoreAction(storeIdStr: string, pageStr: string, limitStr: string, search?: string) {
     const storeId = parseInt(storeIdStr, 10);
-    const page = parseInt(pageStr, 10) || 1; // Default to page 1 if not provided
-    const limit = parseInt(limitStr, 10) || 10; // Default limit to 10 if not provided
-    const offset = (page - 1) * limit; // Calculate offset
+    const page = parseInt(pageStr, 10) || 1; 
+    const limit = parseInt(limitStr, 10) || 10; 
+    const offset = (page - 1) * limit; 
   
     if (isNaN(storeId)) {
       throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid storeId format');
     }
-    const orders = await getOrderQuery.getOrdersByStoreId(storeId, limit, offset, search); // Pass search term
-    const totalOrders = await countOrderQuery.countOrdersByStoreId(storeId, search); // Total order count
+    const orders = await getOrderQuery.getOrdersByStoreId(storeId, limit, offset, search); 
+    const totalOrders = await countOrderQuery.countOrdersByStoreId(storeId, search); 
     if (!orders.length) {
       throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found for the specified store');
     }

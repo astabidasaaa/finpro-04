@@ -1,18 +1,18 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
-import { Prisma, OrderStatus } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { buildOrderSearchQuery } from './orderSearchQuery';
 
 class OrderQuery {
   public async getAllOrders(limit: number, offset: number, search?: string) {
     try {
       return await prisma.$transaction(async (prisma) => {
-        const searchFilter = buildOrderSearchQuery(search); // Use the reusable search query
+        const searchFilter = buildOrderSearchQuery(search); 
   
         const orderList = await prisma.order.findMany({
-          skip: offset, // Pagination: skip the previous records
-          take: limit, // Pagination: take the number of records
-          where: searchFilter, // Apply the search filter
+          skip: offset, 
+          take: limit, 
+          where: searchFilter, 
           include: {
             orderItems: true,
             payment: true,
@@ -45,7 +45,6 @@ class OrderQuery {
   
   public async getOrderById(orderId: number) {
     try {
-      console.log(`Fetching order with ID: ${orderId}`);
   
       const orderData = await prisma.$transaction(async (prisma) => {
         const order = await prisma.order.findUnique({
@@ -55,7 +54,7 @@ class OrderQuery {
             include: {
               product: {
                 select: {
-                  name: true,  // Only the product name
+                  name: true, 
                 },
               },
               productDiscountPerStore: {
@@ -68,8 +67,8 @@ class OrderQuery {
               },
               freeProductPerStore: {
                 select: {
-                  buy: true,  // Minimum quantity required to get a free product
-                  get: true,  // Number of free products received
+                  buy: true, 
+                  get: true,  
                   startedAt: true,
                   finishedAt: true
                 },
@@ -81,7 +80,7 @@ class OrderQuery {
               paymentStatus: true,
               paymentGateway: true,
               paymentDate: true,
-              paymentProof: true,  // Include paymentProof
+              paymentProof: true,  
               transactionId: true,
               amount: true,
             },
@@ -93,7 +92,7 @@ class OrderQuery {
             include: {
               profile: {
                 select: {
-                  name: true,  // Only the customer's name
+                  name: true,  
                 },
               },
             },
@@ -101,7 +100,7 @@ class OrderQuery {
           vouchers: {  
             where: {
               promotion: {
-                promotionType: 'TRANSACTION', // Filter by promotionType
+                promotionType: 'TRANSACTION',
               },
             },
             include: {
@@ -116,8 +115,6 @@ class OrderQuery {
           },
         },
       });
-  
-        console.log(`Order data retrieved: ${JSON.stringify(order)}`);
         return order;
       });
   
@@ -133,14 +130,14 @@ class OrderQuery {
       return await prisma.$transaction(async (prisma) => {
         const whereCondition: Prisma.OrderWhereInput = {
           customerId,
-          ...buildOrderSearchQuery(search), // Apply search query
+          ...buildOrderSearchQuery(search), 
         };
 
         if (fromDate && toDate) {
           whereCondition.createdAt = {
             gte: fromDate,
-            lte: toDate,
-          };
+            lte: new Date(toDate.getTime() + 86400000), 
+  };
         }
         const take = pageSize || 10;
         const skip = page ? (page - 1) * take : 0;
@@ -156,7 +153,7 @@ class OrderQuery {
           skip,
           take,
           orderBy: {
-            createdAt: 'desc', // Orders will be returned in descending order of creation date
+            createdAt: 'desc', 
           },
         });
   
@@ -170,17 +167,15 @@ class OrderQuery {
   public async getOrdersByStoreId(storeId: number, limit: number, offset: number, search?: string) {
     try {
       return await prisma.$transaction(async (prisma) => {
-        // Build the search filter if search term is provided
+
         const searchFilter = search ? buildOrderSearchQuery(search) : {};
-  
-        // Fetch paginated orders with optional search filter
         const orderList = await prisma.order.findMany({
           where: {
             storeId,
-            ...searchFilter, // Include search filter
+            ...searchFilter, 
           },
-          skip: offset, // Pagination: skip the previous records
-          take: limit, // Pagination: take the number of records
+          skip: offset, 
+          take: limit, 
           include: {
             orderItems: true,
             payment: true,
@@ -188,20 +183,20 @@ class OrderQuery {
             orderStatusUpdates: true,
             store: {
               select: {
-                name: true, // Include the store name
+                name: true, 
               },
             },
             customer: {
               include: {
                 profile: {
                   select: {
-                    name: true, // Include the user's name from the Profile
+                    name: true, 
                   },
                 },
               },
             },
           },
-          orderBy: { createdAt: 'desc' }, // Order by createdAt descending
+          orderBy: { createdAt: 'desc' }, 
         });
   
         return orderList;

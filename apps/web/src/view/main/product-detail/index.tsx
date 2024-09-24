@@ -110,18 +110,16 @@ export default function ProductDetailView({
       const cartItem = {
         productId: product.product.id,
         name: product.product.name,
-        price: productPrice,        // Original price
-        discountedPrice: finalDiscountedPrice,            // Discounted price
+        price: productPrice,        
+        discountedPrice: finalDiscountedPrice,          
         quantity,
-        storeId,
         userId,
         image: images[0]?.title,
-        buy,                        // Include buy value
-        get,                        // Include get value
+        buy,                        
+        get,                      
       };
-      console.log('Cart Item:', cartItem);
-      addToCart(cartItem);  // Add the product to local storage cart
-      alert('Product added to cart!');  // Optional feedback to user
+      addToCart(cartItem);
+      alert('Product added to cart!'); 
     };
 
     return (

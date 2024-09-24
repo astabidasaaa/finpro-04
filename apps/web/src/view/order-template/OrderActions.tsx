@@ -25,8 +25,6 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
         title: 'Order Cancelled',
         description: 'Your order has been successfully cancelled.',
       });
-
-      // Reload the page after cancellation
       window.location.reload();
     } catch (error) {
       console.error('Error cancelling order:', error);
@@ -56,8 +54,6 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
         title: 'Shipping Confirmed',
         description: 'The shipping has been successfully confirmed.',
       });
-
-      // Reload the page after confirmation
       window.location.reload();
     } catch (error) {
       console.error('Error confirming shipping:', error);
@@ -73,7 +69,7 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
 
   return (
     <div className="mt-6">
-      {/* Render the Cancel Order button only if the status is MENUNGGU_PEMBAYARAN */}
+
       {order.orderStatus === 'MENUNGGU_PEMBAYARAN' && (
         <div className="mt-4">
           <Button
@@ -86,7 +82,6 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
         </div>
       )}
 
-      {/* Render the Confirm Shipping button only if the status is DIKIRIM */}
       {order.orderStatus === 'DIKIRIM' && (
         <div className="mt-4">
           <Button

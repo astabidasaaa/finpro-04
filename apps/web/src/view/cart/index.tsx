@@ -11,8 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { CartItem } from '@/types/cartType';
 
-
-
 const CartPageView = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
@@ -22,10 +20,8 @@ const CartPageView = () => {
 
   useEffect(() => {
     if (userId) {
-      // Load cart for the current user
       const userCart = getCartItems(userId);
       setCartItems(userCart);
-      console.log(localStorage.getItem('cart'));
     }
   }, [userId]);
 
@@ -57,10 +53,9 @@ const CartPageView = () => {
           ) {
             const newQuantity = item.quantity + delta;
             if (newQuantity > 0) {
-              // Update quantity if it's positive
               return { ...item, quantity: newQuantity };
             }
-            // Remove from checkedItems if quantity goes to zero
+
             if (checkedItems.has(JSON.stringify(item))) {
               setCheckedItems((prevChecked) => {
                 const newCheckedItems = new Set(prevChecked);
@@ -68,13 +63,12 @@ const CartPageView = () => {
                 return newCheckedItems;
               });
             }
-            return { ...item, quantity: 0 }; // Set quantity to 0 if it's less than or equal to 0
+            return { ...item, quantity: 0 }; 
           }
           return item;
         })
-        .filter((item) => item.quantity > 0); // Filter out items with quantity 0
+        .filter((item) => item.quantity > 0); 
   
-      // Update the cart in localStorage
       localStorage.setItem('cart', JSON.stringify({
         ...getCartItems(userId).reduce((acc: any, item: CartItem) => {
           if (!acc[userId]) acc[userId] = [];
@@ -84,7 +78,6 @@ const CartPageView = () => {
         [userId]: updatedCart
       }));
   
-      // Update checkedItems in localStorage as well
       const currentCheckedItems = Array.from(checkedItems).filter((checkedItem) => {
         const parsedItem = JSON.parse(checkedItem);
         return updatedCart.some((cartItem) =>
@@ -102,7 +95,6 @@ const CartPageView = () => {
   
 
   const handleCheckoutClick = () => {
-    // Save checked items to local storage
     localStorage.setItem('checkedCart', JSON.stringify(Array.from(checkedItems)));
     router.push('/cart/check-out');
   };
@@ -151,7 +143,7 @@ const CartPageView = () => {
                     </p>
                   )}
                   {item.buy !== undefined && item.get !== undefined && item.buy > 0 && item.get > 0 && (
-  <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black">
+  <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[130px]">
     Beli {item.buy} gratis {item.get}
   </Badge>
 )}

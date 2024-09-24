@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 const PaymentView = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const totalPrice = parseFloat(searchParams.get('totalPrice') || '0'); // Get the total price from query params
+  const totalPrice = parseFloat(searchParams.get('totalPrice') || '0'); 
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -17,8 +17,6 @@ const PaymentView = () => {
     const orderId = searchParams.get('orderId');
     const userId = searchParams.get('userId');
     
-    
-    // Redirect to payment proof upload page with orderId and userId
     router.push(`/pembayaran/upload-pembayaran?orderId=${orderId}&userId=${userId}`);
   };
   let IDR = new Intl.NumberFormat('id-ID', {

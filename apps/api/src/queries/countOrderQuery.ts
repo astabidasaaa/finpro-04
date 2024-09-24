@@ -5,13 +5,9 @@ import { Prisma, OrderStatus } from '@prisma/client';
 import { buildOrderSearchQuery } from './orderSearchQuery';
 
 class CountOrderQuery {
-    // Count all orders for pagination
   public async countAllOrders(search?: string) {
     try {
-      // Build the search filter if search term is provided
       const searchFilter = search ? buildOrderSearchQuery(search) : {};
-  
-      // Count all orders with optional search filter
       return await prisma.order.count({
         where: searchFilter,
       });
@@ -23,7 +19,7 @@ class CountOrderQuery {
     try {
       const whereCondition: Prisma.OrderWhereInput = {
         customerId,
-        ...buildOrderSearchQuery(search), // Apply search filter
+        ...buildOrderSearchQuery(search), 
       };
   
       if (fromDate && toDate) {
@@ -56,10 +52,8 @@ class CountOrderQuery {
         orderStatus: {
           in: finishedStatuses,
         },
-        ...buildOrderSearchQuery(search), // Apply search filter
+        ...buildOrderSearchQuery(search),
       };
-  
-      // Add date range filter if provided
       if (fromDate && toDate) {
         whereCondition.createdAt = {
           gte: fromDate,
@@ -95,10 +89,9 @@ class CountOrderQuery {
         orderStatus: {
           in: unfinishedStatuses,
         },
-        ...buildOrderSearchQuery(search), // Apply search filter
+        ...buildOrderSearchQuery(search), 
       };
-  
-      // Add date range filter if provided
+
       if (fromDate && toDate) {
         whereCondition.createdAt = {
           gte: fromDate,
@@ -117,14 +110,13 @@ class CountOrderQuery {
   }
   public async countOrdersByStoreId(storeId: number, search?: string) {
     try {
-      // Build the search filter if search term is provided
+
       const searchFilter = search ? buildOrderSearchQuery(search) : {};
   
-      // Count orders with optional search filter
       return await prisma.order.count({
         where: {
-          storeId: storeId, // Filter by storeId
-          ...searchFilter,  // Include search filter
+          storeId: storeId, 
+          ...searchFilter, 
         },
       });
     } catch (err) {
@@ -135,6 +127,9 @@ class CountOrderQuery {
     try {
       return await prisma.$transaction(async (prisma) => {
         const storeList = await prisma.store.findMany({
+          where: {
+            storeState: 'PUBLISHED', 
+          },
           include: {
             creator: true,
             admins: true,

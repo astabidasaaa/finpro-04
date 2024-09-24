@@ -12,7 +12,6 @@ export class PaymentController {
         if (err) {
           return next(new HttpException(500, 'Failed to upload payment proof', err.message));
         }
-  
         try {
           const { orderId, userId } = req.body;
           

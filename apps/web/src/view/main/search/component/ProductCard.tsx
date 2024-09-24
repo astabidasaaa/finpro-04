@@ -12,6 +12,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ProductProps } from '@/types/productTypes';
 import { IDR } from '@/lib/utils';
+import { useAppSelector } from '@/lib/hooks';
+import { addToCart } from '@/utils/cartUtils';
+import { useRouter } from 'next/navigation';
 
 export default function ProductCard({
   product,
@@ -31,6 +34,32 @@ export default function ProductCard({
 
   const buy = freeProduct?.buy ?? 0;
   const get = freeProduct?.get ?? 0;
+  const user = useAppSelector((state) => state.auth.user);
+  const router = useRouter();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (!user?.id) {
+      router.push('/login');
+      return;
+    }
+    const cartItem = {
+      productId: product.id,
+      name: product.name,
+      price: product.prices[0].price, 
+      discountedPrice: discountedPrice || null, 
+      quantity: 1, 
+
+      userId: user.id.toString(),
+      image: product.images[0]?.title,
+      buy, 
+      get, 
+    };
+
+    addToCart(cartItem); 
+    alert('Product added to cart!'); 
+  };
 
   return (
     <Link href={`/product/${product.id}`}>
@@ -86,10 +115,7 @@ export default function ProductCard({
           <Button
             variant="outline"
             className={`w-full max-w-[360px] h-8 lg:h-9 text-xs text-main-dark border-main-dark -p-3 hover:text-main-dark/80 ${product.inventories[0].stock <= 0 && 'border-border text-muted-foreground bg-muted'}`}
-            onClick={(e) => {
-              e.preventDefault();
-              console.log('first');
-            }}
+            onClick={handleAddToCart}
             disabled={product.inventories[0].stock <= 0}
           >
             {product.inventories[0].stock > 0 ? (

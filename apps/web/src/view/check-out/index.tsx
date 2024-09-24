@@ -25,8 +25,8 @@ type Props = {
   setAddresses: React.Dispatch<React.SetStateAction<Address[] | null>>;
   selectedAddressId: string;
   setSelectedAddressId: React.Dispatch<React.SetStateAction<string>>;
-  setNearestStore: React.Dispatch<React.SetStateAction<any>>; // Adjust type as needed
-  nearestStore: any; // Adjust type as needed
+  setNearestStore: React.Dispatch<React.SetStateAction<any>>; 
+  nearestStore: any; 
 };
 const CheckoutPageView = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -57,32 +57,26 @@ const CheckoutPageView = () => {
       try {
         const storedCheckedItems = JSON.parse(localStorage.getItem('checkedCart') || '[]');
 
-        // Log fetched checked items to verify structure
-        console.log('Fetched Checked Items:', storedCheckedItems);
-
         if (Array.isArray(storedCheckedItems) && storedCheckedItems.length > 0) {
-          // Parse each item and map to OrderItem
+
           const mappedItems: OrderItem[] = storedCheckedItems.map((itemStr: string) => {
-            const item = JSON.parse(itemStr); // Parse string to object
+            const item = JSON.parse(itemStr);
             return {
               id: item.productId,
               name: item.name || 'Unknown Name',
               quantity: parseInt(item.quantity, 10) || 0,
               price: parseFloat(item.price) || 0,
               image: item.image || 'default.png',
-              discountedPrice: parseFloat(item.discountedPrice) || 0, // New property
-              buy: item.buy || 0, // New property
-              get: item.get || 0, // New property
+              discountedPrice: parseFloat(item.discountedPrice) || 0,
+              buy: item.buy || 0,
+              get: item.get || 0, 
             };
           });
-
-          console.log('Mapped Items:', mappedItems);
 
           setOrderItems(mappedItems);
         }
       } catch (error) {
         console.error('Error fetching order details:', error);
-        // Handle error (e.g., show a toast)
       } finally {
         setIsLoading(false);
       }
@@ -104,11 +98,22 @@ const CheckoutPageView = () => {
     setIsSubmitting(true);
 
     try {
-      const updatedCartItems = orderItems.map((item) => ({
+      const updatedCartItems = orderItems
+      .filter((item) => item.quantity > 0) 
+      .map((item) => ({
         productId: item.id,
-        qty: item.quantity, 
+        qty: item.quantity,
         finalQty: calculateFinalQuantity(item),
       }));
+      if (updatedCartItems.length === 0) {
+        toast({
+          variant: 'destructive',
+          title: 'Checkout gagal',
+          description: 'Tidak ada item dalam keranjang untuk checkout.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       const appliedVouchers = [];
     if (selectedDeliveryVoucher) {
@@ -123,8 +128,6 @@ const CheckoutPageView = () => {
         type: 'TRANSACTION',
       });
     }
-
-    console.log('Vouchers being sent to backend:', appliedVouchers);
       
       const response = await axiosInstance().post('/orders', {
         customerId: parseInt(userId, 10),
@@ -134,8 +137,8 @@ const CheckoutPageView = () => {
         deliveryAddressId: parseInt(selectedAddressId, 10),
         orderStatus: 'MENUNGGU_PEMBAYARAN',
         additionalInfo: { note: additionalInfo },
-        shippingAmount: calculateReducedShippingCost(),  // Include the shipping amount
-      courier: shipping?.courier || hardcodedShipping.courier, // Include the courier information
+        shippingAmount: calculateReducedShippingCost(),  
+      courier: shipping?.courier ,
         cartItems: updatedCartItems,
         vouchers: appliedVouchers,
         })
@@ -149,36 +152,23 @@ const CheckoutPageView = () => {
         description:
           'Your order has been placed and you will be redirected to the payment page.',
       });
-      // Parse the checkedCart and convert strings to CartItem objects
+
 const storedCheckedItems: CartItem[] = JSON.parse(localStorage.getItem('checkedCart') || '[]').map((item: string) => JSON.parse(item));
 
 const userCart: CartItem[] = getCartItems(userId);
 
-console.log('Stored Checked Items:', storedCheckedItems);
-console.log('User Cart Before Filter:', userCart);
-
-// Ensure that product IDs are being compared correctly
 const filteredCart = userCart.filter(
   (cartItem: CartItem) => {
     const isInCheckedCart = storedCheckedItems.some((checkedItem: CartItem) => checkedItem.productId === cartItem.productId);
-    console.log(`Checking item: ${cartItem.productId}, isInCheckedCart: ${isInCheckedCart}`);
-    return !isInCheckedCart; // Filter out items in the checkedCart
+    return !isInCheckedCart; 
   }
 );
 
-console.log('Filtered Cart After Removal:', filteredCart);
-
-// Save the updated cart back to localStorage
 updateCartForUser(userId, filteredCart);
 
-// Clear the checkedCart
 localStorage.removeItem('checkedCart');
 
-// Double-check if the cart has been updated properly
-console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[userId]);
-
       const paymentPageUrl = `/pembayaran?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
-      console.log('Redirect URL:', paymentPageUrl);
 
       router.push(paymentPageUrl);
     } catch (error) {
@@ -201,17 +191,16 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
       setIsSubmitting(false);
     }
   };
-
+  const isCheckoutDisabled = () => {
+    return orderItems.every((item) => item.quantity === 0);
+  };
 
   useEffect(() => {
     const fetchNearestStoreOnLoad = async () => {
       if (!selectedAddressId) return;
       const addressId = parseInt(selectedAddressId, 10);
-      console.log('Selected address ID:', selectedAddressId);
       
-  
       try {
-        // Send the addressId directly
         const storeResponse = await axiosInstance().post(
           '/orders/find-nearest-store',
           {
@@ -220,9 +209,7 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
         );
   
         const nearestStoreData = storeResponse.data.data;
-        setNearestStore(nearestStoreData);
-        console.log('nearest store', nearestStoreData)
-  
+        setNearestStore(nearestStoreData); 
       } catch (error) {
         console.error(
           'Error fetching nearest store or checking inventory:',
@@ -247,85 +234,81 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
       0,
     );
   };
-  const hardcodedShipping = {
-    amount: 10000.0, // Hardcoded shipping amount
-    courier: 'JNE', // Hardcoded courier
-  };
+
 
   const calculateTotalPriceWithShipping = () => {
-    // Calculate the total for order items before applying discounts
     const originalTotalPrice = calculateTotalPrice();
-  
-    // Calculate the store discount
+
     const storeDiscount = calculateStoreDiscount();
-  
-    // Apply the store discount to the total price
+
     const itemsTotalWithDiscount = originalTotalPrice - storeDiscount;
-  
-    // Calculate the shipping cost (with or without delivery voucher)
-    const shippingAmount = shipping?.amount || hardcodedShipping.amount;
+    console.log('shipping amount', shipping?.amount)
+console.log('calculateReducedShipping', calculateReducedShippingCost())
+    const shippingAmount = shipping?.amount || 0;
     const finalShippingAmount = selectedDeliveryVoucher
-      ? calculateReducedShippingCost() // Apply reduced shipping cost if delivery voucher is selected
+      ? calculateReducedShippingCost() 
       : shippingAmount;
   
-    // Ensure items total is not negative, and add the shipping cost to the discounted total
+
     return Math.max(itemsTotalWithDiscount, 0) + finalShippingAmount;
   };
 
   const calculateFinalQuantity = (item: OrderItem) => {
     let finalQuantity = item.quantity;
   
-    // Check if the item has a "buy X get Y" promotion
+
     if (item.buy !== undefined && item.get !== undefined && item.buy > 0 && item.get > 0) {
-      // Calculate how many free items to add based on how many sets of "buy X" are in the quantity
+
       const setsOfBuy = Math.floor(item.quantity / item.buy);
-      finalQuantity += setsOfBuy * item.get; // Add free items to the final quantity
+      finalQuantity += setsOfBuy * item.get; 
     }
   
     return finalQuantity;
   };
 
   const calculateReducedShippingCost = () => {
-    if (!selectedDeliveryVoucher) return shipping?.amount || hardcodedShipping.amount;
+    if (!selectedDeliveryVoucher) return shipping?.amount || 0;
   
-    const { discountType, discountValue } = selectedDeliveryVoucher.promotion; // Extract type and value
-    const originalShippingCost = shipping?.amount || hardcodedShipping.amount;
-  
-    let reducedShippingCost;
+    const { discountType, discountValue, maxDeduction } = selectedDeliveryVoucher.promotion; 
+    const originalShippingCost = shipping?.amount || 0;
+    let reducedShippingCost = 0;
   
     if (discountType === 'FLAT') {
-      // For FLAT discount, subtract the discount value directly
       reducedShippingCost = originalShippingCost - discountValue;
     } else if (discountType === 'PERCENT') {
-      // For PERCENT discount, reduce the shipping by the percentage of the original amount
       reducedShippingCost = originalShippingCost * (1 - discountValue / 100);
     } else {
-      // Default to no discount if the type is unknown
       reducedShippingCost = originalShippingCost;
     }
-  
-    // Ensure the reduced cost doesn't go below zero
-    return Math.max(reducedShippingCost, 0);
+    reducedShippingCost = Math.max(reducedShippingCost, 0);
+
+    if (discountType === 'PERCENT') {
+        const maxShippingDeduction = maxDeduction || 0;
+        return Math.min(reducedShippingCost, maxShippingDeduction);
+    }
+
+    return reducedShippingCost;
   };
   
 
   const calculateStoreDiscount = () => {
     if (!selectedTransactionVoucher) return 0;
-  
-    const discountValue = selectedTransactionVoucher.promotion.discountValue; // Get the discount value
-    const originalTotalPrice = calculateTotalPrice(); // Fallback to a default if totalPrice is undefined
-  
-    // Calculate the discount based on the type (percentage or flat)
+
+    const discountValue = selectedTransactionVoucher.promotion.discountValue; 
+    const originalTotalPrice = calculateTotalPrice(); 
+    const maxDeduction = selectedTransactionVoucher.promotion.maxDeduction || 0; 
+
+    let discount = 0; 
     if (selectedTransactionVoucher.promotion.discountType === 'PERCENT') {
-      // Calculate percentage discount
-      return Math.max((originalTotalPrice * discountValue) / 100, 0); 
+        discount = (originalTotalPrice * discountValue) / 100;
+        discount = Math.min(Math.max(discount, 0), maxDeduction);
     } else if (selectedTransactionVoucher.promotion.discountType === 'FLAT') {
-      // Subtract flat discount
-      return Math.max(discountValue, 0); // Return the flat discount value
+        discount = discountValue;
     }
-  
-    return 0; // Ensure total price doesn't go below zero
-  };
+
+    return Math.max(discount, 0);
+};
+
   
 
   let IDR = new Intl.NumberFormat('id-ID', {
@@ -375,16 +358,14 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
     )}
   </p>
   
-  {/* Display the discounted price below the original price if applicable */}
   {item.discountedPrice > 0 && (
     <p className="text-lg font-semibold text-main-dark">
       {IDR.format(item.discountedPrice)}
     </p>
   )}
   
-  {/* Badge for "Buy X Get Y" promotion */}
   {item.buy !== undefined && item.get !== undefined && item.buy > 0 && item.get > 0 && (
-    <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black">
+    <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[130px]">
       Beli {item.buy} gratis {item.get}
     </Badge>
   )}
@@ -475,7 +456,7 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
       <div className="flex flex-row justify-between">
         <span>Total Ongkos Kirim</span>
         <span className={selectedDeliveryVoucher ? 'line-through' : ''}>
-          {IDR.format(shipping?.amount || hardcodedShipping.amount)}
+          {IDR.format(shipping?.amount || 0)}
         </span>
       </div>
       
@@ -483,17 +464,11 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
         <div className="flex flex-row justify-between mt-1">
           <span>Total Ongkos Kirim Setelah Diskon</span>
           <span>
-            {IDR.format(calculateReducedShippingCost())}
+            {IDR.format(calculateReducedShippingCost() || 0)}
           </span>
         </div>
       )}
     </div>
-
-    <div className="flex flex-row justify-between w-full text-sm text-muted-foreground">
-                  <span>Kupon digunakan</span>
-                  <span>Ongkir: {selectedDeliveryVoucher?.id}</span>
-                  <span>Transaksi: {selectedTransactionVoucher?.id}</span>
-                </div>
               </div>
             </div>
             <Separator />
@@ -509,6 +484,7 @@ console.log('Updated Cart:', JSON.parse(localStorage.getItem('cart') || '{}')[us
             <Button
               onClick={handleCheckout}
               className="bg-main-dark hover:bg-main-dark/80"
+              disabled={isSubmitting || isCheckoutDisabled()}
             >
               {isSubmitting ? 'Diproses...' : 'Pesan Sekarang'}
             </Button>
