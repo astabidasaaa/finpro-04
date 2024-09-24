@@ -15,6 +15,7 @@ import { IDR } from '@/lib/utils';
 import { useAppSelector } from '@/lib/hooks';
 import { addToCart } from '@/utils/cartUtils';
 import { useRouter } from 'next/navigation';
+import { toast } from '@/components/ui/use-toast';
 
 export default function ProductCard({
   product,
@@ -58,7 +59,11 @@ export default function ProductCard({
     };
 
     addToCart(cartItem); 
-    alert('Product added to cart!'); 
+    toast({
+      title: 'Produk ditambahkan ke cart',
+      description: `${product.name} sudah ditambahkan ke cart.`,
+      variant: 'success', 
+    });
   };
 
   return (

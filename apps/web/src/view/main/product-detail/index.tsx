@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { IDR } from '@/lib/utils';
+import { toast } from '@/components/ui/use-toast';
 
 export default function ProductDetailView({
   productId,
@@ -119,7 +120,11 @@ export default function ProductDetailView({
         get,                      
       };
       addToCart(cartItem);
-      alert('Product added to cart!'); 
+      toast({
+        title: 'Produk ditambahkan ke cart',
+        description: `${product.product.name} sudah ditambahkan ke cart.`,
+        variant: 'success', 
+      });
     };
 
     return (

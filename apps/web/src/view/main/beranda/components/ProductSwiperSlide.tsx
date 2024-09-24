@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useAppSelector } from '@/lib/hooks';
 import { addToCart } from '@/utils/cartUtils';
 import { useRouter } from 'next/navigation';
+import { toast } from '@/components/ui/use-toast';
 
 
 const ProductSwiperSlide = ({ product }: { product: TProduct }) => {
@@ -53,7 +54,11 @@ const ProductSwiperSlide = ({ product }: { product: TProduct }) => {
     };
 
     addToCart(cartItem); 
-    alert('Product added to cart!'); 
+    toast({
+      title: 'Produk ditambahkan ke cart',
+      description: `${product.name} sudah ditambahkan ke cart.`,
+      variant: 'success', 
+    }); 
   };
 
   return (
