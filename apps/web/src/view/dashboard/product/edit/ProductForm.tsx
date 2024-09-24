@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { productSchema } from './productSchema';
+import {
+  editProductSchema,
+  productSchema,
+} from '../../addProduct/productSchema';
 import {
   Form,
   FormControl,
@@ -39,46 +42,45 @@ import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
 import Image from 'next/image';
 import { getCookie } from 'cookies-next';
+import { ProductProps } from '@/types/productTypes';
+import Loading from '@/components/Loading';
+import { useRouter } from 'next/navigation';
 
-type ProductFormProps = z.infer<typeof productSchema>;
-
-export default function CreateProductForm({
+export default function EditProductForm({
   brands,
   categories,
+  product,
 }: {
   brands: BrandProps[];
   categories: CategoryProps[];
+  product: ProductProps;
 }) {
-  const [parentCategoryId, setParentCategoryId] = useState<string>('');
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<ProductFormProps>({
-    resolver: zodResolver(productSchema),
-  });
-
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [parentCategoryId, setParentCategoryId] = useState<string>(
+    String(product.subcategory.productCategory.id),
+  );
+  const [previewImages, setPreviewImages] = useState<
+    { url: string; id: number; isUploaded: boolean }[]
+  >([]);
   const [files, setFiles] = useState<File[]>([]);
   const token = getCookie('access-token');
+  const route = useRouter();
 
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
-
-  const form = useForm<z.infer<typeof productSchema>>({
-    resolver: zodResolver(productSchema),
+  const form = useForm<z.infer<typeof editProductSchema>>({
+    resolver: zodResolver(editProductSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      brandId: '',
-      subcategoryId: '',
-      productState: 'DRAFT',
-      price: 0,
+      name: product?.name || '',
+      description: product?.description || '',
+      brandId: String(product?.brandId || ''),
+      subcategoryId: String(product?.subcategoryId || ''),
+      productState: product?.productState || 'DRAFT',
+      price: product?.prices[0]?.price || 0,
       product: [],
+      imagesToDelete: [],
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof productSchema>) => {
+  const onSubmit = async (data: z.infer<typeof editProductSchema>) => {
     try {
       const formData = new FormData();
       formData.append('name', data.name);
@@ -87,24 +89,30 @@ export default function CreateProductForm({
       formData.append('description', data.description);
       formData.append('productState', data.productState);
       formData.append('price', data.price.toString());
+      formData.append('imagesToDelete', JSON.stringify(data.imagesToDelete));
 
       files.forEach((file: File) => {
-        formData.append('product', file);
+        if (file.name !== '') {
+          formData.append('product', file);
+        }
       });
 
-      const submitEvent = await axiosInstance().post(`/products`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
+      const submitEvent = await axiosInstance().patch(
+        `/products/${product.id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (submitEvent) {
         toast({
           variant: 'success',
-          title: 'Produk telah disimpan',
-          description:
-            'Produk telah disimpan pada database. Stok produk dapat kemudian diatur pada menu inventori',
+          title: 'Produk berhasil diperbarui',
+          description: 'Perubahan produk telah disimpan pada database.',
         });
 
         setTimeout(() => {
@@ -112,7 +120,7 @@ export default function CreateProductForm({
           setFiles([]);
           setPreviewImages([]);
 
-          window.location.reload();
+          route.push('/dashboard/product/list');
         }, 2500);
       }
     } catch (error: any) {
@@ -125,7 +133,7 @@ export default function CreateProductForm({
 
       toast({
         variant: 'destructive',
-        title: 'Gagal menambahkan produk',
+        title: 'Gagal memperbarui produk',
         description: message,
       });
     }
@@ -133,13 +141,24 @@ export default function CreateProductForm({
 
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files || []);
-    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+    const newPreviews = newFiles.map((file) => ({
+      url: URL.createObjectURL(file),
+      isUploaded: false,
+      id: 0,
+    }));
 
     setPreviewImages((prev) => [...prev, ...newPreviews]);
     setFiles((prev) => [...prev, ...newFiles]);
   };
 
   const handleRemoveImage = (index: number) => {
+    const removedImage = previewImages[index];
+    if (removedImage.isUploaded) {
+      form.setValue('imagesToDelete', [
+        ...form.getValues('imagesToDelete'),
+        removedImage.id,
+      ]);
+    }
     setPreviewImages((prev) => prev.filter((_, i) => i !== index));
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -149,8 +168,31 @@ export default function CreateProductForm({
     hiddenInputRef.current?.click();
   };
 
+  useEffect(() => {
+    if (product) {
+      const images = product.images.map((image) => ({
+        url: `${process.env.PRODUCT_API_URL}/${image.title}`,
+        isUploaded: true,
+        id: image.id,
+      }));
+      setPreviewImages(images);
+
+      const uploadedFiles = product.images.map((image) => new File([], ''));
+      setFiles(uploadedFiles);
+    } else {
+      <Loading />;
+    }
+  }, [product]);
+
+  if (!product) {
+    return <Loading />;
+  }
+
   return (
-    <div className="grid flex-1 w-full items-start gap-4 p-4 px-0 sm:px-0 sm:py-0 md:gap-8">
+    <div
+      key={product?.id}
+      className="grid flex-1 w-full items-start gap-4 p-4 px-0 sm:px-0 sm:py-0 md:gap-8"
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -173,11 +215,11 @@ export default function CreateProductForm({
                     <FormField
                       control={form.control}
                       name="name"
-                      render={({ field }) => (
+                      render={({ field }: { field: any }) => (
                         <FormItem>
                           <FormLabel>Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Nama produk" {...field} />
+                            <Input {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -190,10 +232,7 @@ export default function CreateProductForm({
                         <FormItem>
                           <FormLabel>Deskripsi</FormLabel>
                           <FormControl>
-                            <Textarea
-                              placeholder="Deskripsi produk"
-                              {...field}
-                            />
+                            <Textarea {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -205,10 +244,13 @@ export default function CreateProductForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Brand</FormLabel>
-                          <Select onValueChange={field.onChange}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={form.watch('brandId')}
+                          >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="-- Pilih Brand --" />
+                                <SelectValue defaultChecked={true} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -231,21 +273,26 @@ export default function CreateProductForm({
                         Kategori
                       </Label>
                       <div className="h-2.5" />
-                      <Select onValueChange={(e) => setParentCategoryId(e)}>
-                        <SelectTrigger className="col-span-3 ">
-                          <SelectValue placeholder="-- Pilih Kategori --" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.id}
-                              value={category.id.toString()}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {parentCategoryId !== null && (
+                        <Select
+                          onValueChange={(e) => setParentCategoryId(e)}
+                          value={parentCategoryId}
+                        >
+                          <SelectTrigger className="col-span-3 ">
+                            <SelectValue placeholder="-- Pilih Kategori --" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={category.id.toString()}
+                              >
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
                     <FormField
                       control={form.control}
@@ -253,30 +300,28 @@ export default function CreateProductForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Subkategori</FormLabel>
-                          <Select onValueChange={field.onChange}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={form.watch('subcategoryId')}
+                          >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="-- Pilih Subkategori --" />
+                                <SelectValue defaultChecked={true} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {categories
                                 .find(
-                                  (cat) => cat.id == Number(parentCategoryId),
+                                  (cat) => cat.id === Number(parentCategoryId),
                                 )
-                                ?.subcategories.map(
-                                  (subcategory: {
-                                    id: number;
-                                    name: string;
-                                  }) => (
-                                    <SelectItem
-                                      key={subcategory.id}
-                                      value={subcategory.id.toString()}
-                                    >
-                                      {subcategory.name}
-                                    </SelectItem>
-                                  ),
-                                )}
+                                ?.subcategories.map((subcategory) => (
+                                  <SelectItem
+                                    key={subcategory.id}
+                                    value={subcategory.id.toString()}
+                                  >
+                                    {subcategory.name}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -325,8 +370,9 @@ export default function CreateProductForm({
                         name="product"
                         render={({ field }) => (
                           <FormItem className="gap-3">
-                            <FormControl className="hidden">
+                            <FormControl>
                               <Input
+                                className="hidden"
                                 type="file"
                                 multiple
                                 ref={(e) => {
@@ -340,7 +386,7 @@ export default function CreateProductForm({
                                   const files = Array.from(
                                     e.target.files || [],
                                   );
-                                  field.onChange(files);
+                                  field.onChange(files); // Updating the form value
                                 }}
                               />
                             </FormControl>
@@ -361,10 +407,10 @@ export default function CreateProductForm({
                           : 'Unggah gambar'}
                       </Button>
                       <div className="grid grid-cols-3 gap-2">
-                        {previewImages.map((src, index) => (
+                        {previewImages.map((images, index) => (
                           <div key={index} className="relative col-span-1">
                             <Image
-                              src={src}
+                              src={images.url}
                               alt={`Thumbnail ${index + 1}`}
                               className="object-cover w-32 h-32"
                               height={300}
@@ -398,24 +444,27 @@ export default function CreateProductForm({
                         name="productState"
                         render={({ field }) => (
                           <FormItem className="gap-3">
-                            <Select onValueChange={field.onChange}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={form.watch('productState')}
+                            >
                               <FormControl>
                                 <SelectTrigger
                                   id="status"
                                   aria-label="Select status"
                                 >
-                                  <SelectValue
-                                    defaultValue="DRAFT"
-                                    placeholder="DRAFT"
-                                  />
+                                  <SelectValue defaultChecked={true} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value="DRAFT" key="DRAFT">
-                                  DRAFT
+                                  DRAF
                                 </SelectItem>
                                 <SelectItem value="PUBLISHED" key="PUBLISHED">
-                                  PUBLISH
+                                  TERBIT
+                                </SelectItem>
+                                <SelectItem value="ARCHIVED" key="ARCHIVED">
+                                  ARSIP
                                 </SelectItem>
                               </SelectContent>
                             </Select>
