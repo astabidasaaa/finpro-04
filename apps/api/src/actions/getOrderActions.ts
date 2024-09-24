@@ -203,7 +203,6 @@ class GetOrderAction {
       
         const pageNumber = page ? parseInt(page, 10) : 1;
         const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 10;
-
         const orders = await getFinishedOrderQuery.getUnfinishedOrders(
           customerId,
           fromDate,

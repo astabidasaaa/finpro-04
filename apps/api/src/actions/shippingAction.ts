@@ -8,7 +8,6 @@ import shippingQuery from '@/queries/shippingQuery';
 
 class ShippingAction {
   public async confirmShippingAction(orderId: number, userId: number) {
-
     const order = await getOrderQuery.getOrderById(orderId);
 
     if (!order) {

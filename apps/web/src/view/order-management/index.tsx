@@ -80,7 +80,7 @@ const OrderManagementView = () => {
       setOrders(storeId ? response.data.data.orders : response.data.data);
 
       setTotalPages(storeId ? response.data.data.totalPages : response.data.totalPages);
-      
+
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -112,6 +112,18 @@ const OrderManagementView = () => {
     setSelectedStoreId(storeId);
     setCurrentPage(1); 
   };
+
+
+
+  const formatOrderStatus = (status: string) => {
+    return status.replace(/_/g, ' ');
+  };
+
+  let IDR = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  });
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">

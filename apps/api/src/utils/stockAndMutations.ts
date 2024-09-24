@@ -19,7 +19,6 @@ export async function handleStockAndMutations(
     
     for (const item of cartItems) {
       const { productId, finalQty } = item;
-
       const inventory = await checkInventoryAvailability(nearestStoreId, productId, finalQty);
 
       if (inventory.availableStock > 0) {

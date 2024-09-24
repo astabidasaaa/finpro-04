@@ -69,7 +69,6 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
 
   return (
     <div className="mt-6">
-
       {order.orderStatus === 'MENUNGGU_PEMBAYARAN' && (
         <div className="mt-4">
           <Button

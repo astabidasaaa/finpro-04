@@ -23,7 +23,6 @@ class ShippingQuery {
     }
   }
 
-
   
     public async processingOrder(order: any, userId: number) {
         try {

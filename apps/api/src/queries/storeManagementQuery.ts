@@ -380,6 +380,9 @@ class StoreManagementQuery {
       },
       data: {
         storeState: 'ARCHIVED',
+        admins: {
+          set: [],
+        },
       },
       select: {
         id: true,

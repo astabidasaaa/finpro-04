@@ -33,7 +33,6 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: `Order status updated to ${status}.`,
         });
   
-
         window.location.reload();
       } catch (error) {
         console.error(`Error updating order status to ${status}:`, error);
@@ -64,7 +63,6 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: 'Your order has been successfully cancelled.',
         });
   
-
         window.location.reload();
       } catch (error) {
         console.error('Error cancelling order:', error);

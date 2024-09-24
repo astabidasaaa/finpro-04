@@ -27,7 +27,6 @@ export class OrderStatusService {
           },
         });
 
-
         if (newStatus === 'DIKONFIRMASI') {
           await OrderStatusService.checkAndCreateVoucherForGeneralPromotions(orderId);
         }
@@ -57,7 +56,6 @@ export class OrderStatusService {
       throw new HttpException(500, `Failed to update order status to ${newStatus}`);
     }
   }
-
 
   private static async checkAndCreateVoucherForGeneralPromotions(orderId: number) {
     try {

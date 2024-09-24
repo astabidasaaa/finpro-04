@@ -6,7 +6,8 @@ import {
   Percent,
   Store,
   UserCircle2,
-  NotebookText
+  NotebookText,
+  ChartColumn,
 } from 'lucide-react';
 
 export const superAdminMenuList = [
@@ -94,6 +95,20 @@ export const superAdminMenuList = [
     label: 'Pesanan',
     icon: <NotebookText className="size-5" />,
     href: '/dashboard/order-management',
-    
+  },
+  {
+    label: 'Laporan',
+    icon: <ChartColumn className="size-5" />,
+    href: '/dashboard/report',
+    child: [
+      {
+        label: 'Penjualan',
+        href: '/dashboard/report/sales',
+      },
+      {
+        label: 'Stok',
+        href: '/dashboard/report/stock',
+      },
+    ],
   },
 ];

@@ -37,6 +37,8 @@ export class OrderController {
         cartItems, 
       } = req.body;
 
+
+
       const deliveryAddress = await prisma.address.findUnique({
         where: { id: deliveryAddressId },
         select: { latitude: true, longitude: true },
@@ -136,7 +138,6 @@ export class OrderController {
             });
           })
         );
-
 
         for (const item of cartItems) {
           const inventoryProduct = await productDetailQuery.getProductByIdAndStoreId(

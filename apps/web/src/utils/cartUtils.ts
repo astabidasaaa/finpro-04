@@ -1,6 +1,5 @@
 import { CartItem } from "@/types/cartType";
 
-
 export const getCartItems = (userId: string) => {
   if (typeof window !== 'undefined') {
     const cartData = localStorage.getItem('cart');
@@ -47,7 +46,6 @@ export const getCartItems = (userId: string) => {
   
   
   
-
   export const clearCart = (userId: string) => {
     if (typeof window !== 'undefined') {
       const cartData = localStorage.getItem('cart');
@@ -59,7 +57,6 @@ export const getCartItems = (userId: string) => {
     }
   };
   
-
 export const updateCartForUser = (userId: string, updatedCart: any[]) => {
   if (typeof window !== 'undefined') {
     const cartData = localStorage.getItem('cart');
