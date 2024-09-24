@@ -3,7 +3,6 @@ import { HttpException } from '@/errors/httpException';
 import productQuery from '@/queries/productQuery';
 import { HttpStatus } from '@/types/error';
 import { User } from '@/types/express';
-import { Sort } from '@/types/productTypes';
 import { Request, Response, NextFunction } from 'express';
 
 export class ProductController {
@@ -43,6 +42,55 @@ export class ProductController {
       });
     } catch (err) {
       next(err);
+    }
+  }
+
+  public async getProductSingle(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const productId = Number(req.params.productId);
+
+      const product = await productQuery.getProductDetailById(productId);
+      if (product === null) {
+        throw new HttpException(
+          HttpStatus.NOT_FOUND,
+          'Tidak terdapat produk dengan ID ini',
+        );
+      }
+
+      res.status(200).json({
+        message: 'Mengambil informasi produk berhasil',
+        data: product,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async getProductsList(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      let { page = 1, pageSize = 20, keyword = '', productState } = req.query;
+
+      const productList = await productAction.getProductsListAction({
+        productState: String(productState),
+        keyword: String(keyword),
+        page: Number(page),
+        pageSize: Number(pageSize),
+      });
+
+      res.status(200).json({
+        message: 'Mengambil daftar produk berhasil',
+        data: productList,
+      });
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -132,10 +180,20 @@ export class ProductController {
     try {
       const { id } = req.user as User;
       const productId = parseInt(req.params.productId);
+      const { files } = req;
       const updatedProductProps = req.body;
+
+      const images: string[] = [];
+      if (Array.isArray(files)) {
+        for (const file of files) {
+          images.push(file.filename);
+        }
+      }
 
       const updatedProduct = await productAction.updateProductAction({
         ...updatedProductProps,
+        imagesToDelete: JSON.parse(updatedProductProps.imagesToDelete),
+        images,
         productId,
         creatorId: id,
       });

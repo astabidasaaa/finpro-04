@@ -12,6 +12,7 @@ export type ProductProps = {
     price: number;
   }[];
   images: {
+    id: number;
     title: string;
     alt: string | null;
   }[];
@@ -32,6 +33,10 @@ export type ProductProps = {
   };
   subcategory: {
     name: string;
+    productCategory: {
+      id: true;
+      name: true;
+    };
   };
 };
 
