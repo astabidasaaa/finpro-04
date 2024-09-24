@@ -8,9 +8,9 @@ import type {
   SearchProductInput,
   SearchedProduct,
   ProductDetailProps,
+  ProductListInput,
 } from '@/types/productTypes';
 import { Product } from '@prisma/client';
-import { capitalizeString } from '@/utils/stringManipulation';
 import productSearchQuery from '@/queries/productSearchQuery';
 import productDetailQuery from '@/queries/productDetailQuery';
 
@@ -27,12 +27,11 @@ class ProductAction {
       );
     }
 
-    const formattedName = capitalizeString(name);
-    await this.checkDuplicateProductName(formattedName);
+    await this.checkDuplicateProductName(name);
 
     const product = await productQuery.createProduct({
       ...props,
-      name: formattedName,
+      name: name,
     });
 
     return product;
@@ -55,6 +54,14 @@ class ProductAction {
     const allProduct = await productSearchQuery.getProducts(props);
 
     return allProduct;
+  }
+
+  public async getProductsListAction(
+    props: ProductListInput,
+  ): Promise<{ products: Product[]; totalCount: number }> {
+    const listProduct = await productQuery.getProductsByState(props);
+
+    return listProduct;
   }
 
   public async getSingleProductAction(
@@ -101,9 +108,14 @@ class ProductAction {
     }
 
     if (name !== undefined) {
-      const formattedName = capitalizeString(name);
-      await this.checkDuplicateProductName(formattedName);
-      updateData.name = formattedName;
+      const checkNameWithCurrent = await productQuery.isProductNameSame(
+        currentProduct.id,
+        name,
+      );
+      if (!checkNameWithCurrent) {
+        await this.checkDuplicateProductName(name);
+      }
+      updateData.name = name;
     }
 
     if (
@@ -150,7 +162,7 @@ class ProductAction {
     } else {
       throw new HttpException(
         HttpStatus.CONFLICT,
-        'Perubahan tidak dapat disimpan karena tidak ada perubahan yang dilakukan pada brand ini',
+        'Perubahan tidak dapat disimpan karena tidak ada perubahan yang dilakukan pada produk ini',
       );
     }
   }

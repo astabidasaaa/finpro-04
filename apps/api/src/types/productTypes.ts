@@ -48,6 +48,13 @@ export type SearchProductInput = {
   pageSize: number;
 };
 
+export type ProductListInput = {
+  keyword: string;
+  page: number;
+  pageSize: number;
+  productState: string;
+};
+
 export type CreateProductInput = {
   name: string;
   creatorId: number;
