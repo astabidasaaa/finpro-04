@@ -27,7 +27,7 @@ export default function StoreFilter({
           setStoreId(number);
         }}
       >
-        <SelectTrigger className="w-[300px]">
+        <SelectTrigger className="max-w-[300px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

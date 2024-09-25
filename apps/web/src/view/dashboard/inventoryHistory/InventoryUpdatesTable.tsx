@@ -160,12 +160,12 @@ export default function InventoryTable({
   });
 
   return (
-    <div className="w-full pt-4">
+    <div className="pt-4">
       <div className="mb-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Pilih Kolom <ChevronDown className="ml-2 h-4 w-4" />
+            <Button variant="outline">
+              Pilih Kolom <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
