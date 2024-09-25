@@ -20,6 +20,7 @@ import { ProductDiscountPromotionProps } from '@/types/promotionType';
 import moment from 'moment';
 import { DiscountType, State } from '@/types/productTypes';
 import ArchiveAlertButton from '../components/ArchivedAlertButton';
+import PublishAlertButton from '../components/PublishedAlertButton';
 
 export const columns: ColumnDef<ProductDiscountPromotionProps>[] = [
   {
@@ -89,6 +90,15 @@ export const columns: ColumnDef<ProductDiscountPromotionProps>[] = [
 
       return (
         <div className="flex space-x-2">
+          {promotion.productDiscountState === State.DRAFT && (
+            <PublishAlertButton
+              promotion={{
+                id: promotion.id,
+                name: promotion.inventory.product.name,
+              }}
+              type="DISCOUNTPRODUCT"
+            />
+          )}
           {(promotion.productDiscountState === State.DRAFT ||
             promotion.productDiscountState === State.PUBLISHED) && (
             <ArchiveAlertButton

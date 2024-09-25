@@ -16,17 +16,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import {
-  displayPromotionTypeMap,
-  FreeProductPromotionProps,
-  NonProductPromotionProps,
-} from '@/types/promotionType';
+import { FreeProductPromotionProps } from '@/types/promotionType';
 import moment from 'moment';
-import { DiscountType, State } from '@/types/productTypes';
+import { State } from '@/types/productTypes';
 import ArchiveAlertButton from '../components/ArchivedAlertButton';
-import SeeDetailDialogButton from './SeeDetailDialogButton';
-import { StoreProps } from '@/types/storeTypes';
-import { Badge } from '@/components/ui/badge';
+import PublishAlertButton from '../components/PublishedAlertButton';
 
 export const columns: ColumnDef<FreeProductPromotionProps>[] = [
   {
@@ -99,7 +93,15 @@ export const columns: ColumnDef<FreeProductPromotionProps>[] = [
 
       return (
         <div className="flex space-x-2">
-          <SeeDetailDialogButton promotion={promotion} />
+          {promotion.freeProductState === State.DRAFT && (
+            <PublishAlertButton
+              promotion={{
+                id: promotion.id,
+                name: promotion.inventory.product.name,
+              }}
+              type="FREEPRODUCT"
+            />
+          )}
           {(promotion.freeProductState === State.DRAFT ||
             promotion.freeProductState === State.PUBLISHED) && (
             <ArchiveAlertButton

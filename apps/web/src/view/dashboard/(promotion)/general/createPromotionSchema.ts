@@ -15,7 +15,11 @@ export const formSchema = z.object({
     PromotionSource.REFEREE_BONUS,
     PromotionSource.REFERRAL_BONUS,
   ]),
-  description: z.string().trim().min(1, 'Deskripsi produk wajib diisi'),
+  description: z
+    .string()
+    .trim()
+    .min(1, 'Deskripsi produk wajib diisi')
+    .max(190, 'Deskripsi tidak boleh lebih dari 190 karakter'),
   startedAt: z.string().date(),
   finishedAt: z.string().date(),
   quota: z.number().min(1, 'Kuota harus lebih besar atau sama dengan 1'),

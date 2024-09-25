@@ -26,6 +26,7 @@ import { DiscountType, State } from '@/types/productTypes';
 import ArchiveAlertButton from '../components/ArchivedAlertButton';
 import SeeDetailDialogButton from './SeeDetailDialogButton';
 import { Badge } from '@/components/ui/badge';
+import PublishAlertButton from '../components/PublishedAlertButton';
 
 export const columns: ColumnDef<NonProductPromotionProps>[] = [
   {
@@ -124,6 +125,9 @@ export const columns: ColumnDef<NonProductPromotionProps>[] = [
 
       return (
         <div className="flex space-x-2">
+          {promotion.promotionState === State.DRAFT && (
+            <PublishAlertButton promotion={promotion} type="NONPRODUCT" />
+          )}
           <SeeDetailDialogButton promotion={promotion} />
           {(promotion.promotionState === State.DRAFT ||
             promotion.promotionState === State.PUBLISHED) && (

@@ -11,6 +11,7 @@ import { TabsContent } from '@radix-ui/react-tabs';
 import { NonProductPromotionProps } from '@/types/promotionType';
 import GeneralPromotionTable from './GeneralPromotionTable';
 import AddGeneralPromotion from './AddPromotionButton';
+import { State } from '@/types/productTypes';
 
 export default function GeneralPromotionView() {
   const [promotions, setPromotions] = useState<NonProductPromotionProps[]>([]);
@@ -20,9 +21,7 @@ export default function GeneralPromotionView() {
   const [page, setPage] = useState<number>(1);
   const router = useRouter();
   const [inputValue, setInputValue] = useState<string>('');
-  const [promotionState, setPromotionState] = useState<
-    'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
-  >('DRAFT');
+  const [promotionState, setPromotionState] = useState<State>(State.PUBLISHED);
   const [previousPromotionState, setPreviousPromotionState] =
     useState(promotionState);
   const [keyword, setKeyword] = useState<string>('');
@@ -114,9 +113,7 @@ export default function GeneralPromotionView() {
         </div>
         <Tabs
           value={promotionState}
-          onValueChange={(value) =>
-            setPromotionState(value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED')
-          }
+          onValueChange={(value) => setPromotionState(value as State)}
         >
           <TabsList>
             <TabsTrigger value="DRAFT" className="px-6">
