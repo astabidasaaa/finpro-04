@@ -10,16 +10,18 @@ export async function middleware(request: NextRequest) {
   if (ACCESS_TOKEN) {
     // check if access token is almost expired
     const isTokenExpired = await expiryChecker(ACCESS_TOKEN);
+
     // Refresh ACCESS_TOKEN if ACCESS_TOKEN is available but ACCESS_TOKEN is almost expired
     if (isTokenExpired) {
       try {
-        const { data } = await axiosInstance().get('/auth/refresh-token', {
+        const { data } = await axiosInstance().get('/auth/token/refresh', {
           headers: {
             Authorization: `Bearer ${ACCESS_TOKEN}`,
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
         });
+
         response.cookies.set('access-token', data.result.accessToken);
       } catch (error: any) {
         let message = '';
@@ -28,22 +30,21 @@ export async function middleware(request: NextRequest) {
         } else {
           message = error.message;
         }
+
         response.cookies.delete('access-token');
-        toast({
-          variant: 'default',
-          title: 'Sesi login habis',
-          description: message,
-        });
       }
     }
   }
+
   let userState = {
     role: '',
     isVerified: false,
   };
+
   // fetch user profile if newAccessToken is available
   const newAccessToken =
     response.cookies.get('access-token')?.value || ACCESS_TOKEN;
+
   if (newAccessToken) {
     try {
       const { data } = await axiosInstance().get('/user/profile', {
@@ -53,6 +54,7 @@ export async function middleware(request: NextRequest) {
           'Content-Type': 'application/json',
         },
       });
+
       userState.role = data.data.role;
       userState.isVerified = data.data.isVerified;
     } catch (error: any) {
@@ -69,6 +71,16 @@ export async function middleware(request: NextRequest) {
   const forbiddenStoreAdminPaths = [
     '/dashboard/account',
     '/dashboard/product/add-product',
+    '/dashboard/pengelolaan-toko',
+    '/dashboard/promotion/general',
+  ];
+
+  const forbiddenAdminPaths = [
+    '/pengaturan',
+    '/cart',
+    '/order-list',
+    '/pembayaran',
+    '/voucher',
   ];
 
   const url = request.nextUrl.pathname;
@@ -84,26 +96,39 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL(redirect, request.url));
     }
-    if (url.startsWith('/dashboard') && userState.role === 'user') {
+
+    if (userState.role === 'user') {
+      if (url.startsWith('/dashboard')) {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      if (!userState.isVerified && url.startsWith('/cart')) {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+    }
+
+    if (
+      userState.role !== 'user' &&
+      forbiddenAdminPaths.some((path) => url.startsWith(path))
+    ) {
       return NextResponse.redirect(new URL('/', request.url));
     }
+
     if (
       userState.role === 'store admin' &&
       forbiddenStoreAdminPaths.some((path) => url.startsWith(path))
     ) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    // if (url.startsWith('/pengaturan') && userState.role !== 'user') {
-    //   return NextResponse.redirect(new URL('/', request.url));
-    // }
   } else {
-    if (url.startsWith('/pengaturan')) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', url);
-
-      return NextResponse.redirect(loginUrl);
-    }
-    if (url.startsWith('/dashboard')) {
+    if (
+      url.startsWith('/dashboard') ||
+      url.startsWith('/pengaturan') ||
+      url.startsWith('/cart') ||
+      url.startsWith('/order-list') ||
+      url.startsWith('/pembayaran') ||
+      url.startsWith('/voucher')
+    ) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', url);
 
@@ -112,13 +137,3 @@ export async function middleware(request: NextRequest) {
   }
   return response;
 }
-
-// export const config = {
-//   matcher: [
-//     '/login',
-//     '/register',
-//     '/dashboard/:path*',
-//     '/transaction/:path*',
-//     '/event/:path*',
-//   ],
-// };
