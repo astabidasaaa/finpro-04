@@ -101,7 +101,7 @@ export function PieChartCategory({
   }, [year, storeId, month]);
 
   return (
-    <Card className="col-span-5 lg:col-span-5 xl:col-span-2 flex flex-col h-full w-full">
+    <Card className="col-span-10 lg:col-span-5 xl:col-span-2 flex flex-col h-full w-full">
       <CardHeader className="items-center pb-0">
         <CardTitle className="text-lg sm:text-2xl">
           5 Kategori Terlaris

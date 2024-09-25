@@ -99,7 +99,7 @@ export function DialogEditAdmin({ data }: { data: SearchedUser }) {
 
   async function fetchData() {
     const storeResult = await axiosInstance().get(
-      `${process.env.API_URL}/stores`,
+      `${process.env.API_URL}/stores/admin`,
       {
         headers: {
           'Content-Type': 'application/json',

@@ -105,7 +105,7 @@ export default function InventoryHistoryView() {
       }
 
       const storeResult = await axiosInstance().get(
-        `${process.env.API_URL}/stores`,
+        `${process.env.API_URL}/stores/admin`,
         {
           headers: {
             'Content-Type': 'application/json',
