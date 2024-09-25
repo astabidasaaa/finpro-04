@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { UserType } from '@/types/userType';
 import { useAppSelector } from '@/lib/hooks';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function ProductListView() {
@@ -135,7 +135,7 @@ export default function ProductListView() {
             <div className="text-sm py-3">
               {products.length} dari {total} produk
             </div>
-            <PaginationInventory
+            <Pagination
               page={page}
               setPage={setPage}
               total={total}

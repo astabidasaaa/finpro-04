@@ -8,23 +8,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { DiscountType, FreeProductProps, State } from '@/types/productTypes';
+import { State } from '@/types/productTypes';
 import {
-  displayPromotionTypeMap,
   displayStateMap,
   FreeProductPromotionProps,
-  NonProductPromotionProps,
 } from '@/types/promotionType';
-import {
-  CalendarIcon,
-  Clock,
-  DollarSign,
-  Eye,
-  Percent,
-  Store,
-  TicketPercent,
-  Wallet,
-} from 'lucide-react';
+import { CalendarIcon, Eye, Store, TicketPercent } from 'lucide-react';
 import moment from 'moment';
 
 export default function SeeDetailDialogButton({

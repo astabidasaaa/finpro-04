@@ -23,7 +23,7 @@ export const columns: ColumnDef<ProductAndCategoryReport>[] = [
     accessorKey: 'name',
     header: () => <div className="text">Kategori</div>,
     cell: ({ row }) => (
-      <div className="font-medium flex items-center">
+      <div className="font-medium flex items-center [overflow-wrap:anywhere]">
         {row.getValue('name')}
       </div>
     ),

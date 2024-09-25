@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Input } from '@/components/ui/input';
 import { UserType } from '@/types/userType';
 import StoreFilter from '@/components/dashboard/StoreFilter';
 import { StoreProps } from '@/types/storeTypes';
@@ -16,16 +15,11 @@ import { TopProductChart } from './TopProduct';
 import { PieChartCategory } from './PieChartCategory';
 import CategoryReportTable from './CategoryReportTable';
 import { ProductAndCategoryReport } from '@/types/salesType';
-import ProductReportTable from './ProductReportTable';
-import SelectOrderBy from './SelectOrderBy';
 import {
   fetchCategoryStoreAdmin,
   fetchCategorySuperAdmin,
-  fetchProductStoreAdmin,
-  fetchProductSuperAdmin,
   fetchStore,
 } from './fetchSales';
-import PaginationInventory from '@/components/dashboard/Pagination';
 import ProductSalesDashboard from './ProductSales';
 
 export default function SalesReportView() {

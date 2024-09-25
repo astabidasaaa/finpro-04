@@ -12,7 +12,7 @@ import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
 import { InventoryProps } from '@/types/inventoryType';
 import InventoryTable from './InventoryTable';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 
 export default function ProductInventoryView() {
   const { user } = useAppSelector((state) => state.auth);
@@ -155,7 +155,7 @@ export default function ProductInventoryView() {
         <div className="text-sm py-3">
           {inventories.length} dari {total} inventaris
         </div>
-        <PaginationInventory
+        <Pagination
           page={page}
           setPage={setPage}
           total={total}

@@ -15,7 +15,7 @@ import {
   SortTime,
 } from '@/types/inventoryType';
 import InventoryTable from './InventoryUpdatesTable';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 import SelectOrderBy from './SelectOrderBy';
 import SelectFilterType from './SelectTypeFilter';
 
@@ -175,7 +175,7 @@ export default function InventoryHistoryView() {
         <div className="text-sm py-3">
           {inventoryUpdates.length} dari {total} inventaris
         </div>
-        <PaginationInventory
+        <Pagination
           page={page}
           setPage={setPage}
           total={total}

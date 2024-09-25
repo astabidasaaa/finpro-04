@@ -76,7 +76,7 @@ export default function SeeDetailDialogButton({
             </div>
           </div>
           <div className="space-y-3 md:space-y-4 col-span-1">
-            <div className="flex flex-row text-xs md:text-sm font-normal">
+            <div className="flex flex-row text-xs md:text-sm font-normal [overflow-wrap:anywhere]">
               {product.subcategory.productCategory.name}{' '}
               <ChevronRight className="size-4 mx-1.5" />
               {product.subcategory.name}

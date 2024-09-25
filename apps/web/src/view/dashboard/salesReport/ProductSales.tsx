@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input';
 import SelectOrderBy from './SelectOrderBy';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 import ProductReportTable from './ProductReportTable';
 import { useEffect, useState } from 'react';
 import { User, UserType } from '@/types/userType';
@@ -103,7 +103,7 @@ export default function ProductSalesDashboard({
       </div>
       <ProductReportTable data={productSales} />
       <div className="h-4" />
-      <PaginationInventory
+      <Pagination
         page={page}
         setPage={setPage}
         total={total}

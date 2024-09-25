@@ -10,7 +10,7 @@ import { StoreProps } from '@/types/storeTypes';
 import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
 import StockReportTable from './StockReportTable';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 import { ProductStockChange } from '@/types/salesType';
 import SelectOrderBy from '../salesReport/SelectOrderBy';
 import SelectYear from '../salesReport/SelectYear';
@@ -184,7 +184,7 @@ export default function StockReportView() {
         <div className="text-sm py-3">
           {inventories.length} dari {total} stok inventaris
         </div>
-        <PaginationInventory
+        <Pagination
           page={page}
           setPage={setPage}
           total={total}

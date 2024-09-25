@@ -38,7 +38,7 @@ export const columns: ColumnDef<SearchedUser>[] = [
     header: () => <div className="text">Email</div>,
     cell: ({ row }) => {
       return (
-        <div className="font-normal flex items-center">
+        <div className="font-normal flex items-center lg:[overflow-wrap:anywhere]">
           {row.getValue('email')}
         </div>
       );
@@ -49,7 +49,11 @@ export const columns: ColumnDef<SearchedUser>[] = [
     header: () => <div className="text-left">Nama</div>,
     cell: ({ row }) => {
       const { profile } = row.original;
-      return <div className="flex items-center">{profile?.name || '-'}</div>;
+      return (
+        <div className="flex items-center md:[overflow-wrap:anywhere]">
+          {profile?.name || '-'}
+        </div>
+      );
     },
   },
   {

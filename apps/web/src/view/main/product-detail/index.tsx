@@ -106,16 +106,16 @@ export default function ProductDetailView({
       }
 
       const cartItem = {
-        productId: product.product.id,         
+        productId: product.product.id,
         quantity,
-        userId, 
-        storeId                    
+        userId,
+        storeId,
       };
       addToCart(cartItem);
       toast({
         title: 'Produk ditambahkan ke cart',
         description: `${product.product.name} sudah ditambahkan ke cart.`,
-        variant: 'success', 
+        variant: 'success',
       });
     };
 
@@ -160,7 +160,7 @@ export default function ProductDetailView({
           <div className="flex flex-col justify-start gap-8 w-full">
             <div className="flex flex-col justify-start gap-4 w-full">
               <div className="flex flex-col justify-start gap-2 w-full">
-                <h1 className='className="text-lg md:text-xl font-bold'>
+                <h1 className="text-lg md:text-xl font-bold [overflow-wrap:anywhere]">
                   {product.product.name}
                 </h1>
                 <p className="text-muted-foreground/80">
@@ -259,7 +259,7 @@ export default function ProductDetailView({
             <Separator />
             <div className="flex flex-col justify-start w-full gap-4">
               <span className="font-semibold">Deskripsi Produk</span>
-              <div className="text-primary text-sm">
+              <div className="text-primary text-sm [overflow-wrap:anywhere]">
                 {product?.product.description}
               </div>
             </div>
