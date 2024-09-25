@@ -24,14 +24,14 @@ export const columns: ColumnDef<ProductStockChange>[] = [
     accessorKey: 'name',
     header: () => <div className="text">Nama Produk</div>,
     cell: ({ row }) => (
-      <div className="font-medium flex items-center [overflow-wrap:anywhere]">
+      <div className="font-medium flex items-center md:[overflow-wrap:anywhere]">
         {row.getValue('name')}
       </div>
     ),
   },
   {
     accessorKey: 'totalAdd',
-    header: () => <div className="text">Jumlah Penambahan</div>,
+    header: () => <div className="text">Total Bertambah</div>,
     cell: ({ row }) => (
       <div className="font-normal flex items-center">
         {row.getValue('totalAdd')}
@@ -40,7 +40,7 @@ export const columns: ColumnDef<ProductStockChange>[] = [
   },
   {
     accessorKey: 'totalRemove',
-    header: () => <div className="text">Jumlah Pengurangan</div>,
+    header: () => <div className="text">Total Berkurang</div>,
     cell: ({ row }) => (
       <div className="font-normal flex items-center">
         {row.getValue('totalRemove')}
@@ -49,7 +49,7 @@ export const columns: ColumnDef<ProductStockChange>[] = [
   },
   {
     accessorKey: 'lastStock',
-    header: () => <div className="text">Stok</div>,
+    header: () => <div className="text">Stok Akhir</div>,
     cell: ({ row }) => (
       <div className="font-normal flex items-center">
         {row.getValue('lastStock')}

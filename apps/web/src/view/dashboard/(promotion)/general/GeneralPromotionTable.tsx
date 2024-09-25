@@ -157,7 +157,7 @@ export default function GeneralPromotionTable({
 
   return (
     <div className="rounded-md border">
-      <ScrollArea className="w-[calc(100vw_-_32px)] md:w-[66vw] lg:w-[68vw] max-w-full rounded-md overflow-auto">
+      <ScrollArea className="w-[calc(100vw_-_32px)] md:w-[66vw] lg:w-[68vw] xl:w-full max-w-full rounded-md overflow-auto">
         <Table>
           <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
