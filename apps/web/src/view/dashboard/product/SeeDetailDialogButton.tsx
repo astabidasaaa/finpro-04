@@ -1,6 +1,11 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { ProductProps, State } from '@/types/productTypes';
 import { ChevronRight, Eye } from 'lucide-react';
 import moment from 'moment';
@@ -33,6 +38,7 @@ export default function SeeDetailDialogButton({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
+        <DialogTitle className="sr-only" />
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-4 col-span-1">
             <div className="w-full">
