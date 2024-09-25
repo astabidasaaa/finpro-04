@@ -3,6 +3,7 @@ import getOrderQuery from '@/queries/getOrderQuery';
 import { HttpStatus } from '@/types/error';
 import countOrderQuery from '@/queries/countOrderQuery';
 import getFinishedOrderQuery from '@/queries/getFinishedOrderQuery';
+import orderQuery from '@/queries/orderQuery';
 
 class GetOrderAction {
   public async getAllOrdersAction(page: number, limit: number, search?: string) {
@@ -21,19 +22,32 @@ class GetOrderAction {
       totalPages,
     };
   }
-    public async getOrderByIdAction(orderIdStr: string) {
-        const orderId = parseInt(orderIdStr, 10);
-        if (isNaN(orderId)) {
-          throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid orderId format');
-        }
+  public async getOrderByIdAction(orderIdStr: string, userIdStr: string) {
+    const orderId = parseInt(orderIdStr, 10);
+    const userId = parseInt(userIdStr, 10);
+    const userRole = await getOrderQuery.getRoleByUserId(userId);
+    const userStoreId = await orderQuery.getUserById(userId)
+
+
+  
+    if (isNaN(orderId) || isNaN(userId)) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid orderId or userId format');
+    }
+  
+    const order = await getOrderQuery.getOrderById(orderId);
+
+    if (!order) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'Order not found or does not belong to the user');
+    }
+    if (userRole === 'user' && order.customerId !== userId) {
+      throw new HttpException(HttpStatus.FORBIDDEN, 'User is not authorized for this order');
+    }
+    if (userRole === 'store admin' && order.storeId !== userStoreId?.store?.id) {
+      throw new HttpException(HttpStatus.FORBIDDEN, 'Admin is not authorized for this order');
+    }
     
-        const order = await getOrderQuery.getOrderById(orderId);
-    
-        if (!order) {
-          throw new HttpException(HttpStatus.NOT_FOUND, 'Order not found');
-        }
-        return order;
-      }
+    return order;
+  }
       public async getOrdersAction({
         customerId,
         from,
@@ -203,8 +217,6 @@ class GetOrderAction {
       
         const pageNumber = page ? parseInt(page, 10) : 1;
         const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 10;
-      
-        // Retrieve finished orders with pagination, search, and date range
         const orders = await getFinishedOrderQuery.getUnfinishedOrders(
           customerId,
           fromDate,
@@ -232,15 +244,15 @@ class GetOrderAction {
       }
   public async getOrdersByStoreAction(storeIdStr: string, pageStr: string, limitStr: string, search?: string) {
     const storeId = parseInt(storeIdStr, 10);
-    const page = parseInt(pageStr, 10) || 1; // Default to page 1 if not provided
-    const limit = parseInt(limitStr, 10) || 10; // Default limit to 10 if not provided
-    const offset = (page - 1) * limit; // Calculate offset
+    const page = parseInt(pageStr, 10) || 1; 
+    const limit = parseInt(limitStr, 10) || 10; 
+    const offset = (page - 1) * limit; 
   
     if (isNaN(storeId)) {
       throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid storeId format');
     }
-    const orders = await getOrderQuery.getOrdersByStoreId(storeId, limit, offset, search); // Pass search term
-    const totalOrders = await countOrderQuery.countOrdersByStoreId(storeId, search); // Total order count
+    const orders = await getOrderQuery.getOrdersByStoreId(storeId, limit, offset, search); 
+    const totalOrders = await countOrderQuery.countOrdersByStoreId(storeId, search); 
     if (!orders.length) {
       throw new HttpException(HttpStatus.NOT_FOUND, 'No orders found for the specified store');
     }

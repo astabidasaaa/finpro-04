@@ -15,8 +15,6 @@ export class ShippingController {
       if (isNaN(orderIdInt)) {
         throw new Error('Invalid orderId format');
       }
-
-      // Call the action layer to perform the business logic
       const result = await shippingAction.confirmShippingAction(orderIdInt, userId);
 
       res.status(200).json({
@@ -24,7 +22,7 @@ export class ShippingController {
         data: result,
       });
     } catch (err) {
-      next(err); // Handle errors with middleware
+      next(err); 
     }
   
       }

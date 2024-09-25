@@ -1,6 +1,5 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
-import { HttpStatus } from '@/types/error';
 import { Prisma, OrderStatus } from '@prisma/client';
 import { buildOrderSearchQuery } from './orderSearchQuery';
 
@@ -21,13 +20,13 @@ class OrderQuery {
             orderStatus: {
               in: finishedStatuses,
             },
-            ...buildOrderSearchQuery(search), // Apply search query
+            ...buildOrderSearchQuery(search), 
           };
     
           if (fromDate && toDate) {
             whereCondition.createdAt = {
               gte: fromDate,
-              lte: toDate,
+              lte: new Date(toDate.getTime() + 86400000),
             };
           }
     
@@ -79,13 +78,13 @@ class OrderQuery {
             orderStatus: {
               in: unfinishedStatuses,
             },
-            ...buildOrderSearchQuery(search), // Apply search query
+            ...buildOrderSearchQuery(search), 
           };
 
           if (fromDate && toDate) {
             whereCondition.createdAt = {
               gte: fromDate,
-              lte: toDate,
+              lte: new Date(toDate.getTime() + 86400000),
             };
           }
 
@@ -103,7 +102,7 @@ class OrderQuery {
             skip,
             take,
             orderBy: {
-              createdAt: 'desc', // Orders will be returned in descending order of creation date
+              createdAt: 'desc', 
             },
           });
       
