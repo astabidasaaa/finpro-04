@@ -49,7 +49,10 @@ const UserDropdown = ({ user }: { user: User }) => {
                 <DropdownMenuItem>Keranjang</DropdownMenuItem>
               </Link>
             ) : (
-              <DropdownMenuItem onClick={handleCartNotVerified}>
+              <DropdownMenuItem
+                onClick={handleCartNotVerified}
+                className="block md:hidden"
+              >
                 Keranjang
               </DropdownMenuItem>
             )}
