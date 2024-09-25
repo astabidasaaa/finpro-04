@@ -71,6 +71,7 @@ export async function middleware(request: NextRequest) {
   const forbiddenStoreAdminPaths = [
     '/dashboard/account',
     '/dashboard/product/add-product',
+    '/dashboard/product/edit',
     '/dashboard/pengelolaan-toko',
     '/dashboard/promotion/general',
   ];
