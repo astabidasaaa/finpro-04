@@ -99,7 +99,21 @@ class PromotionQuery {
 
   public async getActiveStorePromotionByStoreId(
     storeId: number,
+    userId: number,
   ): Promise<Promotion[]> {
+    const promotionIds = await prisma.voucher.findMany({
+      where: {
+        customerId: userId,
+      },
+      select: {
+        promotionId: true,
+      },
+    });
+
+    const userPromotionIds = promotionIds.map(
+      (promotion) => promotion.promotionId,
+    );
+
     const promotions = await prisma.promotion.findMany({
       where: {
         promotionState: $Enums.State.PUBLISHED,
@@ -114,6 +128,9 @@ class PromotionQuery {
         quota: {
           gt: 0,
         },
+        store: {
+          storeState: $Enums.State.PUBLISHED,
+        },
       },
       include: {
         vouchers: {
@@ -124,7 +141,9 @@ class PromotionQuery {
       },
     });
 
-    return promotions;
+    return promotions.filter(
+      (promotion) => !userPromotionIds.includes(promotion.id),
+    );
   }
 
   public async getFreeProductPromotionsByInventoryIdAndState(
@@ -135,6 +154,16 @@ class PromotionQuery {
       where: {
         inventoryId,
         freeProductState: state,
+        inventory: {
+          product: {
+            productState: $Enums.State.PUBLISHED,
+          },
+          store: {
+            storeState: {
+              not: $Enums.State.ARCHIVED,
+            },
+          },
+        },
       },
     });
     return promotions;
@@ -148,6 +177,16 @@ class PromotionQuery {
       where: {
         inventoryId,
         productDiscountState: state,
+        inventory: {
+          product: {
+            productState: $Enums.State.PUBLISHED,
+          },
+          store: {
+            storeState: {
+              not: $Enums.State.ARCHIVED,
+            },
+          },
+        },
       },
     });
     return promotions;

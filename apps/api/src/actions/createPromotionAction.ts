@@ -1,5 +1,6 @@
 import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import productQuery from '@/queries/productQuery';
 import promotionQuery from '@/queries/promotionQuery';
 import storeQuery from '@/queries/storeQuery';
 import { HttpStatus } from '@/types/error';
@@ -80,6 +81,8 @@ class CreatePromotionAction {
     source: $Enums.PromotionSource,
     promotionState: $Enums.State,
     afterMinPurchase: number | undefined,
+    startedAt: Date,
+    finishedAt: Date,
   ) {
     if (
       (source === $Enums.PromotionSource.REFEREE_BONUS ||
@@ -87,17 +90,27 @@ class CreatePromotionAction {
         source === $Enums.PromotionSource.AFTER_MIN_TRANSACTION) &&
       promotionState === $Enums.State.PUBLISHED
     ) {
-      const currentPromotion = await prisma.promotion.findFirst({
+      const currentPromotion = await prisma.promotion.findMany({
         where: {
           source: source,
           promotionState: promotionState,
+          OR: [
+            {
+              startedAt: {
+                lte: finishedAt,
+              },
+              finishedAt: {
+                gte: startedAt,
+              },
+            },
+          ],
         },
       });
-
-      if (currentPromotion !== null) {
+      console.log(currentPromotion);
+      if (currentPromotion.length > 0) {
         throw new HttpException(
           HttpStatus.BAD_REQUEST,
-          'Promosi dengan sumber ini tidak dapat diterbitkan karena sudah terdapat promosi yang aktif dengan tipe yang sama',
+          'Promosi dengan tipe ini tidak dapat diterbitkan karena sudah terdapat promosi yang aktif dengan tipe dan waktu yang sama',
         );
       }
     }
@@ -123,7 +136,7 @@ class CreatePromotionAction {
       if (sameAfterMinPurchase.length > 0) {
         throw new HttpException(
           HttpStatus.BAD_REQUEST,
-          'Promosi dengan sumber ini tidak dapat diterbitkan karena sudah terdapat promosi yang aktif dengan nilai minimal transaksi yang sama',
+          'Promosi dengan tipe ini tidak dapat diterbitkan karena sudah terdapat promosi yang aktif dengan nilai minimal transaksi yang sama',
         );
       }
     }
@@ -138,6 +151,8 @@ class CreatePromotionAction {
       props.source,
       props.promotionState,
       props.afterMinPurchase,
+      props.startedAt,
+      props.finishedAt,
     );
 
     if (
@@ -159,11 +174,22 @@ class CreatePromotionAction {
     props: CreatePromotionInput & { role: string },
   ): Promise<Promotion> {
     const { creatorId, storeId, role, ...otherProps } = props;
-
+    storeId !== undefined && (await storeQuery.isStoreExist(storeId));
     this.forbidCreateArchivedPromotion(props.promotionState);
-
     if (storeId === undefined) {
       throw new HttpException(HttpStatus.BAD_REQUEST, 'Toko belum dipilih');
+    }
+
+    const store = await storeQuery.findSingleStore(storeId);
+    if (store === null) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'Toko tidak ditemukan');
+    }
+
+    if (store.storeState !== $Enums.State.PUBLISHED) {
+      throw new HttpException(
+        HttpStatus.FORBIDDEN,
+        'Tidak dapat menambahkan promosi pada toko yang tidak publish',
+      );
     }
 
     await this.checkAdminAccess(role, creatorId, storeId);
@@ -180,7 +206,7 @@ class CreatePromotionAction {
     props: CreateFreeProductPromotionInput & { role: string; storeId: number },
   ): Promise<FreeProductPerStore> {
     const { role, storeId, ...otherProps } = props;
-
+    await storeQuery.isStoreExist(storeId);
     this.forbidCreateArchivedPromotion(props.freeProductState);
     await this.checkAdminAccess(role, props.creatorId, storeId);
 
@@ -206,7 +232,7 @@ class CreatePromotionAction {
     },
   ): Promise<ProductDiscountPerStore> {
     const { role, storeId, ...otherProps } = props;
-
+    await storeQuery.isStoreExist(storeId);
     this.forbidCreateArchivedPromotion(props.productDiscountState);
     await this.checkAdminAccess(role, props.creatorId, storeId);
 

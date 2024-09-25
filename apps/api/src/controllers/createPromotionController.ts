@@ -1,5 +1,8 @@
 import createPromotionAction from '@/actions/createPromotionAction';
+import { HttpException } from '@/errors/httpException';
 import inventoryQuery from '@/queries/inventoryQuery';
+import productQuery from '@/queries/productQuery';
+import { HttpStatus } from '@/types/error';
 import { User } from '@/types/express';
 import { $Enums } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
@@ -198,6 +201,19 @@ export class CreatePromotionController {
         parseInt(productId),
         parseInt(storeId),
       );
+
+      if (discountType === $Enums.DiscountType.FLAT) {
+        const product = await productQuery.getProductById(parseInt(productId));
+        if (
+          product !== null &&
+          parseFloat(discountValue) >= product.prices[0].price
+        ) {
+          throw new HttpException(
+            HttpStatus.BAD_REQUEST,
+            'Nilai diskon tidak boleh melebihi harga produk',
+          );
+        }
+      }
 
       const discountProductPromotion =
         await createPromotionAction.createDiscountProductPromotionAction({

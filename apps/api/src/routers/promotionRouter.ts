@@ -52,6 +52,7 @@ export class PromotionRouter implements Route {
     // all active store voucher
     this.router.get(
       `${this.path}/activestore/:storeId`,
+      this.guard.verifyAccessToken,
       this.getPromotionController.getActiveStorePromotions,
     );
     // filter search
@@ -84,14 +85,14 @@ export class PromotionRouter implements Route {
       this.createPromotionController.createStorePromotion,
     );
     this.router.post(
-      `${this.path}/freeproduct`, // body storeId and productId ++
+      `${this.path}/freeproduct`,
       validateFreeProductPromotionCreation,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
       this.createPromotionController.createFreeProductPromotion,
     );
     this.router.post(
-      `${this.path}/discountproduct`, // body storeId and productId ++
+      `${this.path}/discountproduct`,
       validateDiscountProductPromotionCreation,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
@@ -113,36 +114,36 @@ export class PromotionRouter implements Route {
       this.updatePromotionController.editStorePromotion,
     );
     this.router.patch(
-      `${this.path}/freeproduct/:promotionId`, // body storeId and productId ++
+      `${this.path}/freeproduct/:promotionId`,
       validateFreeProductPromotionCreation,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
       this.updatePromotionController.editFreeProductPromotion,
     );
     this.router.patch(
-      `${this.path}/discountproduct/:promotionId`, // body storeId and productId ++
+      `${this.path}/discountproduct/:promotionId`,
       validateDiscountProductPromotionCreation,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
       this.updatePromotionController.editDiscountProductPromotion,
     );
     this.router.patch(
-      `${this.path}/archive/nonproduct/:promotionId`,
+      `${this.path}/state/nonproduct/:promotionId`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
-      this.updatePromotionController.archiveNonProductPromotion,
+      this.updatePromotionController.updateNonProductPromotionState,
     );
     this.router.patch(
-      `${this.path}/archive/freeproduct/:promotionId`,
+      `${this.path}/state/freeproduct/:promotionId`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
-      this.updatePromotionController.archiveFreeProductPromotion,
+      this.updatePromotionController.updateFreeProductPromotionState,
     );
     this.router.patch(
-      `${this.path}/archive/discountproduct/:promotionId`,
+      `${this.path}/state/discountproduct/:promotionId`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin', 'store admin']),
-      this.updatePromotionController.archiveDiscountProductPromotion,
+      this.updatePromotionController.updateDiscountProductPromotionState,
     );
   }
 }

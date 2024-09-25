@@ -23,6 +23,7 @@ import {
   SearchPerStoreProductPerMonth,
 } from '@/types/reportTypes';
 import inventoryReportQuery from '@/queries/inventoryReportQuery';
+import storeQuery from '@/queries/storeQuery';
 
 class InventoryAction {
   public async getAllInventoryAction(props: SearchAllInventoryInput): Promise<{
@@ -68,6 +69,7 @@ class InventoryAction {
     totalCount: number;
   }> {
     const { id, storeId, role } = props;
+    await storeQuery.isStoreExist(storeId);
     await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const storeInventories =
@@ -89,6 +91,8 @@ class InventoryAction {
         'Inventaris tidak ditemukan',
       );
     }
+
+    await storeQuery.isStoreExist(inventory.storeId);
     await createPromotionAction.checkAdminAccess(role, id, inventory.storeId);
 
     const storeInventories =
@@ -104,6 +108,7 @@ class InventoryAction {
   ): Promise<InventoryUpdate> {
     const { id, role, storeId, productId, updateType, updateDetail } = props;
 
+    await storeQuery.isStoreExist(storeId);
     await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const product = await productQuery.getProductById(productId);
@@ -172,6 +177,7 @@ class InventoryAction {
     totalCount: number;
   }> {
     const { id, role, storeId, ...otherProps } = props;
+    await storeQuery.isStoreExist(storeId);
     await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const storeProductStock =
@@ -186,6 +192,7 @@ class InventoryAction {
     props: ProductInventoryChange,
   ): Promise<InventoryUpdate[]> {
     const { id, role, storeId } = props;
+    await storeQuery.isStoreExist(storeId);
     await createPromotionAction.checkAdminAccess(role, id, storeId);
 
     const inventoryUpdateProductPerMonth =
