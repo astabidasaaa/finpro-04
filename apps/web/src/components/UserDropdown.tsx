@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { useAppDispatch } from '@/lib/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User2Icon } from 'lucide-react';
 import {
@@ -15,10 +15,12 @@ import {
 import { logout } from '@/_middlewares/auth.middleware';
 import { Button } from './ui/button';
 import { User } from '@/types/userType';
+import { handleCartNotVerified } from '@/lib/utils';
 
 const UserDropdown = ({ user }: { user: User }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,22 +37,34 @@ const UserDropdown = ({ user }: { user: User }) => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{user.name || user.email}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <Link href="/cart" className="block md:hidden">
-          <DropdownMenuItem>Keranjang</DropdownMenuItem>
-        </Link>
-        <Link href="/voucher">
-          <DropdownMenuItem>Kupon saya</DropdownMenuItem>
-        </Link>
-        <Link href="/order-list">
-          <DropdownMenuItem>Pesanan saya</DropdownMenuItem>
-        </Link>
-        <DropdownMenuSeparator className="block md:hidden" />
-        <Link href="/pengaturan">
-          <DropdownMenuItem>Pengaturan</DropdownMenuItem>
-        </Link>
+      <DropdownMenuContent align="end" className="max-w-48">
+        <DropdownMenuLabel className="[overflow-wrap:anywhere] line-clamp-2">
+          {user.name || user.email}
+        </DropdownMenuLabel>
+        {user.role === 'user' && (
+          <>
+            <DropdownMenuSeparator />
+            {user.isVerified ? (
+              <Link href="/cart" className="block md:hidden">
+                <DropdownMenuItem>Keranjang</DropdownMenuItem>
+              </Link>
+            ) : (
+              <DropdownMenuItem onClick={handleCartNotVerified}>
+                Keranjang
+              </DropdownMenuItem>
+            )}
+            <Link href="/voucher">
+              <DropdownMenuItem>Kupon saya</DropdownMenuItem>
+            </Link>
+            <Link href="/order-list">
+              <DropdownMenuItem>Pesanan saya</DropdownMenuItem>
+            </Link>
+            <DropdownMenuSeparator className="block md:hidden" />
+            <Link href="/pengaturan">
+              <DropdownMenuItem>Pengaturan</DropdownMenuItem>
+            </Link>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async () => {

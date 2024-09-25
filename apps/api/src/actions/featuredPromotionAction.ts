@@ -21,9 +21,19 @@ class FeaturedPromotionAction {
       },
 
       select: {
+        id: true,
         name: true,
         isFeatured: true,
         banner: true,
+        discountType: true,
+        discountValue: true,
+        discountDurationSecs: true,
+        promotionType: true,
+        startedAt: true,
+        finishedAt: true,
+        description: true,
+        maxDeduction: true,
+        minPurchase: true,
       },
     });
 

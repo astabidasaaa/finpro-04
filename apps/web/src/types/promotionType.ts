@@ -145,3 +145,19 @@ enum DisplayDiscountType {
 export const displayDiscountTypeMap = new Map<string, string>(
   Object.entries(DisplayDiscountType),
 );
+
+export type TBanner = {
+  id: number;
+  name: string;
+  description: string;
+  isFeatured: boolean;
+  banner: string;
+  discountType: string;
+  discountValue: number;
+  discountDurationSecs: number;
+  promotionType: string;
+  startedAt: Date;
+  finishedAt: Date;
+  maxDeduction: number;
+  minPurchase: number;
+};

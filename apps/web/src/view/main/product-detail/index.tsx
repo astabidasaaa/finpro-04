@@ -213,28 +213,34 @@ export default function ProductDetailView({
             <Separator />
             <div className="flex flex-col justify-start gap-4 w-full md:w-max">
               <span className="font-semibold">Atur Jumlah</span>
-              <div className="flex items-center justify-center md:justify-start w-max gap-2 p-3 border rounded-lg">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={decreaseQuantity}
-                  className="h-max w-max p-1"
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <Input
-                  value={quantity}
-                  onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                  className="w-12 h-max p-0 text-center border-none"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={increaseQuantity}
-                  className="h-max w-max p-1"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+              <div className="flex flex-row justify-start items-center gap-4">
+                <div className="flex items-center justify-center md:justify-start w-max gap-2 p-2 md:p-3 border rounded-lg">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={decreaseQuantity}
+                    className="h-max w-max p-1"
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    value={quantity}
+                    onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                    className="w-12 h-max p-0 text-center border-none"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={increaseQuantity}
+                    className="h-max w-max p-1"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <span className="text-sm">
+                  Stok Total: <span className="font-bold">{product.stock}</span>
+                </span>
               </div>
               <div className="flex flex-row justify-between md:gap-16">
                 <span className="text-muted-foreground/80">Subtotal</span>
@@ -242,7 +248,10 @@ export default function ProductDetailView({
                   {IDR.format(quantity * discountedPrice)}
                 </span>
               </div>
-              <Button className="w-full bg-main-dark hover:bg-main-dark/80" onClick={handleAddToCart}>
+              <Button
+                className="w-full bg-main-dark hover:bg-main-dark/80"
+                onClick={handleAddToCart}
+              >
                 <Plus className="size-4 mr-2" />
                 Keranjang
               </Button>

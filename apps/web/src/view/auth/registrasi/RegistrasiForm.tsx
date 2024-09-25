@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -48,7 +47,7 @@ const RegisterForm = () => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().post('/auth/register-request', {
+      const res = await axiosInstance().post('/auth/register/request', {
         email: values.email,
       });
 
@@ -103,14 +102,15 @@ const RegisterForm = () => {
                 />
               </FormControl>
               <FormMessage />
-              {/* <FormDescription>
-                Kami akan mengirimkan kode verifikasi melalui email
-              </FormDescription> */}
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isSubmitLoading} className="min-w-36">
+        <Button
+          type="submit"
+          disabled={isSubmitLoading}
+          className="min-w-36 bg-main-dark hover:bg-main-dark/80"
+        >
           {isSubmitLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (

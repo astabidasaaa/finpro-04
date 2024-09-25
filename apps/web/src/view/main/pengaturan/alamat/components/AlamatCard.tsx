@@ -8,9 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin } from 'lucide-react';
 import HapusAlamatDialog from './HapusAlamatDialog';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
@@ -39,7 +37,7 @@ const AlamatCard = ({
       </CardHeader>
       <CardContent className="pt-6 space-y-1 md:space-y-2">
         <div className="text-sm font-bold space-x-3">
-          <span>{name}</span>
+          <span className="[overflow-wrap:anywhere]">{name}</span>
           {isMain && (
             <Badge
               variant="secondary"
@@ -49,7 +47,9 @@ const AlamatCard = ({
             </Badge>
           )}
         </div>
-        <p className="text-sm md:text-base">{address}</p>
+        <p className="text-sm md:text-base [overflow-wrap:anywhere]">
+          {address}
+        </p>
         <p className="text-sm md:text-base">{zipCode}</p>
         <DisplayMap
           latestLocation={{

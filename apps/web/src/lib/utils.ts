@@ -1,3 +1,4 @@
+import { toast } from '@/components/ui/use-toast';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -45,3 +46,12 @@ export const IDR = new Intl.NumberFormat('id-ID', {
   currency: 'IDR',
   maximumFractionDigits: 0,
 });
+
+export const handleCartNotVerified = () => {
+  toast({
+    variant: 'destructive',
+    title: 'Verifikasi email diperlukan',
+    description:
+      'Mohon maaf, Anda wajib memverifikasi email anda untuk melanjutkan proses belanja',
+  });
+};

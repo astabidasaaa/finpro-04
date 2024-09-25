@@ -7,8 +7,7 @@ import Error from '@/app/error';
 import AlamatCard from './AlamatCard';
 import { Address } from '@/types/addressType';
 import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
 import TambahAlamatDialog from './TambahAlamatDialog';
 
 const AlamatContainer = () => {

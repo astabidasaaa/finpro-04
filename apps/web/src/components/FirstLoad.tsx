@@ -2,23 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
-import { useAppSelector } from '@/lib/hooks';
 import { AxiosError } from 'axios';
-import { CookieValueTypes, getCookie } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 import { toast } from './ui/use-toast';
 import { Loader2Icon } from 'lucide-react';
 import { loginState } from '@/lib/auth/authSlice';
 import axiosInstance from '@/lib/axiosInstance';
 import { setStoreId } from '@/lib/storeId/storeIdSlice';
 
-type TLocationState = {
-  latitude: number | null;
-  longitude: number | null;
-};
-
 const FirstLoad = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
-  const login_data = useAppSelector((state) => state.auth);
 
   const [isPageLoading, setPageLoading] = useState<boolean>(true);
 
@@ -70,7 +63,7 @@ const FirstLoad = ({ children }: { children: React.ReactNode }) => {
     if (latitude && longitude) {
       try {
         const res = await axiosInstance().post(
-          `/stores/nearest-store/`,
+          `/stores/nearest/`,
           { latitude, longitude },
           {
             headers: {

@@ -1,51 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axiosInstance from '@/lib/axiosInstance';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import Loading from './Loading';
 import Error from '@/app/error';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { useAppSelector } from '@/lib/hooks';
+import { TCategory } from '@/types/categoryTypes';
 
-type TSubCategory = {
-  id: number;
-  name: string;
-};
-
-type TCategory = {
-  id: number;
-  name: string;
-  subcategories: TSubCategory[];
-};
-
-type TApiResponse = {
-  data: {
-    data: {
-      categories: TCategory[];
-    };
-    message: string;
-  };
-};
-
-const HeaderCategoryContent = () => {
-  const nearestStore = useAppSelector((state) => state.storeId);
-  const { storeId } = nearestStore;
-
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryFn: async () => {
-      const res = await axiosInstance().get(`/categories/`);
-      return res.data.data.categories;
-    },
-    queryKey: ['main_category'],
-  });
-
+const HeaderCategoryContent = ({
+  data,
+  isLoading,
+  isError,
+  error,
+  refetch,
+}: {
+  data: TCategory[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<any, Error>>;
+}) => {
   const [activeCategory, setActiveCategory] = useState<TCategory | undefined>(
     undefined,
   );
-
-  useEffect(() => {
-    refetch();
-  }, [storeId]);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -57,7 +35,7 @@ const HeaderCategoryContent = () => {
     return <Loading />;
   }
 
-  if (isError) {
+  if (isError && error) {
     return <Error error={error} reset={refetch} />;
   }
 

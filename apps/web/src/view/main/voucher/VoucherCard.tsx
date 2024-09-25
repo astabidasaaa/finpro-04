@@ -27,7 +27,6 @@ export default function VoucherCard({ voucher }: { voucher: VoucherDetail }) {
             : '/transactiondisc.png'
         }
         alt="Voucher Image"
-        layout="responsive"
         width={400}
         height={200}
         className="rounded-lg"

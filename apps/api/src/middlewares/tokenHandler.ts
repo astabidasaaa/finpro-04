@@ -20,18 +20,22 @@ export class AuthMiddleware {
     try {
       const accessToken = req.header('Authorization')?.replace('Bearer ', '');
 
-      if (!accessToken)
+      if (!accessToken) {
         throw new HttpException(
           HttpStatus.FORBIDDEN,
           'Silakan login untuk mengakses',
         );
+      }
 
       try {
         const isToken = verify(accessToken, String(ACCESS_TOKEN_SECRET));
 
         req.user = isToken as User;
       } catch (error: any) {
-        throw new HttpException(HttpStatus.UNAUTHORIZED, error.message);
+        throw new HttpException(
+          HttpStatus.UNAUTHORIZED,
+          'Silakan login untuk mengakses',
+        );
       }
 
       next();
@@ -48,13 +52,14 @@ export class AuthMiddleware {
     const registrationToken = req
       .header('Authorization')
       ?.replace('Bearer ', '');
-    try {
-      if (!registrationToken)
-        throw new HttpException(
-          HttpStatus.FORBIDDEN,
-          'Silakan login untuk mengakses',
-        );
 
+    if (!registrationToken)
+      throw new HttpException(
+        HttpStatus.FORBIDDEN,
+        'Silakan login untuk mengakses',
+      );
+
+    try {
       try {
         const isToken = verify(
           registrationToken,
@@ -63,7 +68,10 @@ export class AuthMiddleware {
 
         req.user = isToken as User;
       } catch (error: any) {
-        throw new HttpException(HttpStatus.UNAUTHORIZED, error.message);
+        throw new HttpException(
+          HttpStatus.UNAUTHORIZED,
+          'Silakan login untuk mengakses',
+        );
       }
 
       next();

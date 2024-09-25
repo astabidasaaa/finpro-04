@@ -25,9 +25,8 @@ const formSchema = z.object({
     .string()
     .min(8, { message: 'Password harus berisi lebih dari 8 karakter' }),
 });
-type Props = {};
 
-const VerifikasiEmailForm = (props: Props) => {
+const VerifikasiEmailForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -45,7 +44,7 @@ const VerifikasiEmailForm = (props: Props) => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().post('/auth/verify-email', {
+      const res = await axiosInstance().post('/auth/verify', {
         password: values.password,
         token,
       });
@@ -99,7 +98,11 @@ const VerifikasiEmailForm = (props: Props) => {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitLoading}>
+        <Button
+          type="submit"
+          disabled={isSubmitLoading}
+          className="bg-main-dark hover:bg-main-dark/80"
+        >
           {isSubmitLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (

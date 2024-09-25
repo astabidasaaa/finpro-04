@@ -8,9 +8,7 @@ import {
 } from '@/components/ui/card';
 import VerifikasiEmailForm from './VerifikasiEmailForm';
 
-type Props = {};
-
-const VerifikasiEmailPageView = (props: Props) => {
+const VerifikasiEmailPageView = () => {
   return (
     <Card className="mx-auto w-max md:w-full max-w-sm">
       <CardHeader>

@@ -28,7 +28,7 @@ const DialogVerifikasi = ({ email }: { email: string }) => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().get('/auth/verify-email-request', {
+      const res = await axiosInstance().get('/auth/verify/request', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

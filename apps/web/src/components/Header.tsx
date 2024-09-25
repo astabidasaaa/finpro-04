@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { useAppSelector } from '@/lib/hooks';
 import { Button } from './ui/button';
 import UserDropdown from './UserDropdown';
-import NotificationBtn from './NotificationBtn';
 import HeaderCategoryAndSearch from './HeaderCategoryAndSearch';
 import CartBtn from './CartBtn';
 
@@ -29,16 +28,28 @@ export const Header = () => {
           </Link>
           <HeaderCategoryAndSearch />
         </div>
-        <div className="flex flex-row justify-start items-center gap-4">
-          <CartBtn />
+        <div className="flex flex-row justify-start items-center gap-2 md:gap-3">
+          {user.role === 'user' && <CartBtn isVerified={user.isVerified} />}
           {status.isLogin ? (
             <>
               <UserDropdown user={user} />
             </>
           ) : (
-            <Button variant="outline" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                className="h-max px-2 py-1 text-xs text-main-dark border-main-dark hover:text-main-dark font-bold"
+                asChild
+              >
+                <Link href="/login">Masuk</Link>
+              </Button>
+              <Button
+                className="h-max px-2 py-1 text-xs text-secondary bg-main-dark hover:bg-main-dark/80 font-bold"
+                asChild
+              >
+                <Link href="/registrasi">Daftar</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>

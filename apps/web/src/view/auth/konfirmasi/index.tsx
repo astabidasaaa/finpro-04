@@ -1,22 +1,14 @@
 import React from 'react';
-import Link from 'next/link';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import KonfirmasiForm from './KonfirmasiForm';
-import { BsTwitterX } from 'react-icons/bs';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 
-type Props = {};
-
-const KonfirmasiRegistrasiView = (props: Props) => {
+const KonfirmasiRegistrasiView = () => {
   return (
     <Card className="mx-auto w-max md:w-full max-w-sm">
       <CardHeader>

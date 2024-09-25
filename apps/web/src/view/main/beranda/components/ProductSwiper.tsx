@@ -19,20 +19,22 @@ const ProductSwiper = ({
   return (
     <>
       <Swiper
-        spaceBetween={20}
-        slidesPerView={1.8}
+        spaceBetween={10}
+        slidesPerView={2.3}
         breakpoints={{
           1280: {
             slidesPerView: 4.7,
+            spaceBetween: 16,
           },
           1024: {
             slidesPerView: 3.5,
           },
           768: {
             slidesPerView: 3.2,
+            spaceBetween: 12,
           },
           480: {
-            slidesPerView: 2.4,
+            slidesPerView: 2.8,
           },
         }}
         navigation={{

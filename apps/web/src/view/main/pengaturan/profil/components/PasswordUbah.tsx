@@ -64,7 +64,7 @@ const PasswordUbah = () => {
 
     try {
       const res = await axiosInstance().patch(
-        '/auth/change-password',
+        '/auth/password/change',
         {
           password: values.password,
           newPassword: values.newPassword,

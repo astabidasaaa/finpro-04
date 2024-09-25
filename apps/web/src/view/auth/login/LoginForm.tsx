@@ -87,8 +87,6 @@ const LoginForm = () => {
       })(dispatch);
 
       setTimeout(() => {
-        // setSubmitLoading((prev) => false);
-
         if (res === 'user') {
           form.reset();
           router.replace(redirect);
@@ -176,7 +174,11 @@ const LoginForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isSubmitLoading}>
+        <Button
+          type="submit"
+          className="w-full bg-main-dark hover:bg-main-dark/80"
+          disabled={isSubmitLoading}
+        >
           {isSubmitLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (

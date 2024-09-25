@@ -163,7 +163,7 @@ const TambahTokoForm = ({ refetch, open, setOpen, defaultToko }: Props) => {
         }, 1500);
       } else {
         const res = await axiosInstance().post(
-          '/store-management/create',
+          '/store-management',
           {
             storeName: values.storeName,
             storeState: values.storeState,

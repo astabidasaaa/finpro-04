@@ -51,7 +51,7 @@ const ResetPasswordForm = () => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().post('/auth/reset-password', {
+      const res = await axiosInstance().post('/auth/password/reset', {
         password: values.password,
         token,
       });
@@ -101,7 +101,6 @@ const ResetPasswordForm = () => {
               <FormControl>
                 <Input {...field} type="password" autoComplete="new-password" />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
@@ -119,7 +118,6 @@ const ResetPasswordForm = () => {
                   autoComplete="new-password webauthn"
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}

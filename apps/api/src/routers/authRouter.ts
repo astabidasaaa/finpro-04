@@ -44,7 +44,7 @@ export class AuthRouter implements Route {
     );
 
     this.router.post(
-      `${this.path}/register-request`,
+      `${this.path}/register/request`,
       validateEmail,
       this.authController.initiateRegisterCredentials,
     );
@@ -57,44 +57,44 @@ export class AuthRouter implements Route {
     );
 
     this.router.get(
-      `${this.path}/verify-email-request`,
+      `${this.path}/verify/request`,
       this.guard.verifyAccessToken,
       this.verifyEmailController.emailVerificationRequest,
     );
 
     this.router.post(
-      `${this.path}/verify-email`,
+      `${this.path}/verify`,
       validatePassword,
       this.verifyEmailController.emailVerification,
     );
 
     this.router.post(
-      `${this.path}/reset-password-request`,
+      `${this.path}/password/reset/request`,
       validateEmail,
       this.passwordController.resetPasswordRequest,
     );
 
     this.router.post(
-      `${this.path}/reset-password`,
+      `${this.path}/password/reset`,
       validatePassword,
       this.passwordController.resetPassword,
     );
 
     this.router.get(
-      `${this.path}/refresh-token`,
+      `${this.path}/token/refresh`,
       this.guard.verifyAccessToken,
       this.authController.refreshAccessToken,
     );
 
     this.router.patch(
-      `${this.path}/change-password`,
+      `${this.path}/password/change`,
       validateChangePassword,
       this.guard.verifyAccessToken,
       this.passwordController.changePassword,
     );
 
     this.router.patch(
-      `${this.path}/add-password`,
+      `${this.path}/password/add`,
       validateAddPassword,
       this.guard.verifyAccessToken,
       this.passwordController.addPassword,

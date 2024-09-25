@@ -36,8 +36,9 @@ const UbahAlamatUtamaDialog = ({
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().get(
-        `/user/addresses/${addressId}/change-main`,
+      const res = await axiosInstance().patch(
+        `/user/addresses/${addressId}/main`,
+        {},
         {
           headers: {
             'Content-Type': 'application/json',

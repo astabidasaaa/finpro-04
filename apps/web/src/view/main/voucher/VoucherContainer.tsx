@@ -21,7 +21,7 @@ const VoucherContainer = () => {
       });
       return res.data.data;
     },
-    queryKey: ['user_profile'],
+    queryKey: ['user_voucher'],
   });
 
   if (isLoading) {

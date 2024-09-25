@@ -69,8 +69,8 @@ export class UserRouter implements Route {
       this.userController.deleteUserAddresses,
     );
 
-    this.router.get(
-      `${this.path}/addresses/:addressId/change-main`,
+    this.router.patch(
+      `${this.path}/addresses/:addressId/main`,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['user']),
       this.userController.changeUserMainAddress,
