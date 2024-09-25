@@ -12,7 +12,6 @@ export class PaymentController {
         if (err) {
           return next(new HttpException(500, 'Failed to upload payment proof', err.message));
         }
-  
         try {
           const { orderId, userId } = req.body;
           
@@ -30,6 +29,10 @@ export class PaymentController {
   
           if (!order) {
             throw new HttpException(404, 'Order not found');
+          }
+
+          if (order.customerId !== parseInt(userId, 10)) {
+            throw new HttpException(403, 'User is not authorized for this order');
           }
   
           if (!order.payment) {

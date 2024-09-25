@@ -4,17 +4,17 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { useAppSelector } from '@/lib/hooks';
 import { DatePickerWithRange } from './date-picker';
-import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useRouter } from 'next/navigation';
 import { Badge } from "@/components/ui/badge";
+import PaginationComponent from './PaginationComponent';
+import { Order } from '@/types/paymentTypes';
+import { getCookie } from 'cookies-next';
 
-// Debounce Hook
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -31,39 +31,19 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue;
 }
 
-type Payment = {
-  amount: number;
-  paymentStatus: string;
-  paymentGateway: string;
-};
-
-type Order = {
-  id: string;
-  orderCode: string;
-  orderStatus: string;
-  totalAmount: number;
-  createdAt: string;
-  payment: Payment;
-};
-
 const OrderPageView: React.FC = () => {
+  const token = getCookie('access-token');
   const customer = useAppSelector((state) => state.auth.user);
   const customerId = customer.id.toString();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [limit] = useState<number>(5); // Items per page
-
-  // Search state
+  const [limit] = useState<number>(5); 
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 500); // Debounce search input
-
-  // Track which type of orders to view
+  const debouncedSearchTerm = useDebounce(searchTerm, 500); 
   const [isFinishedOrders, setIsFinishedOrders] = useState<boolean>(false);
   const [isInProgressOrders, setIsInProgressOrders] = useState<boolean>(false);
 
@@ -80,31 +60,40 @@ const OrderPageView: React.FC = () => {
         customerId: parseInt(customerId, 10),
         page: currentPage,
         pageSize: limit,
-        search: debouncedSearchTerm || undefined, // Only send if searchTerm is present
+        search: debouncedSearchTerm || undefined, 
       };
 
       if (dateRange?.from && dateRange.to) {
         params.from = dateRange.from.toISOString();
         params.to = dateRange.to.toISOString();
       }
-
       let endpoint = '';
       if (isFinishedOrders) {
         endpoint = '/get-order/get-finished-orders-by-user';
       } else if (isInProgressOrders) {
         endpoint = '/get-order/get-unfinished-orders-by-user';
       } else {
-        endpoint = '/get-order/get-orders-by-user'; // All orders
+        endpoint = '/get-order/get-orders-by-user'; 
       }
-
-      const response = await axiosInstance().get(endpoint, { params });
-
+      const response = await axiosInstance().get(endpoint, { params, headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }, });
       if (isFinishedOrders || isInProgressOrders) {
-        setOrders(response.data.data.orders); // When fetching finished or in-progress orders
+        setOrders(response.data.data.orders); 
       } else {
-        setOrders(response.data.data); // When fetching all orders
+        setOrders(response.data.data); 
       }
-      setTotalPages(response.data.pagination.totalPages); // Assuming API sends total pages
+      const fetchedOrders = response.data.data.orders || response.data.data; 
+
+      setTotalPages(response.data.pagination.totalPages); 
+      if (!fetchedOrders.length) {
+        toast({
+          variant: 'destructive', 
+          title: 'No Orders Found',
+          description: 'There are no orders matching your criteria.',
+        });
+      }
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -115,7 +104,6 @@ const OrderPageView: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   const handlePageChange = (newPage: number) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -124,51 +112,44 @@ const OrderPageView: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1); 
   };
 
   const handleViewAllOrders = () => {
     setIsFinishedOrders(false);
-    setIsInProgressOrders(false); // Reset in-progress state
-    setCurrentPage(1); // Reset pagination
+    setIsInProgressOrders(false); 
+    setCurrentPage(1); 
   };
 
   const handleViewFinishedOrders = () => {
     setIsFinishedOrders(true);
-    setIsInProgressOrders(false); // Ensure only finished orders are viewed
-    setCurrentPage(1); // Reset pagination
+    setIsInProgressOrders(false); 
+    setCurrentPage(1); 
   };
-
   const handleViewInProgressOrders = () => {
     setIsFinishedOrders(false);
-    setIsInProgressOrders(true); // Set to view in-progress orders
-    setCurrentPage(1); // Reset pagination
+    setIsInProgressOrders(true); 
+    setCurrentPage(1); 
   };
-
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
   };
-
   const handlePaymentRedirect = (totalPrice: number, orderId: string) => {
     const paymentPageUrl = `/pembayaran?totalPrice=${totalPrice}&orderId=${orderId}&userId=${customerId}`;
-    router.push(paymentPageUrl); // Redirect to payment page
+    router.push(paymentPageUrl);
   };
-
   const formatOrderStatus = (status: string) => {
     return status.replace(/_/g, ' ');
   };
-
   let IDR = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     maximumFractionDigits: 0,
   });
-
   return (
     <div className="container px-4 md:px-12 lg:px-24 max-w-screen-2xl py-8">
       <h1 className="text-3xl font-bold mb-8">Riwayat Pesanan</h1>
-
       <div className="mb-4 flex flex-wrap gap-4">
         <Button onClick={handleViewAllOrders} variant="outline">Semua Pesanan</Button>
         <Button onClick={handleViewFinishedOrders} variant="outline">
@@ -178,7 +159,6 @@ const OrderPageView: React.FC = () => {
           Pesanan Dalam Progress
         </Button>
       </div>
-
       <div className="mb-4 flex gap-4">
         <Input
           type="text"
@@ -188,11 +168,8 @@ const OrderPageView: React.FC = () => {
           onChange={handleSearchChange}
         />
       </div>
-
       <DatePickerWithRange className="mb-4" onSelect={setDateRange} />
-
       {isLoading && <p className="text-center">Loading...</p>}
-
       {Array.isArray(orders) && orders.length > 0 ? (
         <div>
           <h2 className="text-2xl font-semibold mb-4">Pesanan Anda</h2>
@@ -229,62 +206,13 @@ const OrderPageView: React.FC = () => {
               </li>
             ))}
           </ul>
-
-          {/* Pagination */}
-          <Pagination>
-  <PaginationContent>
-    <PaginationItem>
-      <PaginationPrevious
-        href="#"
-        onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-      />
-    </PaginationItem>
-
-    {/* Ellipsis before current page block */}
-    {currentPage > 3 && (
-      <PaginationItem>
-        <span className="ellipsis">...</span>
-      </PaginationItem>
-    )}
-
-    {/* Dynamic range of pages around the current page */}
-    {Array.from({ length: totalPages })
-      .map((_, index) => index + 1)
-      .filter(
-        (page) =>
-          page >= Math.max(currentPage - 1, 1) &&
-          page <= Math.min(currentPage + 1, totalPages)
-      )
-      .map((page) => (
-        <PaginationItem key={page}>
-          {page === currentPage ? (
-            <strong>{page}</strong> // Highlight the current page
-          ) : (
-            <PaginationLink href="#" onClick={() => handlePageChange(page)}>
-              {page}
-            </PaginationLink>
+          {totalPages > 1 && (
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           )}
-        </PaginationItem>
-      ))}
-
-    {/* Ellipsis after current page block */}
-    {currentPage < totalPages - 2 && (
-      <PaginationItem>
-        <span className="ellipsis">...</span>
-      </PaginationItem>
-    )}
-
-    <PaginationItem>
-      <PaginationNext
-        href="#"
-        onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-      />
-    </PaginationItem>
-  </PaginationContent>
-</Pagination>
-
-
-
         </div>
       ) : (
         <div className="text-center">

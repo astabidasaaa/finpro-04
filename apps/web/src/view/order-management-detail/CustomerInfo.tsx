@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Badge } from "@/components/ui/badge";
-import { Order, OrderItem } from '@/types/paymentTypes';
+
+import { Order } from '@/types/paymentTypes';
   
 
 const CustomerInfo: React.FC<{ order: Order }> = ({ order }) => (

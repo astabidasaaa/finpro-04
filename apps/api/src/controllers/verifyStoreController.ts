@@ -14,7 +14,6 @@ export class VerifyStoreController {
         deliveryLongitude
       } = req.body;
 
-      // Find all stores and their distances
       const storeDistances = await findNearestStore(deliveryLatitude, deliveryLongitude);
 
       res.status(200).json({

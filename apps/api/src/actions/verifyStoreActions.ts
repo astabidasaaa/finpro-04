@@ -1,4 +1,4 @@
-// src/actions/verifyStoreActions.ts
+
 
 import { PrismaClient } from '@prisma/client';
 
@@ -8,7 +8,6 @@ export const findNearestStore = async (
     deliveryLatitude: string,
     deliveryLongitude: string
   ) => {
-    // Fetch all stores with non-deleted addresses
     const stores = await prisma.store.findMany({
       include: {
         addresses: {
@@ -21,7 +20,6 @@ export const findNearestStore = async (
       throw new Error('No stores found');
     }
   
-    // Calculate distance for each store and keep track of the closest store
     const storeDistances = stores.map(store => {
       const distances = store.addresses.map(address => ({
         storeId: store.id,
@@ -47,7 +45,7 @@ const calculateDistance = (
   lon2: string
 ): number => {
   const toRad = (value: number) => (value * Math.PI) / 180;
-  const R = 6371; // Radius of the Earth in kilometers
+  const R = 6371; 
 
   const dLat = toRad(parseFloat(lat2) - parseFloat(lat1));
   const dLon = toRad(parseFloat(lon2) - parseFloat(lon1));
@@ -58,6 +56,6 @@ const calculateDistance = (
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c; // Distance in kilometers
+  return R * c;
 };
 

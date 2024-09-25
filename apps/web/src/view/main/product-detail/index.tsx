@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { IDR } from '@/lib/utils';
+import { toast } from '@/components/ui/use-toast';
 
 export default function ProductDetailView({
   productId,
@@ -104,24 +105,18 @@ export default function ProductDetailView({
         return;
       }
 
-      const finalDiscountedPrice = discountedPrice === productPrice ? null : discountedPrice;
-
-  
       const cartItem = {
-        productId: product.product.id,
-        name: product.product.name,
-        price: productPrice,        // Original price
-        discountedPrice: finalDiscountedPrice,            // Discounted price
+        productId: product.product.id,         
         quantity,
-        storeId,
-        userId,
-        image: images[0]?.title,
-        buy,                        // Include buy value
-        get,                        // Include get value
+        userId, 
+        storeId                    
       };
-      console.log('Cart Item:', cartItem);
-      addToCart(cartItem);  // Add the product to local storage cart
-      alert('Product added to cart!');  // Optional feedback to user
+      addToCart(cartItem);
+      toast({
+        title: 'Produk ditambahkan ke cart',
+        description: `${product.product.name} sudah ditambahkan ke cart.`,
+        variant: 'success', 
+      });
     };
 
     return (

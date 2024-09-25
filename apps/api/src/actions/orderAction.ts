@@ -2,12 +2,16 @@ import OrderQuery from '@/queries/orderQuery';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import getOrderQuery from '@/queries/getOrderQuery';
+import orderQuery from '@/queries/orderQuery';
 
 
 
 class OrderAction {
     public async cancelOrderAction(orderId: string | number, userId: number) {
       const orderIdInt = parseInt(orderId as string, 10);
+      const userRole = await getOrderQuery.getRoleByUserId(userId);
+      const userStoreId = await orderQuery.getUserById(userId)
+      
   
       if (isNaN(orderIdInt)) {
         throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid orderId format');
@@ -17,6 +21,14 @@ class OrderAction {
   
       if (!order) {
         throw new HttpException(HttpStatus.NOT_FOUND, 'Order not found');
+      }
+
+      if (userRole === 'user' && order.customerId !== userId) {
+        throw new HttpException(HttpStatus.FORBIDDEN, 'User is not authorized for this order');
+      }
+  
+      if (userRole === 'store admin' && order.storeId !== userStoreId?.store?.id) {
+        throw new HttpException(HttpStatus.FORBIDDEN, 'Admin is not authorized for this order');
       }
   
       const result = await OrderQuery.cancelOrderTransaction(order, userId);
