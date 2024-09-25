@@ -28,12 +28,6 @@ const HeaderCategoryAndSearch = () => {
     }, 500);
   }
 
-  function handleNoString() {
-    setTimeout(() => {
-      router.push(`/search?`);
-    }, 500);
-  }
-
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryFn: async () => {
       const res = await axiosInstance().get(`/categories`);
