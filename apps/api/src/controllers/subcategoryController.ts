@@ -47,6 +47,24 @@ export class SubcategoryController {
     }
   }
 
+  public async getAllSubcategoryDetail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const allSubcategory =
+        await subcategoryAction.getAllSubcategoryDetailAction();
+
+      res.status(200).json({
+        message: 'Seluruh subkategori berhasil dimuat',
+        data: allSubcategory,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async updateSubcategory(
     req: Request,
     res: Response,

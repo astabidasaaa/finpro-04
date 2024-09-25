@@ -38,16 +38,24 @@ import { SubcategoryProps } from '@/types/subcategoryTypes';
 import AddSubcategoryButton from './AddSubcategoryButton';
 import { useAppSelector } from '@/lib/hooks';
 import { UserType } from '@/types/userType';
+import { SubcategoryDetail } from '.';
+import { Badge } from '@/components/ui/badge';
 
-export const columns: ColumnDef<SubcategoryProps>[] = [
+export const columns: ColumnDef<SubcategoryDetail>[] = [
   {
     accessorKey: 'name',
     header: () => <div className="text-left">Nama</div>,
-    cell: ({ row }) => (
-      <div className="font-medium flex items-center">
-        {row.getValue('name')}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const productLength = row.original._count.products;
+      return (
+        <div className="font-medium flex items-center">
+          {row.getValue('name')}
+          <Badge className="ml-1.5 px-1.5 bg-black/10 text-black">
+            {productLength}
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'categoryName',
@@ -91,7 +99,7 @@ export const columns: ColumnDef<SubcategoryProps>[] = [
 export default function SubcategoryTable({
   data,
 }: {
-  data: SubcategoryProps[];
+  data: SubcategoryDetail[];
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -119,7 +127,7 @@ export default function SubcategoryTable({
 
   return (
     <div className="w-full">
-      <div className="flex items-start justify-between py-4 pr-5">
+      <div className="flex items-start justify-between py-4">
         <Input
           placeholder="Cari subkategori..."
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}

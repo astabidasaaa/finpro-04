@@ -42,6 +42,13 @@ class SubcategoryAction {
     return allSubcategory;
   }
 
+  public async getAllSubcategoryDetailAction(): Promise<ProductSubcategory[]> {
+    const allSubcategory =
+      await subcategoryQuery.getAllSubcategoryWithProductCount();
+
+    return allSubcategory;
+  }
+
   public async updateSubcategoryAction(
     props: UpdateSubcategoryInput,
   ): Promise<ProductSubcategory> {

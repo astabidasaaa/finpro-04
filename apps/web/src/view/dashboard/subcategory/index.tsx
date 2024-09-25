@@ -7,14 +7,20 @@ import { SubcategoryProps } from '@/types/subcategoryTypes';
 import { CategoryProps } from '@/types/categoryTypes';
 import SubcategoryTable from './SubcategoryTable';
 
+export type SubcategoryDetail = SubcategoryProps & {
+  _count: {
+    products: number;
+  };
+};
+
 export default function SubcategoryView() {
-  const [subcategories, setSubcategories] = useState<SubcategoryProps[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryDetail[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   async function fetchData() {
     try {
       const subcategoriesResult = await axiosInstance().get(
-        `${process.env.API_URL}/subcategories`,
+        `${process.env.API_URL}/subcategories/detail`,
       );
 
       const categories = await axiosInstance().get(
@@ -26,8 +32,8 @@ export default function SubcategoryView() {
         categoryMap.set(category.id, category.name);
       });
 
-      const addCategorySubcategories: SubcategoryProps[] =
-        subcategoriesResult.data.data.map((subcategory: SubcategoryProps) => ({
+      const addCategorySubcategories: SubcategoryDetail[] =
+        subcategoriesResult.data.data.map((subcategory: SubcategoryDetail) => ({
           ...subcategory,
           categoryName: categoryMap.get(subcategory.productCategoryId),
         }));
