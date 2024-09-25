@@ -46,38 +46,40 @@ const ProductSwiperSlide = ({ product }: { product: TProduct }) => {
         </CardHeader>
         <CardContent className="flex flex-col items-start flex-1 gap-1.5 h-full p-0 sm:p-4 sm:pt-0 sm:pb-2.5 md:p-6 md:pt-0 md:pb-2.5 mt-1">
           <div className="flex justify-start items-center">
-            <div className="text-xs font-semibold line-clamp-2">
+            <div className="text-xs font-semibold [overflow-wrap:anywhere] line-clamp-2">
               {product.name}
             </div>
           </div>
           <div className="flex flex-col justify-start gap-1 md:text-sm">
             {discountedPrice ? (
               <div className="flex flex-col justify-start items-start w-full">
-                <CardDescription className="text-xs md:text-sm font-bold text-main-dark">
+                <CardDescription className="text-xs md:text-sm font-bold text-main-dark [overflow-wrap:anywhere]">
                   {IDR.format(discountedPrice)}
                 </CardDescription>
-                <div className="text-[10px] text-muted-foreground/80 font-medium line-through">
+                <div className="text-[10px] text-muted-foreground/80 font-medium line-through [overflow-wrap:anywhere]">
                   {IDR.format(product.prices[0].price)}
                 </div>
               </div>
             ) : (
-              <CardDescription className="text-xs md:text-sm font-semibold text-main-dark">
+              <CardDescription className="text-xs md:text-sm font-semibold text-main-dark [overflow-wrap:anywhere]">
                 {IDR.format(product.prices[0].price)}
               </CardDescription>
             )}
             {buy != 0 && get != 0 && (
-              <div className="text-[10px] w-max text-center font-semibold rounded-full bg-destructive/10 text-destructive px-2.5">
+              <div className="text-[10px] w-max text-center font-semibold rounded-full bg-destructive/10 text-destructive px-2.5 [overflow-wrap:anywhere]">
                 Beli {buy} gratis {get}
               </div>
             )}
           </div>
         </CardContent>
         <CardFooter className="flex-col items-start gap-1.5 p-0 sm:p-4 sm:pt-0 md:p-6 md:pt-0 mt-1">
-          <div className="flex flex-row items-center text-muted-foreground text-[10px]">
+          <div className="flex flex-row items-center text-muted-foreground">
             <span className="p-1 rounded-full bg-muted mr-1.5">
               <LucideStore className="size-3" />
             </span>
-            {product.inventories[0].store.name}
+            <p className="text-[10px] [overflow-wrap:anywhere] line-clamp-1">
+              {product.inventories[0].store.name}
+            </p>
           </div>
           <Button
             variant="outline"

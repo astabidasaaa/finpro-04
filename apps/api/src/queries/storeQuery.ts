@@ -35,6 +35,9 @@ class StoreQuery {
                 inventories: {
                   some: {
                     storeId: id,
+                    store: {
+                      storeState: 'PUBLISHED',
+                    },
                     stock: {
                       gt: 0,
                     },

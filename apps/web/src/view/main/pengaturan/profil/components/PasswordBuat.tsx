@@ -91,12 +91,9 @@ const PasswordBuat = ({
             variant: 'default',
             title: res.data.message,
           });
-
-          console.log(res.data.data);
         }
       }, 1500);
     } catch (error: any) {
-      console.log(error);
       let message = '';
       if (error instanceof AxiosError) {
         message = error.response?.data.message;

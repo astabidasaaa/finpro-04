@@ -48,7 +48,7 @@ const ProfilForm = ({
       <div className="grid grid-cols-[120px_minmax(0,_1fr)] md:grid-cols-[160px_minmax(0,_1fr)] w-full text-sm lg:text-base justify-items-start items-center">
         <span className="text-muted-foreground">Nama</span>
         <div className="space-x-3">
-          {name && <span>{name}</span>}
+          {name && <span className="[overflow-wrap:anywhere]">{name}</span>}
           {user.user.role === 'user' && (
             <FieldNama name={name} refetch={refetch} />
           )}
@@ -57,7 +57,7 @@ const ProfilForm = ({
         <div className="space-x-3">
           {email && (
             <>
-              <span>{email}</span>
+              <span className="[overflow-wrap:anywhere]">{email}</span>
               {user.user.role === 'user' && (
                 <VerifikasiEmailBadge isVerified={isVerified} email={email} />
               )}

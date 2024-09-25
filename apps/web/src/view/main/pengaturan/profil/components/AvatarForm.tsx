@@ -37,7 +37,7 @@ const AvatarForm = (props: {
 }) => {
   const { previewImage, setPreviewImage } = props;
   const token = getCookie('access-token');
-  // for loading state on form submit
+
   const [isFormLoading, setFormLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -47,7 +47,6 @@ const AvatarForm = (props: {
     },
   });
 
-  // for thumbnail input ref to hide the actual input field
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
 
   const watchFile = useWatch({ control: form.control, name: 'file' });
@@ -56,7 +55,6 @@ const AvatarForm = (props: {
     if (watchFile) form.handleSubmit(onSubmit)();
   }, [watchFile]);
 
-  // passing ref to hidden input field
   const onUploadBtnClick = () => {
     hiddenInputRef.current?.click();
   };
@@ -101,13 +99,13 @@ const AvatarForm = (props: {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex min-h-full w-full flex-col bg-muted/50"
+        className="flex min-h-full w-full flex-col"
       >
         <FormField
           control={form.control}
           name="file"
           render={({ field }) => (
-            <FormItem className="hidden">
+            <FormItem className="">
               <FormControl>
                 <Input
                   type="file"
@@ -121,9 +119,10 @@ const AvatarForm = (props: {
                   onChange={(e) => {
                     field.onChange(e.target.files && e.target.files[0]);
                   }}
+                  className="hidden"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="!mt-0 !mb-2" />
             </FormItem>
           )}
         />

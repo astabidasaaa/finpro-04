@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { useAppDispatch } from '@/lib/hooks';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User2Icon } from 'lucide-react';
 import {
@@ -35,8 +35,10 @@ const UserDropdown = ({ user }: { user: User }) => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{user.name || user.email}</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="max-w-48">
+        <DropdownMenuLabel className="[overflow-wrap:anywhere] line-clamp-2">
+          {user.name || user.email}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <Link href="/cart" className="block md:hidden">
           <DropdownMenuItem>Keranjang</DropdownMenuItem>
