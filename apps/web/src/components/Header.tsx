@@ -29,7 +29,7 @@ export const Header = () => {
           <HeaderCategoryAndSearch />
         </div>
         <div className="flex flex-row justify-start items-center gap-2 md:gap-3">
-          <CartBtn />
+          {user.role === 'user' && <CartBtn isVerified={user.isVerified} />}
           {status.isLogin ? (
             <>
               <UserDropdown user={user} />
