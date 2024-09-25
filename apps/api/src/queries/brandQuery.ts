@@ -27,7 +27,34 @@ class BrandQuery {
 
   public async getAllBrand(): Promise<Brand[]> {
     try {
-      const allBrand = await prisma.brand.findMany();
+      const allBrand = await prisma.brand.findMany({
+        orderBy: {
+          name: 'asc',
+        },
+      });
+      return allBrand;
+    } catch (err) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Tidak dapat memuat seluruh brand',
+      );
+    }
+  }
+
+  public async getAllBrandDetail(): Promise<Brand[]> {
+    try {
+      const allBrand = await prisma.brand.findMany({
+        orderBy: {
+          name: 'asc',
+        },
+        include: {
+          _count: {
+            select: {
+              products: true,
+            },
+          },
+        },
+      });
       return allBrand;
     } catch (err) {
       throw new HttpException(

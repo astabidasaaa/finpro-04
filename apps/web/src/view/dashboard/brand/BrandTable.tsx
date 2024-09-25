@@ -35,14 +35,24 @@ import { DialogDeleteBrand, DialogEditBrand } from './ActionButton';
 import { AddBrandButton } from './AddBrandButton';
 import { useAppSelector } from '@/lib/hooks';
 import { UserType } from '@/types/userType';
+import { BrandDetail } from '.';
+import { Badge } from '@/components/ui/badge';
 
-export const columns: ColumnDef<BrandProps>[] = [
+export const columns: ColumnDef<BrandDetail>[] = [
   {
     accessorKey: 'name',
     header: () => <div className="text-left">Nama</div>,
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue('name')}</div>
-    ),
+    cell: ({ row }) => {
+      const productLength = row.original._count.products;
+      return (
+        <div className="font-medium flex items-center">
+          {row.getValue('name')}
+          <Badge className="ml-1.5 px-1.5 bg-black/10 text-black">
+            {productLength}
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'description',
@@ -83,7 +93,7 @@ export const columns: ColumnDef<BrandProps>[] = [
   },
 ];
 
-export default function BrandTable({ data }: { data: BrandProps[] }) {
+export default function BrandTable({ data }: { data: BrandDetail[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
