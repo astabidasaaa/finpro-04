@@ -141,20 +141,22 @@ const BannerDialog = ({ promotion }: { promotion: TBanner }) => {
             </span>
           </span>
         </div>
-        <DialogFooter>
-          <Button
-            type="button"
-            disabled={isSubmitLoading}
-            className="min-w-48 bg-main-dark hover:bg-main-dark/80"
-            onClick={handleClick}
-          >
-            {isSubmitLoading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              'Klaim Kupon Belanja'
-            )}
-          </Button>
-        </DialogFooter>
+        {promotion.source === 'ALL_BRANCH' && (
+          <DialogFooter>
+            <Button
+              type="button"
+              disabled={isSubmitLoading}
+              className="min-w-48 bg-main-dark hover:bg-main-dark/80"
+              onClick={handleClick}
+            >
+              {isSubmitLoading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                'Klaim Kupon Belanja'
+              )}
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

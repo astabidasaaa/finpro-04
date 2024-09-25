@@ -151,6 +151,7 @@ export type TBanner = {
   name: string;
   description: string;
   isFeatured: boolean;
+  source: string;
   banner: string;
   discountType: string;
   discountValue: number;
