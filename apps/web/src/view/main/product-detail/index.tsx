@@ -104,24 +104,23 @@ export default function ProductDetailView({
         return;
       }
 
-      const finalDiscountedPrice = discountedPrice === productPrice ? null : discountedPrice;
+      const finalDiscountedPrice =
+        discountedPrice === productPrice ? null : discountedPrice;
 
-  
       const cartItem = {
         productId: product.product.id,
         name: product.product.name,
-        price: productPrice,        // Original price
-        discountedPrice: finalDiscountedPrice,            // Discounted price
+        price: productPrice, // Original price
+        discountedPrice: finalDiscountedPrice, // Discounted price
         quantity,
         storeId,
         userId,
         image: images[0]?.title,
-        buy,                        // Include buy value
-        get,                        // Include get value
+        buy, // Include buy value
+        get, // Include get value
       };
-      console.log('Cart Item:', cartItem);
-      addToCart(cartItem);  // Add the product to local storage cart
-      alert('Product added to cart!');  // Optional feedback to user
+      addToCart(cartItem); // Add the product to local storage cart
+      alert('Product added to cart!'); // Optional feedback to user
     };
 
     return (
@@ -247,7 +246,10 @@ export default function ProductDetailView({
                   {IDR.format(quantity * discountedPrice)}
                 </span>
               </div>
-              <Button className="w-full bg-main-dark hover:bg-main-dark/80" onClick={handleAddToCart}>
+              <Button
+                className="w-full bg-main-dark hover:bg-main-dark/80"
+                onClick={handleAddToCart}
+              >
                 <Plus className="size-4 mr-2" />
                 Keranjang
               </Button>

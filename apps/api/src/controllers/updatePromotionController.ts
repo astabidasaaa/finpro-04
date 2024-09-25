@@ -15,7 +15,6 @@ export default class UpdatePromotionController {
       const { id, role } = req.user as User;
       const promotionId = parseInt(req.params.promotionId);
       const { state } = req.body;
-      console.log('hahiahihkasjflajfalksjlafkkaia');
       const updatedStatePromotion =
         await updateStatePromotionAction.updateNonProductPromotionStateAction(
           id,

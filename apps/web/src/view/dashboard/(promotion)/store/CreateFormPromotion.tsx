@@ -92,7 +92,6 @@ export default function CreatePromotionForm({
     setSubmitLoading((prev) => true);
 
     const storeId = store !== undefined ? store.id : values.storeId;
-    console.log({ ...values, storeId: storeId });
     try {
       const res = await axiosInstance().post(
         '/promotions/store',

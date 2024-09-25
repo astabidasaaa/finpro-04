@@ -90,7 +90,6 @@ export class InventoryReportController {
       const { id, role } = req.user as User;
       const { month, year, orderBy = 'timeDesc', inventoryId } = req.query;
 
-      console.log(`hai ini apa yaaaa`);
       const inventory = await prisma.inventory.findUnique({
         where: {
           id: Number(inventoryId),

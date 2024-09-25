@@ -76,9 +76,6 @@ export default function StorePromotionView() {
         setStoreId(storeAdminId);
 
         params.delete('storeId');
-        console.log(
-          `${process.env.API_URL}/promotions/store?storeId=${storeId}${params.toString()}`,
-        );
         const promotionResult = await axiosInstance().get(
           `${process.env.API_URL}/promotions/store?${params.toString()}&storeId=${storeId}`,
           {
@@ -94,9 +91,6 @@ export default function StorePromotionView() {
       }
 
       if (user.role === UserType.SUPERADMIN) {
-        console.log(
-          `${process.env.API_URL}/promotions/store?${params.toString()}`,
-        );
         const promotionResult = await axiosInstance().get(
           `${process.env.API_URL}/promotions/store?${params.toString()}`,
           {

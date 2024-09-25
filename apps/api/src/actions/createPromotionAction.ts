@@ -106,7 +106,7 @@ class CreatePromotionAction {
           ],
         },
       });
-      console.log(currentPromotion);
+
       if (currentPromotion.length > 0) {
         throw new HttpException(
           HttpStatus.BAD_REQUEST,

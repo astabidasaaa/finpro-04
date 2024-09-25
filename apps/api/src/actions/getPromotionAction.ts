@@ -101,8 +101,6 @@ class GetPromotionAction {
         updatedAt: new Date(),
       },
     });
-
-    console.log(promotion);
   }
 
   public async getGeneralPromotionsAction(

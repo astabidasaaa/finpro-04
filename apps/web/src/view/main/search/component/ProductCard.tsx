@@ -88,7 +88,6 @@ export default function ProductCard({
             className={`w-full max-w-[360px] h-8 lg:h-9 text-xs text-main-dark border-main-dark -p-3 hover:text-main-dark/80 ${product.inventories[0].stock <= 0 && 'border-border text-muted-foreground bg-muted'}`}
             onClick={(e) => {
               e.preventDefault();
-              console.log('first');
             }}
             disabled={product.inventories[0].stock <= 0}
           >
