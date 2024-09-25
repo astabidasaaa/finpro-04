@@ -33,7 +33,7 @@ const CartPageView = () => {
     try {
       const productDetailsPromises = userCart.map(async (item) => {
         const productResult = await axiosInstance().get(
-          `${process.env.API_URL}/products/single-store?productId=${item.productId}&storeId=${item.storeId}`
+          `${process.env.API_URL}/products/single-store?productId=${item.productId}&storeId=${item.storeId}`,
         );
         const productData = productResult.data.data;
 
@@ -63,7 +63,10 @@ const CartPageView = () => {
           return {
             ...item,
             name: productData.product.name,
-            image: productData.product.images[0].title || { title: '', alt: '' },
+            image: productData.product.images[0].title || {
+              title: '',
+              alt: '',
+            },
             price: productPrice,
             discountedPrice,
             buy,
@@ -71,11 +74,13 @@ const CartPageView = () => {
           };
         }
 
-        return undefined; 
+        return undefined;
       });
 
       const products = await Promise.all(productDetailsPromises);
-      const validProducts = products.filter((product) => product !== undefined) as CartItem[];
+      const validProducts = products.filter(
+        (product) => product !== undefined,
+      ) as CartItem[];
 
       setCartItems(validProducts);
     } catch (error) {
@@ -93,15 +98,20 @@ const CartPageView = () => {
       const parsedCheckedCart = JSON.parse(storedCheckedCart);
       if (parsedCheckedCart[userId]) {
         const userCheckedItems = parsedCheckedCart[userId];
-        const itemSet = new Set<string>(userCheckedItems.map((item: any) => JSON.stringify(item)));
-setCheckedItems(itemSet);
-
+        const itemSet = new Set<string>(
+          userCheckedItems.map((item: any) => JSON.stringify(item)),
+        );
+        setCheckedItems(itemSet);
       }
     }
   };
 
   const handleCheckboxChange = (item: CartItem, isChecked: boolean) => {
-    const itemKey = JSON.stringify({ storeId: item.storeId, productId: item.productId, quantity: item.quantity });
+    const itemKey = JSON.stringify({
+      storeId: item.storeId,
+      productId: item.productId,
+      quantity: item.quantity,
+    });
 
     setCheckedItems((prev) => {
       const newCheckedItems = new Set(prev);
@@ -124,7 +134,7 @@ setCheckedItems(itemSet);
     productId: string,
     storeId: string,
     userId: string,
-    delta: number
+    delta: number,
   ) => {
     setCartItems((prev) => {
       const updatedCart = prev
@@ -142,19 +152,19 @@ setCheckedItems(itemSet);
           }
           return item;
         })
-        .filter((item) => item !== null); 
-  
+        .filter((item): item is CartItem => item !== null);
+
       const itemKey = JSON.stringify({ storeId, productId });
       if (checkedItems.has(itemKey)) {
         const updatedCheckedItems = new Set(checkedItems);
-        updatedCheckedItems.delete(itemKey); 
-  
+        updatedCheckedItems.delete(itemKey);
+
         const updatedQuantity = updatedCart.find(
-          (item) => item?.productId === productId
+          (item) => item?.productId === productId,
         )?.quantity;
         if (updatedQuantity && updatedQuantity > 0) {
           updatedCheckedItems.add(
-            JSON.stringify({ storeId, productId, quantity: updatedQuantity })
+            JSON.stringify({ storeId, productId, quantity: updatedQuantity }),
           );
         }
         setCheckedItems(updatedCheckedItems);
@@ -168,13 +178,13 @@ setCheckedItems(itemSet);
             return acc;
           }, {}),
           [userId]: updatedCart,
-        })
+        }),
       );
-  
+
       return updatedCart;
     });
   };
-  
+
   const handleCheckoutClick = () => {
     const checkedItemsByUserId = {
       [userId]: Array.from(checkedItems)
@@ -183,9 +193,11 @@ setCheckedItems(itemSet);
           const currentCartItem = cartItems.find(
             (cartItem) =>
               cartItem.productId === checkedItem.productId &&
-              cartItem.storeId === checkedItem.storeId
+              cartItem.storeId === checkedItem.storeId,
           );
-          return currentCartItem && currentCartItem.quantity === checkedItem.quantity;
+          return (
+            currentCartItem && currentCartItem.quantity === checkedItem.quantity
+          );
         }),
     };
 
@@ -197,11 +209,10 @@ setCheckedItems(itemSet);
       });
       return;
     }
-  
+
     localStorage.setItem('checkedCart', JSON.stringify(checkedItemsByUserId));
     router.push('/cart/check-out');
   };
-  
 
   let IDR = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -221,22 +232,34 @@ setCheckedItems(itemSet);
             >
               <div className="flex items-center gap-4">
                 <Checkbox
-                  checked={checkedItems.has(JSON.stringify({ storeId: item.storeId, productId: item.productId, quantity: item.quantity }))}
-                  onCheckedChange={(isChecked: boolean) => handleCheckboxChange(item, isChecked)}
+                  checked={checkedItems.has(
+                    JSON.stringify({
+                      storeId: item.storeId,
+                      productId: item.productId,
+                      quantity: item.quantity,
+                    }),
+                  )}
+                  onCheckedChange={(isChecked: boolean) =>
+                    handleCheckboxChange(item, isChecked)
+                  }
                   className="h-5 w-5"
                 />
                 <Image
-                  src={`${process.env.PRODUCT_API_URL}/${item.image}`} 
+                  src={`${process.env.PRODUCT_API_URL}/${item.image}`}
                   alt={item.image.alt || item.name}
                   width={240}
                   height={240}
                   className="object-cover object-center size-20 rounded-md hidden md:block"
                 />
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-normal [overflow-wrap:anywhere]">{item.name}</p>
+                  <p className="text-sm font-normal [overflow-wrap:anywhere]">
+                    {item.name}
+                  </p>
                   <p className="text-sm font-semibold">
-                    { item.discountedPrice > 0 ? (
-                      <span className="line-through text-gray-500">{IDR.format(item.price)}</span>
+                    {item.discountedPrice > 0 ? (
+                      <span className="line-through text-gray-500">
+                        {IDR.format(item.price)}
+                      </span>
                     ) : (
                       IDR.format(item.price)
                     )}
@@ -246,11 +269,14 @@ setCheckedItems(itemSet);
                       {IDR.format(item.discountedPrice)}
                     </p>
                   )}
-                  {item.buy !== undefined && item.get !== undefined && item.buy > 0 && item.get > 0 && (
-                    <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[130px]">
-                      Beli {item.buy} gratis {item.get}
-                    </Badge>
-                  )}
+                  {item.buy !== undefined &&
+                    item.get !== undefined &&
+                    item.buy > 0 &&
+                    item.get > 0 && (
+                      <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[130px]">
+                        Beli {item.buy} gratis {item.get}
+                      </Badge>
+                    )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -258,7 +284,14 @@ setCheckedItems(itemSet);
                   variant="ghost"
                   size="icon"
                   className="!p-1 size-5 !rounded-full"
-                  onClick={() => handleQuantityChange(item.productId, item.storeId, item.userId, -1)}
+                  onClick={() =>
+                    handleQuantityChange(
+                      item.productId,
+                      item.storeId,
+                      item.userId,
+                      -1,
+                    )
+                  }
                 >
                   <Minus />
                 </Button>
@@ -267,7 +300,14 @@ setCheckedItems(itemSet);
                   variant="ghost"
                   size="icon"
                   className="!p-1 size-5 !rounded-full"
-                  onClick={() => handleQuantityChange(item.productId, item.storeId, item.userId, 1)}
+                  onClick={() =>
+                    handleQuantityChange(
+                      item.productId,
+                      item.storeId,
+                      item.userId,
+                      1,
+                    )
+                  }
                 >
                   <Plus />
                 </Button>
@@ -280,10 +320,9 @@ setCheckedItems(itemSet);
       )}
       <div className="mt-6 flex justify-center">
         <Button
-          
           className="w-full max-w-md bg-main-dark hover:bg-main-dark/80"
           onClick={handleCheckoutClick}
-          disabled={checkedItems.size === 0} 
+          disabled={checkedItems.size === 0}
         >
           Checkout
         </Button>
