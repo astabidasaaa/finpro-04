@@ -49,7 +49,7 @@ export const columns: ColumnDef<CategoryProps>[] = [
       return (
         <div className="font-medium flex items-center">
           {row.getValue('name')}{' '}
-          <Badge className="ml-1 px-1.5 bg-black/10 text-black">
+          <Badge className="ml-1.5 px-1.5 bg-black/10 text-black">
             {category.subcategories.length}
           </Badge>
         </div>
@@ -120,7 +120,7 @@ export default function CategoryTable({ data }: { data: CategoryProps[] }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-start justify-between py-4 pr-5">
+      <div className="flex items-start justify-between py-4">
         <Input
           placeholder="Cari kategori..."
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}

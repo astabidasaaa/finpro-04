@@ -97,12 +97,12 @@ export default function ProductListView() {
         <h1 className="text-lg font-semibold md:text-2xl">Daftar Produk</h1>
       </div>
       <div className="w-full">
-        <div className="flex items-start justify-between py-4 pr-5">
+        <div className="flex items-start justify-between py-4">
           <Input
             placeholder="Cari produk..."
             className="max-w-sm"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)} // Update input state
+            onChange={(e) => setInputValue(e.target.value)}
           />
           {user.role === UserType.SUPERADMIN && (
             <Button
