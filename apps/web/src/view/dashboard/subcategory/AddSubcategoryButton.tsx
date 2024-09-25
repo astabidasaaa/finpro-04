@@ -35,7 +35,7 @@ export default function AddSubcategoryButton() {
 
   async function fetchCategories() {
     const categoriesResult = await axiosInstance().get(
-      `${process.env.API_URL}/categories/all`,
+      `${process.env.API_URL}/categories`,
     );
 
     setCategories(categoriesResult.data.data);

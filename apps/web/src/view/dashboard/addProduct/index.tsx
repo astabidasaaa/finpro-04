@@ -14,7 +14,7 @@ export default function AddProductView() {
   async function fetchData() {
     try {
       const categoriesResult = await axiosInstance().get(
-        `${process.env.API_URL}/categories/all`,
+        `${process.env.API_URL}/categories`,
       );
       const brandsResult = await axiosInstance().get(
         `${process.env.API_URL}/brands`,

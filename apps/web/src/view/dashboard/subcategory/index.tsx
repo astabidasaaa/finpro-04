@@ -18,7 +18,7 @@ export default function SubcategoryView() {
       );
 
       const categories = await axiosInstance().get(
-        `${process.env.API_URL}/categories/all`,
+        `${process.env.API_URL}/categories`,
       );
 
       const categoryMap = new Map<number, string>();
