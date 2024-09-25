@@ -9,11 +9,17 @@ const HeaderCategoryAndSearch = () => {
   const [text, setText] = useState('');
   const router = useRouter();
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       router.push(`/search?keyword=${text}`);
     }
-  };
+  }
+
+  function handleNoString() {
+    setTimeout(() => {
+      router.push(`/search?`);
+    }, 500);
+  }
 
   return (
     <>
@@ -22,7 +28,13 @@ const HeaderCategoryAndSearch = () => {
         <Input
           type="search"
           placeholder="Search..."
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value !== '') {
+              setText(e.target.value);
+            } else {
+              handleNoString();
+            }
+          }}
           onKeyDown={handleKeyDown}
           className="w-4/5 rounded-full bg-background pl-8 md:w-[200px] lg:w-[336px] h-8 md:h-10"
         />
