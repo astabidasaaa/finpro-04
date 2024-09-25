@@ -85,8 +85,6 @@ export default function UserManagementView() {
     fetchData();
   }, [page, keyword, pageSize]);
 
-  console.log(users);
-
   if (!isMounted) {
     return null;
   }

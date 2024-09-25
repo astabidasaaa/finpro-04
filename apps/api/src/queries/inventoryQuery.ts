@@ -33,6 +33,14 @@ class InventoryQuery {
               productState: $Enums.State.PUBLISHED,
             },
           },
+          {
+            store: {
+              OR: [
+                { storeState: $Enums.State.PUBLISHED },
+                { storeState: $Enums.State.DRAFT },
+              ],
+            },
+          },
         ],
       };
 

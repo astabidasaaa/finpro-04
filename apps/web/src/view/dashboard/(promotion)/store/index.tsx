@@ -15,6 +15,7 @@ import { useAppSelector } from '@/lib/hooks';
 import { StoreProps } from '@/types/storeTypes';
 import { UserType } from '@/types/userType';
 import StoreFilter from '@/components/dashboard/StoreFilter';
+import { State } from '@/types/productTypes';
 
 export default function StorePromotionView() {
   const { user } = useAppSelector((state) => state.auth);
@@ -29,9 +30,7 @@ export default function StorePromotionView() {
   const [stores, setStores] = useState<StoreProps[]>([]);
   const router = useRouter();
   const [inputValue, setInputValue] = useState<string>('');
-  const [promotionState, setPromotionState] = useState<
-    'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
-  >('DRAFT');
+  const [promotionState, setPromotionState] = useState<State>(State.PUBLISHED);
   const [previousPromotionState, setPreviousPromotionState] =
     useState(promotionState);
   const [keyword, setKeyword] = useState<string>('');
@@ -77,9 +76,6 @@ export default function StorePromotionView() {
         setStoreId(storeAdminId);
 
         params.delete('storeId');
-        console.log(
-          `${process.env.API_URL}/promotions/store?storeId=${storeId}${params.toString()}`,
-        );
         const promotionResult = await axiosInstance().get(
           `${process.env.API_URL}/promotions/store?${params.toString()}&storeId=${storeId}`,
           {
@@ -95,9 +91,6 @@ export default function StorePromotionView() {
       }
 
       if (user.role === UserType.SUPERADMIN) {
-        console.log(
-          `${process.env.API_URL}/promotions/store?${params.toString()}`,
-        );
         const promotionResult = await axiosInstance().get(
           `${process.env.API_URL}/promotions/store?${params.toString()}`,
           {
@@ -113,7 +106,7 @@ export default function StorePromotionView() {
       }
 
       const storeResult = await axiosInstance().get(
-        `${process.env.API_URL}/stores`,
+        `${process.env.API_URL}/stores/admin`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -176,9 +169,7 @@ export default function StorePromotionView() {
         </div>
         <Tabs
           value={promotionState}
-          onValueChange={(value) =>
-            setPromotionState(value as 'DRAFT' | 'PUBLISHED' | 'ARCHIVED')
-          }
+          onValueChange={(value) => setPromotionState(value as State)}
         >
           <TabsList>
             <TabsTrigger value="DRAFT" className="px-6">

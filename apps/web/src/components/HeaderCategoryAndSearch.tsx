@@ -16,11 +16,17 @@ const HeaderCategoryAndSearch = () => {
   const nearestStore = useAppSelector((state) => state.storeId);
   const { storeId } = nearestStore;
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') {
       router.push(`/search?keyword=${text}`);
     }
-  };
+  }
+
+  function handleNoString() {
+    setTimeout(() => {
+      router.push(`/search?`);
+    }, 500);
+  }
 
   function handleNoString() {
     setTimeout(() => {

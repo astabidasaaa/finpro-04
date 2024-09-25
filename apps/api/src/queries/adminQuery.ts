@@ -16,7 +16,6 @@ class AdminQuery {
     totalCount: number;
   }> {
     try {
-      console.log(props);
       const filters: any = { AND: [{ deletedAt: null }] };
 
       if (props.keyword !== undefined || props.keyword !== '') {

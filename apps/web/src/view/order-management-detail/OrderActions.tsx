@@ -3,15 +3,16 @@
 import React, { useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { Button } from '@/components/ui/button';
-
+import { getCookie } from 'cookies-next';
 import { toast } from '@/components/ui/use-toast';
-import { Order, OrderItem } from '@/types/paymentTypes';
+import { Order } from '@/types/paymentTypes';
 
 
 
 
   const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }> = ({ order, userId, orderId }) => {
     const [isLoading, setIsLoading] = useState(false);
+    const token = getCookie('access-token');
   
     const updateOrderStatus = async (status: string) => {
       if (!orderId) return;
@@ -25,7 +26,12 @@ import { Order, OrderItem } from '@/types/paymentTypes';
         await axiosInstance().post(endpoint, {
           orderId: parseInt(orderId, 10), 
           userId: parseInt(userId, 10),
-        });
+          
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }});
   
         toast({
           variant: 'success',
@@ -33,10 +39,8 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: `Order status updated to ${status}.`,
         });
   
-        // Reload the page after updating the status
         window.location.reload();
       } catch (error) {
-        console.error(`Error updating order status to ${status}:`, error);
         toast({
           variant: 'destructive',
           title: `Failed to update status to ${status}`,
@@ -56,7 +60,12 @@ import { Order, OrderItem } from '@/types/paymentTypes';
         await axiosInstance().post(`/orders/cancel`, {
           orderId: parseInt(orderId, 10),
           userId: parseInt(userId, 10),
-        });
+          
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }},);
   
         toast({
           variant: 'success',
@@ -64,10 +73,8 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: 'Your order has been successfully cancelled.',
         });
   
-        // Reload the page after cancellation
         window.location.reload();
       } catch (error) {
-        console.error('Error cancelling order:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to cancel order',
@@ -87,7 +94,12 @@ import { Order, OrderItem } from '@/types/paymentTypes';
         await axiosInstance().post(`/payments/reject-payment`, {
           orderId: parseInt(orderId, 10),
           userId: parseInt(userId, 10),
-        });
+          
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }},);
   
         toast({
           variant: 'success',
@@ -95,10 +107,8 @@ import { Order, OrderItem } from '@/types/paymentTypes';
           description: 'Payment has been successfully rejected.',
         });
   
-        // Reload the page after rejecting payment
         window.location.reload();
       } catch (error) {
-        console.error('Error rejecting payment:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to reject payment',
@@ -112,11 +122,12 @@ import { Order, OrderItem } from '@/types/paymentTypes';
     return (
         <div className="mt-6">
           {['MENUNGGU_PEMBAYARAN', 'DIPROSES'].includes(order.orderStatus) && (
-            <div className="text-xs md:text-lg">
+            <div className=" mb-2">
               <Button
                 variant="destructive"
                 onClick={cancelOrder}
                 disabled={isLoading}
+                className="text-xs md:text-lg"
               >
                 Batalkan Pesanan
               </Button>

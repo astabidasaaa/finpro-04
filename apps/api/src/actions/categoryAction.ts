@@ -4,6 +4,7 @@ import type { ProductCategory } from '@prisma/client';
 import categoryQuery from '@/queries/categoryQuery';
 import subcategoryAction from './subcategoryAction';
 import { capitalizeString } from '@/utils/stringManipulation';
+import { CategoryWithSubcategories } from '@/types/categoryType';
 
 class CategoryAction {
   public async createCategoryAction(
@@ -43,7 +44,7 @@ class CategoryAction {
     }
   }
 
-  public async getAllCategoryAction(): Promise<ProductCategory[]> {
+  public async getAllCategoryAction(): Promise<CategoryWithSubcategories[]> {
     const allCategory = await categoryQuery.getAllCategory();
 
     return allCategory;

@@ -13,12 +13,10 @@ class OrderQuery {
     public async cancelOrderTransaction(order: any, userId: number) {
       try {
         return await prisma.$transaction(async (prisma) => {
-          // Retrieve order items
           const orderItems = await prisma.orderItem.findMany({
             where: { orderId: order.id },
           });
-  
-          // Update inventory for each item
+
           for (const item of orderItems) {
             const inventoryUpdate = await updateInventoryStock(
               order.storeId,
@@ -33,13 +31,12 @@ class OrderQuery {
             }
           }
   
-          // Update payment status to failed
+
           await prisma.payment.update({
             where: { id: order.paymentId },
             data: { paymentStatus: PaymentStatus.FAILED },
           });
   
-          // Update the order status to cancelled
           const orderStatusResult = await OrderStatusService.updateOrderStatus(
             order.id,
             OrderStatus.DIBATALKAN,
@@ -59,9 +56,6 @@ class OrderQuery {
           const user = await prisma.user.findUnique({
             where: { id: userId },
             select: {
-              // role: true,
-              // profile: true,
-              // addresses: true,
               store: true,
               orders: true,
             },

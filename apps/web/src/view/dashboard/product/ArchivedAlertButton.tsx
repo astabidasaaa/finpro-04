@@ -57,7 +57,7 @@ export default function ArchiveAlertButton({
 
   return (
     <>
-      {user.role === UserType.SUPERADMIN ? (
+      {user.role === UserType.SUPERADMIN && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline" className="h-8 w-8 p-0">
@@ -81,8 +81,6 @@ export default function ArchiveAlertButton({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      ) : (
-        <Trash2 className="bg-muted-foreground" />
       )}
     </>
   );

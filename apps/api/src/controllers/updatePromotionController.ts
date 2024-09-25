@@ -1,11 +1,12 @@
 import updatePromotionAction from '@/actions/updatePromotionAction';
+import updateStatePromotionAction from '@/actions/updateStatePromotionAction';
 import inventoryQuery from '@/queries/inventoryQuery';
 import { User } from '@/types/express';
 import { $Enums } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 
 export default class UpdatePromotionController {
-  public async archiveNonProductPromotion(
+  public async updateNonProductPromotionState(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -13,23 +14,25 @@ export default class UpdatePromotionController {
     try {
       const { id, role } = req.user as User;
       const promotionId = parseInt(req.params.promotionId);
-      const archivedPromotion =
-        await updatePromotionAction.archiveNonProductPromotionAction(
+      const { state } = req.body;
+      const updatedStatePromotion =
+        await updateStatePromotionAction.updateNonProductPromotionStateAction(
           id,
           role,
           promotionId,
+          state,
         );
 
       res.status(200).json({
-        message: 'Arsip promosi berhasil',
-        data: archivedPromotion,
+        message: 'Ubah status promosi berhasil',
+        data: updatedStatePromotion,
       });
     } catch (error) {
       next(error);
     }
   }
 
-  public async archiveFreeProductPromotion(
+  public async updateFreeProductPromotionState(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -37,23 +40,25 @@ export default class UpdatePromotionController {
     try {
       const { id, role } = req.user as User;
       const promotionId = parseInt(req.params.promotionId);
-      const archivedPromotion =
-        await updatePromotionAction.archiveFreeProductPromotionAction(
+      const { state } = req.body;
+      const updatedStatePromotion =
+        await updateStatePromotionAction.updateFreeProductPromotionStateAction(
           id,
           role,
           promotionId,
+          state,
         );
 
       res.status(200).json({
-        message: 'Arsip promosi berhasil',
-        data: archivedPromotion,
+        message: 'Ubah status promosi berhasil',
+        data: updatedStatePromotion,
       });
     } catch (error) {
       next(error);
     }
   }
 
-  public async archiveDiscountProductPromotion(
+  public async updateDiscountProductPromotionState(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -61,16 +66,18 @@ export default class UpdatePromotionController {
     try {
       const { id, role } = req.user as User;
       const promotionId = parseInt(req.params.promotionId);
-      const archivedPromotion =
-        await updatePromotionAction.archiveDiscountProductPromotionAction(
+      const { state } = req.body;
+      const updatedStatePromotion =
+        await updateStatePromotionAction.updateDiscountProductPromotionStateAction(
           id,
           role,
           promotionId,
+          state,
         );
 
       res.status(200).json({
-        message: 'Arsip promosi berhasil',
-        data: archivedPromotion,
+        message: 'Ubah status promosi berhasil',
+        data: updatedStatePromotion,
       });
     } catch (error) {
       next(error);

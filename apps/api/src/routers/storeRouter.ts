@@ -23,6 +23,11 @@ export class StoreRouter implements Route {
   private initializeRoutes(): void {
     this.router.get(`${this.path}/`, this.displayStoreController.getAllStore);
 
+    this.router.get(
+      `${this.path}/admin`,
+      this.displayStoreController.getAllDraftAndPublishStore,
+    );
+
     this.router.post(
       `${this.path}/nearest`,
       this.displayStoreController.nearestStoreId,

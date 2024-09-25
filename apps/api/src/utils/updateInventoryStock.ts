@@ -17,16 +17,14 @@ export async function updateInventoryStock(
     });
 
     if (!inventory) {
-      return null; // Inventory not found
+      return null; 
     }
 
     const absoluteQtyChange = Math.abs(qtyChange);
     if (inventory.stock + qtyChange < 0) {
-      // Insufficient stock
       return null;
     }
 
-    // Update the inventory stock
     const updatedInventory = await prisma.inventory.update({
       where: { id: inventory.id },
       data: {
@@ -34,7 +32,6 @@ export async function updateInventoryStock(
       },
     });
 
-    // Create an inventory update log
     await prisma.inventoryUpdate.create({
       data: {
         creatorId: customerId,

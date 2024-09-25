@@ -26,6 +26,7 @@ import { DiscountType, State } from '@/types/productTypes';
 import ArchiveAlertButton from '../components/ArchivedAlertButton';
 import SeeDetailDialogButton from './SeeDetailDialogButton';
 import { Badge } from '@/components/ui/badge';
+import PublishAlertButton from '../components/PublishedAlertButton';
 
 export const columns: ColumnDef<NonProductPromotionProps>[] = [
   {
@@ -124,6 +125,9 @@ export const columns: ColumnDef<NonProductPromotionProps>[] = [
 
       return (
         <div className="flex space-x-2">
+          {promotion.promotionState === State.DRAFT && (
+            <PublishAlertButton promotion={promotion} type="NONPRODUCT" />
+          )}
           <SeeDetailDialogButton promotion={promotion} />
           {(promotion.promotionState === State.DRAFT ||
             promotion.promotionState === State.PUBLISHED) && (
@@ -149,7 +153,7 @@ export default function GeneralPromotionTable({
 
   return (
     <div className="rounded-md border">
-      <ScrollArea className="w-[calc(100vw_-_48px)] md:w-full max-w-full rounded-md overflow-auto">
+      <ScrollArea className="w-[calc(100vw_-_32px)] md:w-full max-w-full rounded-md overflow-auto">
         <Table>
           <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (

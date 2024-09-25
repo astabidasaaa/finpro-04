@@ -2,14 +2,16 @@ export type CartItem = {
     productId: string;
     storeId: string;
     name: string;
-    price: number;              // Original price
-    discountedPrice: number;    // Discounted price
+    price: number;              
+    discountedPrice: number;    
     quantity: number;
-    userId: string;             // userId is now part of CartItem
+    userId: string;            
     image: {
       title: string;
       alt?: string;
     };
-    buy?: number;               // For "Beli x"
-    get?: number;               // For "Gratis y"
+    buy?: number;               
+    get?: number;               
   };
+
+  

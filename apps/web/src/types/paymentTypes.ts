@@ -1,11 +1,12 @@
 export type Promotion = {
-    discountType: 'FLAT' | 'PERCENT'; // Type of discount (flat or percentage)
-    discountValue: number;            // Discount value based on type
+    discountType: 'FLAT' | 'PERCENT'; 
+    discountValue: number;
+    maxDeduction: number;            
   };
   
   export type Voucher = {
     id: string;
-    promotion: Promotion;              // Promotion details for the voucher
+    promotion: Promotion;              
   };
 
   export type Payment = {
@@ -18,12 +19,12 @@ export type Promotion = {
 export type OrderItem = {
   qty: number;
   price: number;
-  finalPrice: number;                 // Final price after discount
-  productDiscountPerStore?: Promotion; // Discount details if applicable
+  finalPrice: number;                
+  productDiscountPerStore?: Promotion; 
   freeProductPerStore?: {
     buy: number;
     get: number;
-  };                                  // "Buy X get Y" promotion if applicable
+  };                                  
   product: {
     name: string;
   };
@@ -36,7 +37,7 @@ export type Order = {
   totalAmount: number;
   createdAt: string;
   payment: Payment;
-  orderItems: OrderItem[];            // List of order items
+  orderItems: OrderItem[];            
   customer: {
     profile: {
       name: string;
@@ -53,6 +54,6 @@ export type Order = {
     amount: number;
   };
   vouchers?: Voucher[];
-  selectedTransactionVoucher?: Voucher; // Transaction-level voucher for discounts
-  selectedDeliveryVoucher?: Voucher;    // Delivery voucher for reduced shipping
+  selectedTransactionVoucher?: Voucher; 
+  selectedDeliveryVoucher?: Voucher;    
 };

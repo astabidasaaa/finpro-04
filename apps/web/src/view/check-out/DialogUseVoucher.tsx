@@ -99,9 +99,6 @@ export default function DialogUseVoucher({
             },
           },
         );
-        console.log(
-          `${process.env.API_URL}/promotions/activestore/${nearestStore.storeId}`,
-        );
         setStorePromotions(storePromotionResult.data.data);
       }
 

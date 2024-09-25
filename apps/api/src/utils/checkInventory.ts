@@ -12,7 +12,6 @@ export async function checkInventoryAvailability(
   qtyRequired: number
 ): Promise<InventoryCheckResult> {
   try {
-    console.log(`Checking inventory: Store ID: ${storeId}, Product ID: ${productId}, Required Quantity: ${qtyRequired}`);
 
     const inventory = await prisma.inventory.findFirst({
       where: {
@@ -21,7 +20,6 @@ export async function checkInventoryAvailability(
       },
     });
 
-    console.log(`Inventory found: ${JSON.stringify(inventory)}`);
 
     if (!inventory || inventory.stock < qtyRequired) {
       console.log(

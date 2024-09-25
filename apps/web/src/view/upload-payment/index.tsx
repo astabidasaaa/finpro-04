@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import axiosInstance from '@/lib/axiosInstance';
+import { getCookie } from 'cookies-next';
 import { toast } from '@/components/ui/use-toast';
 
 const UploadPaymentView = () => {
+  const token = getCookie('access-token');
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -39,17 +41,21 @@ const UploadPaymentView = () => {
     formData.append('userId', userId || '0');   
 
     try {
-      await axiosInstance().post('/payments/upload-payment-proof', formData);
+      await axiosInstance().post('/payments/upload-payment-proof', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      },);
 
       toast({
         variant: 'default',
         title: 'Upload successful',
-        description: 'Your payment proof has been uploaded successfully.',
+        description: 'Bukti pembayaran Anda berhasil di upload',
       });
 
-      router.push('/order-list'); // Redirect to a success page after upload
+      router.push('/order-list');
     } catch (error) {
-      console.error('Error uploading payment proof:', error);
       toast({
         variant: 'destructive',
         title: 'Upload failed',

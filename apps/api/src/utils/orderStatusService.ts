@@ -3,6 +3,7 @@ import { OrderStatus} from '@prisma/client';
 import { HttpException } from '@/errors/httpException';
 import voucherAction from '@/actions/voucherAction';
 import promotionQuery from '@/queries/promotionQuery';
+import OrderAction from '@/actions/orderAction';
 
 export class OrderStatusService {
   public static async updateOrderStatus(
@@ -13,13 +14,10 @@ export class OrderStatusService {
   ) {
     try {
       const result = await prisma.$transaction(async (prisma) => {
-        // 1. Update the order status
         const updatedOrder = await prisma.order.update({
           where: { id: orderId },
           data: { orderStatus: newStatus },
         });
-
-        // 2. Record the status update in the history table
         const statusUpdate = await prisma.orderStatusUpdate.create({
           data: {
             userId: userId ? parseInt(userId.toString(), 10) : null,
@@ -29,9 +27,25 @@ export class OrderStatusService {
           },
         });
 
-        // 3. Check if the status is 'DIKONFIRMASI' to trigger promotion validation and voucher creation
         if (newStatus === 'DIKONFIRMASI') {
           await OrderStatusService.checkAndCreateVoucherForGeneralPromotions(orderId);
+        }
+
+        if (newStatus === 'MENUNGGU_PEMBAYARAN') {
+          const createdAt = statusUpdate.createdAt; 
+          const cancelTime = new Date(createdAt.getTime() + 3600000);
+
+          setTimeout(async () => {
+            const currentOrder = await prisma.order.findUnique({ where: { id: orderId } });
+            if (currentOrder?.orderStatus === 'MENUNGGU_PEMBAYARAN') {
+            
+              if (userId !== undefined) {
+                await OrderAction.cancelOrderAction(orderId, userId);
+              } else {
+                console.error(`User ID is undefined for order ID: ${orderId}`);
+              }
+            }
+          }, cancelTime.getTime() - Date.now()); 
         }
 
         return { updatedOrder, statusUpdate };
@@ -43,7 +57,6 @@ export class OrderStatusService {
     }
   }
 
-  // New method to check for general promotions and create vouchers if applicable
   private static async checkAndCreateVoucherForGeneralPromotions(orderId: number) {
     try {
       const order = await prisma.order.findUnique({
@@ -59,7 +72,6 @@ export class OrderStatusService {
       const purchasePromotions = await promotionQuery.getActiveGeneralPromotionBySource('AFTER_MIN_PURCHASE');
       const transactionPromotions = await promotionQuery.getActiveGeneralPromotionBySource('AFTER_MIN_TRANSACTION');
   
-      // Check for purchase promotions
       for (const promotion of purchasePromotions) {
         if (promotion.afterMinPurchase && order.finalPrice >= promotion.afterMinPurchase) {
           const existingVoucher = await prisma.voucher.findFirst({
@@ -70,15 +82,11 @@ export class OrderStatusService {
           });
   
           if (!existingVoucher) {
-            console.log(`Creating voucher for purchase promotion ID: ${promotion.id}`);
             await voucherAction.createVoucher(promotion.id, customerId);
-          } else {
-            console.log(`Voucher already exists for promotion ID: ${promotion.id}`);
           }
         }
       }
   
-      // Check for transaction promotions
       for (const promotion of transactionPromotions) {
         if (promotion.afterMinTransaction) {
           const customerOrderCount = await prisma.orderStatusUpdate.count({
@@ -88,10 +96,10 @@ export class OrderStatusService {
               createdAt: { gte: promotion.createdAt },
             },
           });
-          console.log(`Customer order count for promotion ID ${promotion.id}: ${customerOrderCount}`);
+
 
   
-          if (customerOrderCount >= promotion.afterMinTransaction) {
+          if (customerOrderCount === promotion.afterMinTransaction -1) {
             const existingVoucher = await prisma.voucher.findFirst({
               where: {
                 promotionId: promotion.id,
@@ -100,11 +108,8 @@ export class OrderStatusService {
             });
   
             if (!existingVoucher) {
-              console.log(`Creating voucher for transaction promotion ID: ${promotion.id}`);
               await voucherAction.createVoucher(promotion.id, customerId);
-            } else {
-              console.log(`Voucher already exists for promotion ID: ${promotion.id}`);
-            }
+            } 
           }
         }
       }

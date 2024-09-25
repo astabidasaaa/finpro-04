@@ -15,98 +15,9 @@ import {
   CreatePromotionInput,
 } from '@/types/promotionTypes';
 import prisma from '@/prisma';
+import storeQuery from '@/queries/storeQuery';
 
 class UpdatePromotionAction {
-  private checkAlreadyArchived(state: $Enums.State) {
-    if (state === $Enums.State.ARCHIVED) {
-      throw new HttpException(
-        HttpStatus.BAD_REQUEST,
-        'Arsip gagal karena promosi ini telah diarsip sebelumnya',
-      );
-    }
-  }
-
-  public async archiveNonProductPromotionAction(
-    id: number,
-    role: string,
-    promotionId: number,
-  ): Promise<Promotion> {
-    const currentPromotion =
-      await promotionQuery.getNonProductPromotionByPromotionId(promotionId);
-
-    if (role === 'store admin') {
-      if (currentPromotion.storeId !== null) {
-        await createPromotionAction.checkAdminAccess(
-          role,
-          id,
-          currentPromotion.storeId,
-        );
-      }
-
-      if (currentPromotion.scope === $Enums.PromotionScope.GENERAL) {
-        throw new HttpException(
-          HttpStatus.UNAUTHORIZED,
-          'Admin toko tidak memiliki akses untuk mengarsip promosi',
-        );
-      }
-    }
-
-    const archivedPromotion =
-      await promotionUpdateQuery.archiveNonProductPromotion(promotionId);
-
-    return archivedPromotion;
-  }
-
-  public async archiveFreeProductPromotionAction(
-    id: number,
-    role: string,
-    promotionId: number,
-  ): Promise<FreeProductPerStore> {
-    const currentPromotion =
-      await promotionQuery.getFreeProductPromotionByPromotionId(promotionId);
-
-    this.checkAlreadyArchived(currentPromotion.freeProductState);
-
-    if (role === 'store admin') {
-      await createPromotionAction.checkAdminAccess(
-        role,
-        id,
-        currentPromotion.inventory.storeId,
-      );
-    }
-
-    const archivedPromotion =
-      await promotionUpdateQuery.archiveFreeProductPromotion(promotionId);
-
-    return archivedPromotion;
-  }
-
-  public async archiveDiscountProductPromotionAction(
-    id: number,
-    role: string,
-    promotionId: number,
-  ): Promise<ProductDiscountPerStore> {
-    const currentPromotion =
-      await promotionQuery.getDiscountProductPromotionByPromotionId(
-        promotionId,
-      );
-
-    this.checkAlreadyArchived(currentPromotion.productDiscountState);
-
-    if (role === 'store admin') {
-      await createPromotionAction.checkAdminAccess(
-        role,
-        id,
-        currentPromotion.inventory.storeId,
-      );
-    }
-
-    const archivedPromotion =
-      await promotionUpdateQuery.archiveDiscountProductPromotion(promotionId);
-
-    return archivedPromotion;
-  }
-
   private forbidChangePromotionSourceAndScope(
     scope: $Enums.PromotionScope,
     source: $Enums.PromotionSource,
@@ -148,6 +59,8 @@ class UpdatePromotionAction {
       props.source,
       props.promotionState,
       props.afterMinPurchase,
+      props.startedAt,
+      props.finishedAt,
     );
 
     const promotion = await promotionUpdateQuery.updatePromotion(props);
@@ -161,6 +74,8 @@ class UpdatePromotionAction {
     const { creatorId, storeId, role, ...otherProps } = props;
     const currentPromotion =
       await promotionQuery.getNonProductPromotionByPromotionId(props.id);
+    currentPromotion.storeId !== null &&
+      (await storeQuery.isStoreExist(currentPromotion.storeId));
 
     this.forbidChangeArchivedPromotion(currentPromotion.promotionState);
     this.forbidChangePromotionSourceAndScope(
