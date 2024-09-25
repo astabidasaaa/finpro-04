@@ -11,16 +11,16 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axiosInstance';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-
-type TBanner = {
-  name: string;
-  banner: string;
-  isFeatured: boolean;
-};
+import { TBanner } from '@/types/promotionType';
+import BannerDialog from './BannerDialog';
 
 const HeroSection = () => {
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryFn: async () => await axiosInstance().get(`/promotions/featured`),
+    queryFn: async () => {
+      const res = await axiosInstance().get(`/promotions/featured`);
+
+      return res.data.data.featuredPromotions;
+    },
     queryKey: ['featured_promotion'],
   });
 
@@ -29,7 +29,6 @@ const HeroSection = () => {
       <Swiper
         spaceBetween={0}
         slidesPerView={1}
-        // onSlideChange={() => console.log('slide change')}
         loop={true}
         autoplay={{
           delay: 2500,
@@ -64,24 +63,13 @@ const HeroSection = () => {
         </SwiperSlide>
         {!isLoading &&
           data &&
-          data.data.data.featuredPromotions.map(
-            (promotion: TBanner, index: number) => {
-              return (
-                <SwiperSlide key={`banner-${index}`}>
-                  <div className="w-full h-full">
-                    <Image
-                      src={`${process.env.PROMOTION_API_URL}/${promotion.banner}`}
-                      alt={promotion.name}
-                      width={2400}
-                      height={800}
-                      className="object-cover object-center w-full h-full max-h-[100px] sm:max-h-[160px] md:max-h-[240px] lg:max-h-[280px]"
-                      priority
-                    />
-                  </div>
-                </SwiperSlide>
-              );
-            },
-          )}
+          data.map((promotion: TBanner, index: number) => {
+            return (
+              <SwiperSlide key={`banner-${index}`}>
+                <BannerDialog promotion={promotion} />
+              </SwiperSlide>
+            );
+          })}
       </Swiper>
       <Button
         id="slidePrev-btn"
