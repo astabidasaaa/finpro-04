@@ -18,9 +18,7 @@ const DisplayProductSection = () => {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryFn: async () => {
       if (storeId) {
-        const res = await axiosInstance().get(
-          `/stores/nearest-store/${storeId}`,
-        );
+        const res = await axiosInstance().get(`/stores/nearest/${storeId}`);
 
         return res.data.data.categories;
       }

@@ -24,12 +24,12 @@ export class StoreRouter implements Route {
     this.router.get(`${this.path}/`, this.displayStoreController.getAllStore);
 
     this.router.post(
-      `${this.path}/nearest-store`,
+      `${this.path}/nearest`,
       this.displayStoreController.nearestStoreId,
     );
 
     this.router.get(
-      `${this.path}/nearest-store/:storeId`,
+      `${this.path}/nearest/:storeId`,
       this.displayStoreController.nearestStore,
     );
 

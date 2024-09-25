@@ -63,7 +63,7 @@ const FirstLoad = ({ children }: { children: React.ReactNode }) => {
     if (latitude && longitude) {
       try {
         const res = await axiosInstance().post(
-          `/stores/nearest-store/`,
+          `/stores/nearest/`,
           { latitude, longitude },
           {
             headers: {

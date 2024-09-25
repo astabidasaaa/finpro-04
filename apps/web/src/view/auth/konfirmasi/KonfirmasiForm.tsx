@@ -4,12 +4,10 @@ import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,8 +15,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
-// import { useAppDispatch } from '@/lib/hooks';
-// import { register } from '@/_middlewares/auth.middleware';
 import { AxiosError } from 'axios';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -137,7 +133,11 @@ const KonfirmasiForm = () => {
           )}
         />
 
-        <Button type="submit" disabled={isSubmitLoading}>
+        <Button
+          type="submit"
+          disabled={isSubmitLoading}
+          className="bg-main-dark hover:bg-main-dark/80"
+        >
           {isSubmitLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (

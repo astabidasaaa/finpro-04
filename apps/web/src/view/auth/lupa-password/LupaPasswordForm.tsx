@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -32,8 +31,6 @@ const formSchema = z.object({
 });
 
 const LupaPasswordForm = () => {
-  const router = useRouter();
-
   const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -47,7 +44,7 @@ const LupaPasswordForm = () => {
     setSubmitLoading((prev) => true);
 
     try {
-      const res = await axiosInstance().post('/auth/reset-password-request', {
+      const res = await axiosInstance().post('/auth/password/reset/request', {
         email: values.email,
       });
 
@@ -65,7 +62,6 @@ const LupaPasswordForm = () => {
         }
       }, 1500);
     } catch (error: any) {
-      console.log(error);
       let message = '';
       if (error instanceof AxiosError) {
         message = error.response?.data.message;
@@ -101,15 +97,16 @@ const LupaPasswordForm = () => {
                   autoComplete="email"
                 />
               </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isSubmitLoading}>
+        <Button
+          type="submit"
+          disabled={isSubmitLoading}
+          className="bg-main-dark hover:bg-main-dark/80"
+        >
           {isSubmitLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (

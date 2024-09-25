@@ -67,7 +67,7 @@ const PasswordBuat = ({
 
     try {
       const res = await axiosInstance().patch(
-        '/auth/add-password',
+        '/auth/password/add',
         {
           newPassword: values.newPassword,
         },

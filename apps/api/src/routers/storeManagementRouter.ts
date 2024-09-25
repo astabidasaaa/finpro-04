@@ -30,7 +30,7 @@ export class StoreManagementRouter implements Route {
     );
 
     this.router.post(
-      `${this.path}/create`,
+      `${this.path}/`,
       validateStoreCreate,
       this.guard.verifyAccessToken,
       this.guard.verifyRole(['super admin']),
