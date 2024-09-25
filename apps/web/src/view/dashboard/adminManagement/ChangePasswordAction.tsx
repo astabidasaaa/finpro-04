@@ -108,7 +108,7 @@ const DialogChangePassword = ({ data }: { data: SearchedUser }) => {
         });
 
         setSubmitLoading((prev) => false);
-      }, 1500);
+      }, 500);
     }
   };
   return (

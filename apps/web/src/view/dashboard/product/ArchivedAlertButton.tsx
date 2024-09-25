@@ -42,16 +42,21 @@ export default function ArchiveAlertButton({
       if (response.status == 200) {
         window.location.reload();
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
+    } catch (error: any) {
+      let message = '';
+      if (error instanceof AxiosError) {
+        message = error.response?.data.message;
+      } else {
+        message = error.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Produk tidak diarsip',
-          description: err.response?.data.message,
+          title: 'Produk gagal diarsip',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 

@@ -3,7 +3,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -19,7 +18,7 @@ import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { LucideStore, ChevronRightCircle, ChevronRight } from 'lucide-react';
+import { LucideStore, ChevronRight } from 'lucide-react';
 
 export function DialogShowProductDetail({ data }: { data: InventoryProps }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);

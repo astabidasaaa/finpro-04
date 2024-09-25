@@ -50,14 +50,13 @@ export default function CreateProductForm({
   categories: CategoryProps[];
 }) {
   const [parentCategoryId, setParentCategoryId] = useState<string>('');
-
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const token = getCookie('access-token');
 
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
 
-  const form = useForm<z.infer<typeof productSchema>>({
+  const form = useForm<ProductFormProps>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: '',
@@ -92,20 +91,22 @@ export default function CreateProductForm({
       });
 
       if (submitEvent) {
-        toast({
-          variant: 'success',
-          title: 'Produk telah disimpan',
-          description:
-            'Produk telah disimpan pada database. Stok produk dapat kemudian diatur pada menu inventori',
-        });
-
         setTimeout(() => {
           form.reset();
           setFiles([]);
           setPreviewImages([]);
 
-          window.location.reload();
-        }, 2500);
+          toast({
+            variant: 'success',
+            title: 'Produk telah disimpan',
+            description:
+              'Produk telah disimpan pada database. Stok produk dapat kemudian diatur pada menu inventori',
+          });
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        }, 1000);
       }
     } catch (error: any) {
       let message = '';
