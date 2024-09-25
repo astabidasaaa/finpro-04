@@ -296,10 +296,11 @@ export default function CreatePromotionForm({
                 control={form.control}
                 name="file"
                 render={({ field }) => (
-                  <FormItem className="gap-3 hidden">
+                  <FormItem className="gap-3">
                     <FormControl>
                       <Input
                         type="file"
+                        className="hidden"
                         ref={(e) => {
                           field.ref(e);
                           hiddenInputRef.current = e;

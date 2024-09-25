@@ -51,22 +51,10 @@ export const formSchema = z.object({
   file: z
     .instanceof(File)
     .optional()
-    .refine(
-      (file) => {
-        if (file === undefined) return true;
-        return file.size <= MAX_UPLOAD_SIZE;
-      },
-      {
-        message: 'Ukuran maksimal avatar 1MB',
-      },
-    )
-    .refine(
-      (file) => {
-        if (file === undefined) return true;
-        return ACCEPTED_FILE_TYPES.includes(file?.type || '');
-      },
-      {
-        message: 'Ekstensi file hanya bisa .png, .jpg, atau .jpeg',
-      },
-    ),
+    .refine((file) => !file || file.size <= MAX_UPLOAD_SIZE, {
+      message: 'Ukuran maksimal avatar 1MB',
+    })
+    .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type || ''), {
+      message: 'Ekstensi file hanya bisa .png, .jpg, atau .jpeg',
+    }),
 });

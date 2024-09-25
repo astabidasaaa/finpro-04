@@ -50,14 +50,6 @@ export default function CreateProductForm({
   categories: CategoryProps[];
 }) {
   const [parentCategoryId, setParentCategoryId] = useState<string>('');
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<ProductFormProps>({
-    resolver: zodResolver(productSchema),
-  });
 
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -156,8 +148,8 @@ export default function CreateProductForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex min-h-full w-full flex-col bg-muted/50"
         >
-          <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-5 lg:gap-8">
-            <div className="grid auto-rows-max items-start gap-4 lg:col-span-3 lg:gap-8">
+          <div className="grid gap-4 xl:grid-cols-5 xl:gap-8">
+            <div className="grid auto-rows-max items-start gap-4 xl:col-span-3 xl:gap-8">
               <Card x-chunk="dashboard-07-chunk-0">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold md:text-2xl">
@@ -309,7 +301,7 @@ export default function CreateProductForm({
                 </CardContent>
               </Card>
             </div>
-            <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+            <div className="grid auto-rows-max items-start gap-4 xl:col-span-2 xl:gap-8">
               <Card className="overflow-hidden" x-chunk="dashboard-07-chunk-4">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold md:text-2xl">
@@ -360,7 +352,7 @@ export default function CreateProductForm({
                           ? 'Tambah gambar'
                           : 'Unggah gambar'}
                       </Button>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-3 gap-2">
                         {previewImages.map((src, index) => (
                           <div key={index} className="relative col-span-1">
                             <Image

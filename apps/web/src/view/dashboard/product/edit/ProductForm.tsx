@@ -91,6 +91,14 @@ export default function EditProductForm({
       formData.append('price', data.price.toString());
       formData.append('imagesToDelete', JSON.stringify(data.imagesToDelete));
 
+      if (files.length === 0) {
+        throw new Error('Produk harus memiliki setidaknya 1 gambar');
+      }
+
+      if (files.length > 8) {
+        throw new Error('Produk hanya boleh memiliki maksimal 8 gambar');
+      }
+
       files.forEach((file: File) => {
         if (file.name !== '') {
           formData.append('product', file);
@@ -198,8 +206,8 @@ export default function EditProductForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex min-h-full w-full flex-col bg-muted/50"
         >
-          <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-5 lg:gap-8">
-            <div className="grid auto-rows-max items-start gap-4 lg:col-span-3 lg:gap-8">
+          <div className="grid gap-4 xl:grid-cols-5 xl:gap-8">
+            <div className="grid auto-rows-max items-start gap-4 xl:col-span-3 xl:gap-8">
               <Card x-chunk="dashboard-07-chunk-0">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold md:text-2xl">
@@ -354,7 +362,7 @@ export default function EditProductForm({
                 </CardContent>
               </Card>
             </div>
-            <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+            <div className="grid auto-rows-max items-start gap-4 xl:col-span-2 xl:gap-8">
               <Card className="overflow-hidden" x-chunk="dashboard-07-chunk-4">
                 <CardHeader>
                   <CardTitle className="text-lg font-semibold md:text-2xl">
@@ -406,7 +414,7 @@ export default function EditProductForm({
                           ? 'Tambah gambar'
                           : 'Unggah gambar'}
                       </Button>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-3 gap-2">
                         {previewImages.map((images, index) => (
                           <div key={index} className="relative col-span-1">
                             <Image
