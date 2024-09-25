@@ -22,6 +22,12 @@ const HeaderCategoryAndSearch = () => {
     }
   };
 
+  function handleNoString() {
+    setTimeout(() => {
+      router.push(`/search?`);
+    }, 500);
+  }
+
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryFn: async () => {
       const res = await axiosInstance().get(`/categories`);
@@ -48,7 +54,13 @@ const HeaderCategoryAndSearch = () => {
         <Input
           type="search"
           placeholder="Search..."
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value !== '') {
+              setText(e.target.value);
+            } else {
+              handleNoString();
+            }
+          }}
           onKeyDown={handleKeyDown}
           className="w-11/12 rounded-full bg-background pl-8 md:w-[200px] lg:w-[336px] h-8 md:h-10"
         />
