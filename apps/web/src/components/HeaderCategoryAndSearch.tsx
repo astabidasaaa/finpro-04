@@ -24,8 +24,8 @@ const HeaderCategoryAndSearch = () => {
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryFn: async () => {
-      const res = await axiosInstance().get(`/categories/`);
-      return res.data.data.categories;
+      const res = await axiosInstance().get(`/categories`);
+      return res.data.data;
     },
     queryKey: ['main_category'],
   });
