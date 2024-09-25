@@ -20,10 +20,7 @@ export class GetOrderRouter implements Route {
 
   private initializeRoutes() {
 
-    this.router.get(`${this.path}/get-all-order`, 
-      this.guard.verifyAccessToken,
-      this.guard.verifyRole(['super admin']), 
-      this.getOrderController.getAllOrders);
+    
 
     this.router.get(`${this.path}/get-finished-orders-by-user`, 
       this.guard.verifyAccessToken,
@@ -45,6 +42,11 @@ export class GetOrderRouter implements Route {
       this.guard.verifyAccessToken, 
       this.guard.verifyRole(['store admin', 'super admin']),
       this.getOrderController.getOrdersByStoreId);
+
+      this.router.get(`${this.path}/get-all-order`, 
+        this.guard.verifyAccessToken,
+        this.guard.verifyRole(['super admin']), 
+        this.getOrderController.getAllOrders);
     
     this.router.get(`${this.path}/get-all-stores`, 
       this.guard.verifyAccessToken,

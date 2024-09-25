@@ -15,7 +15,6 @@ import { getCookie } from 'cookies-next';
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
   } from "@/components/ui/card"
@@ -28,11 +27,6 @@ import ShippingInfo from '../order-management-detail/ShippingInfo';
 import CustomerInfo from '../order-management-detail/CustomerInfo';
 import PaymentInfo from './PaymentInfo';
 import OrderActions from './OrderActions';
-
-
-
-
-
 
 const OrderDetailsView: React.FC = () => {
   const token = getCookie('access-token');
@@ -50,10 +44,10 @@ const OrderDetailsView: React.FC = () => {
 
       try {
         const response = await axiosInstance().get(`/get-order/get-order-by-id`, {
-          params: { orderId: parseInt(orderId as string, 10), headers: {
+          params: { orderId: parseInt(orderId as string, 10),  userId: userId}, headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
-          }, },
+          },
         });
         const fetchedOrder = response.data.data;
         if (fetchedOrder.vouchers && fetchedOrder.vouchers.length > 0) {
@@ -61,7 +55,6 @@ const OrderDetailsView: React.FC = () => {
         }
         setOrder(fetchedOrder);
       } catch (error) {
-        console.error('Error fetching order details:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to fetch order details',

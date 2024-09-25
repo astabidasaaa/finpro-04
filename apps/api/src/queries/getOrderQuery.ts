@@ -8,7 +8,6 @@ class OrderQuery {
     try {
       return await prisma.$transaction(async (prisma) => {
         const searchFilter = buildOrderSearchQuery(search); 
-  
         const orderList = await prisma.order.findMany({
           skip: offset, 
           take: limit, 
@@ -35,7 +34,6 @@ class OrderQuery {
           },
           orderBy: { createdAt: 'desc' },
         });
-  
         return orderList;
       });
     } catch (err) {
@@ -101,6 +99,7 @@ class OrderQuery {
             where: {
               promotion: {
                 promotionType: 'TRANSACTION',
+
               },
             },
             include: {
@@ -108,7 +107,7 @@ class OrderQuery {
                 select: {
                   discountType: true,
                   discountValue: true,
-                  promotionType: true
+                  maxDeduction: true
                 },
               },
             },
@@ -120,8 +119,31 @@ class OrderQuery {
   
       return orderData;
     } catch (err) {
-      console.error("Error retrieving order from the database:", err);
       throw new HttpException(500, 'Failed to retrieve order from the database');
+    }
+  }
+  public async getRoleByUserId(userId: number) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          role: {
+            select: {
+              name: true, 
+            },
+          },
+        },
+      });
+  
+      if (!user || !user.role) {
+        throw new HttpException(404, 'User or role not found');
+      }
+  
+      return user.role.name; 
+    } catch (err) {
+      throw new HttpException(500, 'Failed to retrieve user role');
     }
   }
      

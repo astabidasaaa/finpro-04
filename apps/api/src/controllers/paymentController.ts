@@ -30,6 +30,10 @@ export class PaymentController {
           if (!order) {
             throw new HttpException(404, 'Order not found');
           }
+
+          if (order.customerId !== parseInt(userId, 10)) {
+            throw new HttpException(403, 'User is not authorized for this order');
+          }
   
           if (!order.payment) {
             throw new HttpException(404, 'Payment record not found');

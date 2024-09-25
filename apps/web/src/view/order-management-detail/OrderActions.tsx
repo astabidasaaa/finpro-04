@@ -26,11 +26,12 @@ import { Order } from '@/types/paymentTypes';
         await axiosInstance().post(endpoint, {
           orderId: parseInt(orderId, 10), 
           userId: parseInt(userId, 10),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }});
   
         toast({
           variant: 'success',
@@ -40,7 +41,6 @@ import { Order } from '@/types/paymentTypes';
   
         window.location.reload();
       } catch (error) {
-        console.error(`Error updating order status to ${status}:`, error);
         toast({
           variant: 'destructive',
           title: `Failed to update status to ${status}`,
@@ -60,11 +60,12 @@ import { Order } from '@/types/paymentTypes';
         await axiosInstance().post(`/orders/cancel`, {
           orderId: parseInt(orderId, 10),
           userId: parseInt(userId, 10),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }},);
   
         toast({
           variant: 'success',
@@ -74,7 +75,6 @@ import { Order } from '@/types/paymentTypes';
   
         window.location.reload();
       } catch (error) {
-        console.error('Error cancelling order:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to cancel order',
@@ -94,11 +94,12 @@ import { Order } from '@/types/paymentTypes';
         await axiosInstance().post(`/payments/reject-payment`, {
           orderId: parseInt(orderId, 10),
           userId: parseInt(userId, 10),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          
+        },
+        {headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        }},);
   
         toast({
           variant: 'success',
@@ -108,7 +109,6 @@ import { Order } from '@/types/paymentTypes';
   
         window.location.reload();
       } catch (error) {
-        console.error('Error rejecting payment:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to reject payment',

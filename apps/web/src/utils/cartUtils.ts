@@ -17,7 +17,7 @@ export const getCartItems = (userId: string) => {
   export const addToCart = (newItem: any) => {
     if (typeof window !== 'undefined') {
       if (!newItem) {
-        console.error('Invalid item:', newItem);
+
         return;
       }
   
@@ -46,16 +46,19 @@ export const getCartItems = (userId: string) => {
   
   
   
-  export const clearCart = (userId: string) => {
-    if (typeof window !== 'undefined') {
-      const cartData = localStorage.getItem('cart');
-      const cart = cartData ? JSON.parse(cartData) : {};
-  
-      delete cart[userId]; 
-  
-      localStorage.setItem('cart', JSON.stringify(cart));
-    }
-  };
+ 
+
+export const clearCheckedCart = (userId: string) => {
+  if (typeof window !== 'undefined') {
+    const checkedCartData = localStorage.getItem('checkedCart');
+    const checkedCart = checkedCartData ? JSON.parse(checkedCartData) : {};
+
+    delete checkedCart[userId]; 
+
+    localStorage.setItem('checkedCart', JSON.stringify(checkedCart)); 
+  }
+};
+
   
 export const updateCartForUser = (userId: string, updatedCart: any[]) => {
   if (typeof window !== 'undefined') {

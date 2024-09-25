@@ -4,12 +4,14 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
-import { getCartItems } from '@/utils/cartUtils'; 
+import { getCartItems, clearCheckedCart } from '@/utils/cartUtils';
 import { useAppSelector } from '@/lib/hooks';
 import { Minus, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { CartItem } from '@/types/cartType';
+import axiosInstance from '@/lib/axiosInstance';
+import { toast } from '@/components/ui/use-toast';
 
 const CartPageView = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -20,23 +22,104 @@ const CartPageView = () => {
 
   useEffect(() => {
     if (userId) {
+      clearCheckedCart(userId);
       const userCart = getCartItems(userId);
-      setCartItems(userCart);
+      fetchProductDetails(userCart);
+      loadCheckedItems();
     }
   }, [userId]);
 
+  const fetchProductDetails = async (userCart: CartItem[]) => {
+    try {
+      const productDetailsPromises = userCart.map(async (item) => {
+        const productResult = await axiosInstance().get(
+          `${process.env.API_URL}/products/single-store?productId=${item.productId}&storeId=${item.storeId}`
+        );
+        const productData = productResult.data.data;
+
+        if (productData) {
+          let productPrice = productData.product.prices[0].price;
+          let discountedPrice = productPrice;
+          let buy = 0;
+          let get = 0;
+
+          const discountProduct = productData.productDiscountPerStores;
+          const freeProduct = productData.freeProductPerStores;
+
+          if (discountProduct !== undefined && discountProduct.length > 0) {
+            if (discountProduct[0].discountType === 'FLAT') {
+              discountedPrice = productPrice - discountProduct[0].discountValue;
+            } else if (discountProduct[0].discountType === 'PERCENT') {
+              discountedPrice =
+                (productPrice * (100 - discountProduct[0].discountValue)) / 100;
+            }
+          }
+
+          if (freeProduct !== undefined && freeProduct.length > 0) {
+            buy = freeProduct[0].buy;
+            get = freeProduct[0].get;
+          }
+
+          return {
+            ...item,
+            name: productData.product.name,
+            image: productData.product.images[0].title || { title: '', alt: '' },
+            price: productPrice,
+            discountedPrice,
+            buy,
+            get,
+          };
+        }
+
+        return undefined; 
+      });
+
+      const products = await Promise.all(productDetailsPromises);
+      const validProducts = products.filter((product) => product !== undefined) as CartItem[];
+
+      setCartItems(validProducts);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to fetch cart items',
+        description: 'Please try again later.',
+      });
+    }
+  };
+
+  const loadCheckedItems = () => {
+    const storedCheckedCart = localStorage.getItem('checkedCart');
+    if (storedCheckedCart) {
+      const parsedCheckedCart = JSON.parse(storedCheckedCart);
+      if (parsedCheckedCart[userId]) {
+        const userCheckedItems = parsedCheckedCart[userId];
+        const itemSet = new Set<string>(userCheckedItems.map((item: any) => JSON.stringify(item)));
+setCheckedItems(itemSet);
+
+      }
+    }
+  };
+
   const handleCheckboxChange = (item: CartItem, isChecked: boolean) => {
+    const itemKey = JSON.stringify({ storeId: item.storeId, productId: item.productId, quantity: item.quantity });
+
     setCheckedItems((prev) => {
       const newCheckedItems = new Set(prev);
       if (isChecked) {
-        newCheckedItems.add(JSON.stringify(item));
+        [...newCheckedItems].forEach((checkedItem) => {
+          const checkedItemObj = JSON.parse(checkedItem);
+          if (checkedItemObj.productId === item.productId) {
+            newCheckedItems.delete(checkedItem);
+          }
+        });
+        newCheckedItems.add(itemKey);
       } else {
-        newCheckedItems.delete(JSON.stringify(item));
+        newCheckedItems.delete(itemKey);
       }
       return newCheckedItems;
     });
   };
-  
+
   const handleQuantityChange = (
     productId: string,
     storeId: string,
@@ -55,49 +138,70 @@ const CartPageView = () => {
             if (newQuantity > 0) {
               return { ...item, quantity: newQuantity };
             }
-
-            if (checkedItems.has(JSON.stringify(item))) {
-              setCheckedItems((prevChecked) => {
-                const newCheckedItems = new Set(prevChecked);
-                newCheckedItems.delete(JSON.stringify(item));
-                return newCheckedItems;
-              });
-            }
-            return { ...item, quantity: 0 }; 
+            return null;
           }
           return item;
         })
-        .filter((item) => item.quantity > 0); 
+        .filter((item) => item !== null); 
   
-      localStorage.setItem('cart', JSON.stringify({
-        ...getCartItems(userId).reduce((acc: any, item: CartItem) => {
-          if (!acc[userId]) acc[userId] = [];
-          acc[userId].push(item);
-          return acc;
-        }, {}),
-        [userId]: updatedCart
-      }));
+      const itemKey = JSON.stringify({ storeId, productId });
+      if (checkedItems.has(itemKey)) {
+        const updatedCheckedItems = new Set(checkedItems);
+        updatedCheckedItems.delete(itemKey); 
   
-      const currentCheckedItems = Array.from(checkedItems).filter((checkedItem) => {
-        const parsedItem = JSON.parse(checkedItem);
-        return updatedCart.some((cartItem) =>
-          cartItem.productId === parsedItem.productId &&
-          cartItem.storeId === parsedItem.storeId &&
-          cartItem.userId === parsedItem.userId
-        );
-      });
-      localStorage.setItem('checkedCart', JSON.stringify(currentCheckedItems));
+        const updatedQuantity = updatedCart.find(
+          (item) => item?.productId === productId
+        )?.quantity;
+        if (updatedQuantity && updatedQuantity > 0) {
+          updatedCheckedItems.add(
+            JSON.stringify({ storeId, productId, quantity: updatedQuantity })
+          );
+        }
+        setCheckedItems(updatedCheckedItems);
+      }
+      localStorage.setItem(
+        'cart',
+        JSON.stringify({
+          ...getCartItems(userId).reduce((acc: any, item: CartItem) => {
+            if (!acc[userId]) acc[userId] = [];
+            acc[userId].push(item);
+            return acc;
+          }, {}),
+          [userId]: updatedCart,
+        })
+      );
   
       return updatedCart;
     });
   };
   
-  
-
   const handleCheckoutClick = () => {
-    localStorage.setItem('checkedCart', JSON.stringify(Array.from(checkedItems)));
+    const checkedItemsByUserId = {
+      [userId]: Array.from(checkedItems)
+        .map((item) => JSON.parse(item))
+        .filter((checkedItem) => {
+          const currentCartItem = cartItems.find(
+            (cartItem) =>
+              cartItem.productId === checkedItem.productId &&
+              cartItem.storeId === checkedItem.storeId
+          );
+          return currentCartItem && currentCartItem.quantity === checkedItem.quantity;
+        }),
+    };
+
+    if (checkedItemsByUserId[userId].length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Checkout gagal',
+        description: 'Tidak ada produk yang dipilih',
+      });
+      return;
+    }
+  
+    localStorage.setItem('checkedCart', JSON.stringify(checkedItemsByUserId));
     router.push('/cart/check-out');
   };
+  
 
   let IDR = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -117,7 +221,7 @@ const CartPageView = () => {
             >
               <div className="flex items-center gap-4">
                 <Checkbox
-                  checked={checkedItems.has(JSON.stringify(item))}
+                  checked={checkedItems.has(JSON.stringify({ storeId: item.storeId, productId: item.productId, quantity: item.quantity }))}
                   onCheckedChange={(isChecked: boolean) => handleCheckboxChange(item, isChecked)}
                   className="h-5 w-5"
                 />
@@ -129,7 +233,7 @@ const CartPageView = () => {
                   className="object-cover object-center size-20 rounded-md hidden md:block"
                 />
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-normal">{item.name}</p>
+                  <p className="text-sm font-normal [overflow-wrap:anywhere]">{item.name}</p>
                   <p className="text-sm font-semibold">
                     { item.discountedPrice > 0 ? (
                       <span className="line-through text-gray-500">{IDR.format(item.price)}</span>
@@ -143,13 +247,13 @@ const CartPageView = () => {
                     </p>
                   )}
                   {item.buy !== undefined && item.get !== undefined && item.buy > 0 && item.get > 0 && (
-  <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[130px]">
-    Beli {item.buy} gratis {item.get}
-  </Badge>
-)}
+                    <Badge className="text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[130px]">
+                      Beli {item.buy} gratis {item.get}
+                    </Badge>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 border rounded-lg px-2 py-2 text-sm ml-auto">
+              <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -158,7 +262,7 @@ const CartPageView = () => {
                 >
                   <Minus />
                 </Button>
-                <span className="w-8 text-center">{item.quantity}</span>
+                <span>{item.quantity}</span>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -176,11 +280,12 @@ const CartPageView = () => {
       )}
       <div className="mt-6 flex justify-center">
         <Button
-          onClick={handleCheckoutClick}
-          disabled={checkedItems.size === 0}
+          
           className="w-full max-w-md bg-main-dark hover:bg-main-dark/80"
+          onClick={handleCheckoutClick}
+          disabled={checkedItems.size === 0} 
         >
-          Proceed to Checkout
+          Checkout
         </Button>
       </div>
     </div>

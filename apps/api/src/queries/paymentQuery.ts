@@ -4,7 +4,6 @@ import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { OrderStatusService } from '@/utils/orderStatusService';
 import { HttpException } from '@/errors/httpException';
 
-import { updateInventoryStock } from '@/utils/updateInventoryStock';
 
 
 class PaymentQuery {

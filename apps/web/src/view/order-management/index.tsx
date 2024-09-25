@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from '@/components/ui/use-toast';
 import PaginationComponent from './PaginationComponent';
 import OrderTable from './OrderTable';
+import axios from 'axios';
 type Store = {
   id: number;
   name: string;
@@ -60,7 +61,10 @@ const OrderManagementView = () => {
         setSelectedStoreId(userData.data.store.id); 
       }
     } catch (error) {
-      console.error('Error fetching user store data:', error);
+      toast({
+        variant: 'destructive',
+        description: 'Please try again later.',
+      });
     }
   };
   const fetchStores = async () => {
@@ -73,7 +77,11 @@ const OrderManagementView = () => {
       },);
       setStores(response.data.data);
     } catch (error) {
-      console.error('Error fetching stores:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to fetch store',
+        description: 'Please try again later.',
+      });
     }
   };
   const fetchAllOrders = async (page = 1, storeId?: number | null) => {
@@ -89,23 +97,23 @@ const OrderManagementView = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-    
-
       setOrders(storeId ? response.data.data.orders : response.data.data);
-
       setTotalPages(storeId ? response.data.data.totalPages : response.data.totalPages);
 
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Order tidak ditemukan',
-        description: 'Tidak ada order yang memenuhi kriteria Anda',
-      });
-    } finally {
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.status === 404) {
+          toast({
+            variant: 'destructive',
+            title: 'Order tidak ditemukan',
+            description: 'Tidak ada order yang memenuhi kriteria Anda',
+          });
+        } 
+      } 
+    }finally {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     const fetchDataOnMount = async () => {
       await fetchUserStoreData();
@@ -113,7 +121,6 @@ const OrderManagementView = () => {
     };
     fetchDataOnMount();
   }, []);
-
 
   useEffect(() => {
     fetchAllOrders(currentPage, selectedStoreId);
@@ -127,18 +134,6 @@ const OrderManagementView = () => {
     setCurrentPage(1); 
   };
 
-
-
-  const formatOrderStatus = (status: string) => {
-    return status.replace(/_/g, ' ');
-  };
-
-  let IDR = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  });
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <Tabs defaultValue="week">
@@ -149,7 +144,7 @@ const OrderManagementView = () => {
               placeholder="Cari customer/status pesanan..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} 
-              className="w-full max-w-md"
+              className="w-full max-w-[300px]"
             />
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -158,14 +153,14 @@ const OrderManagementView = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-7 gap-1 text-sm">
                     <ListFilter className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only">Store</span>
+                    <span className="sr-only sm:not-sr-only">Toko</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Filter by Store</DropdownMenuLabel>
+                  <DropdownMenuLabel>Filter Toko</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleStoreSelection(null)}>
-                    All Stores
+                    Semua Toko
                   </DropdownMenuItem>
                   {stores.map((store) => (
                     <DropdownMenuItem
@@ -180,7 +175,6 @@ const OrderManagementView = () => {
             )}
           </div>
         </div>
-
         <TabsContent value="week">
           <Card>
             <CardHeader className="px-7">
@@ -207,5 +201,4 @@ const OrderManagementView = () => {
     </div>
   );
 };
-
 export default OrderManagementView;

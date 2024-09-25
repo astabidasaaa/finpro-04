@@ -2,11 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { File, } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
-
 import { Button } from "@/components/ui/button";
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 
@@ -32,11 +29,11 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Customer</TableHead>
+          <TableHead>Kustomer</TableHead>
           <TableHead className="hidden md:table-cell">Status</TableHead>
-          <TableHead className="hidden sm:table-cell">Store</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead className="hidden sm:table-cell">Date</TableHead>
+          <TableHead className="hidden sm:table-cell">Toko</TableHead>
+          <TableHead>Jumlah</TableHead>
+          <TableHead className="hidden sm:table-cell">Tanggal Pemesanan</TableHead>
           <TableHead></TableHead>
         </TableRow>
       </TableHeader>

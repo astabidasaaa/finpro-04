@@ -20,7 +20,7 @@ const OrderItemsList: React.FC<{ order: Order }> = ({ order }) => {
           {order.orderItems.map((item, index) => (
             <li key={index} className="flex flex-row justify-between items-center gap-4 border-b pb-4">
               <div className="flex flex-col gap-1">
-                <p className="font-normal">{item.product.name} x {item.qty}</p>
+                <p className="font-normal [overflow-wrap:anywhere]">{item.product.name} x {item.qty}</p>
                 {item.freeProductPerStore && item.freeProductPerStore.buy > 0 && (
                   <Badge className="text-xs md:text-sm font-medium py-2 px-4 shadow-md bg-orange-500/70 text-black max-w-[155px]">
                     Buy {item.freeProductPerStore.buy}, Get {item.freeProductPerStore.get} Free!
@@ -68,17 +68,24 @@ const OrderItemsList: React.FC<{ order: Order }> = ({ order }) => {
     const calculateStoreDiscount = (order: Order): number => {
       const voucher = order.selectedTransactionVoucher;
       if (!voucher || !voucher.promotion) return 0;
-  
-      const { discountType, discountValue } = voucher.promotion;
+    
+      const { discountType, discountValue, maxDeduction } = voucher.promotion;
       const originalTotalPrice = calculateTotalPrice(order.orderItems);
-  
+    
+      let discount = 0;
+    
       if (discountType === 'PERCENT') {
-        return (originalTotalPrice * discountValue) / 100;
+        discount = (originalTotalPrice * discountValue) / 100;
+
+        if (maxDeduction !== undefined && discount > maxDeduction) {
+          discount = maxDeduction;
+        }
       } else if (discountType === 'FLAT') {
-        return discountValue;
+        discount = discountValue;
       }
-      return 0;
+      return Math.max(discount, 0);
     };
+    
   
     return (
       <ul className="grid gap-3">

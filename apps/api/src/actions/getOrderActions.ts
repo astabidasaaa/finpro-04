@@ -3,6 +3,7 @@ import getOrderQuery from '@/queries/getOrderQuery';
 import { HttpStatus } from '@/types/error';
 import countOrderQuery from '@/queries/countOrderQuery';
 import getFinishedOrderQuery from '@/queries/getFinishedOrderQuery';
+import orderQuery from '@/queries/orderQuery';
 
 class GetOrderAction {
   public async getAllOrdersAction(page: number, limit: number, search?: string) {
@@ -21,19 +22,32 @@ class GetOrderAction {
       totalPages,
     };
   }
-    public async getOrderByIdAction(orderIdStr: string) {
-        const orderId = parseInt(orderIdStr, 10);
-        if (isNaN(orderId)) {
-          throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid orderId format');
-        }
+  public async getOrderByIdAction(orderIdStr: string, userIdStr: string) {
+    const orderId = parseInt(orderIdStr, 10);
+    const userId = parseInt(userIdStr, 10);
+    const userRole = await getOrderQuery.getRoleByUserId(userId);
+    const userStoreId = await orderQuery.getUserById(userId)
+
+
+  
+    if (isNaN(orderId) || isNaN(userId)) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, 'Invalid orderId or userId format');
+    }
+  
+    const order = await getOrderQuery.getOrderById(orderId);
+
+    if (!order) {
+      throw new HttpException(HttpStatus.NOT_FOUND, 'Order not found or does not belong to the user');
+    }
+    if (userRole === 'user' && order.customerId !== userId) {
+      throw new HttpException(HttpStatus.FORBIDDEN, 'User is not authorized for this order');
+    }
+    if (userRole === 'store admin' && order.storeId !== userStoreId?.store?.id) {
+      throw new HttpException(HttpStatus.FORBIDDEN, 'Admin is not authorized for this order');
+    }
     
-        const order = await getOrderQuery.getOrderById(orderId);
-    
-        if (!order) {
-          throw new HttpException(HttpStatus.NOT_FOUND, 'Order not found');
-        }
-        return order;
-      }
+    return order;
+  }
       public async getOrdersAction({
         customerId,
         from,

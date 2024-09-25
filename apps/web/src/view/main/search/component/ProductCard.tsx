@@ -26,6 +26,8 @@ export default function ProductCard({
 }) {
   const productDiscount = product.inventories[0]?.productDiscountPerStores?.[0];
   const freeProduct = product.inventories[0]?.freeProductPerStores?.[0];
+  const nearestStore = useAppSelector((state) => state.storeId);
+  const { storeId } = nearestStore;
 
   const discountedPrice = productDiscount
     ? productDiscount.discountType === 'PERCENT'
@@ -46,18 +48,11 @@ export default function ProductCard({
       return;
     }
     const cartItem = {
-      productId: product.id,
-      name: product.name,
-      price: product.prices[0].price, 
-      discountedPrice: discountedPrice || null, 
+      productId: product.id, 
       quantity: 1, 
-
+      storeId: storeId,
       userId: user.id.toString(),
-      image: product.images[0]?.title,
-      buy, 
-      get, 
     };
-
     addToCart(cartItem); 
     toast({
       title: 'Produk ditambahkan ke cart',

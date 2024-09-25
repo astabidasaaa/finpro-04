@@ -4,7 +4,6 @@ import { OrderStatus, PaymentStatus } from '@prisma/client';
 import OrderAction from '@/actions/orderAction';
 import { HttpException } from '@/errors/httpException';
 import { generateOrderCode } from '@/utils/orderUtils';
-import { updateInventoryStock } from '@/utils/updateInventoryStock';
 import { findNearestStore } from '@/utils/findNearestStore';
 import { checkInventoryAvailability } from '@/utils/checkInventory';
 import orderAction from '@/actions/orderAction';
@@ -36,8 +35,6 @@ export class OrderController {
         vouchers,
         cartItems, 
       } = req.body;
-
-
 
       const deliveryAddress = await prisma.address.findUnique({
         where: { id: deliveryAddressId },
@@ -182,7 +179,6 @@ export class OrderController {
               finalPrice: finalPrice,
             },
           });
-
         }
         
         await handleStockAndMutations(
@@ -207,7 +203,6 @@ export class OrderController {
       } 
     }
   }
-
 
   public async cancelOrder(
     req: Request,

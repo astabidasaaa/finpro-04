@@ -21,7 +21,8 @@ export class ShippingRouter implements Route {
   private initializeRoutes() {
 
     this.router.post(`${this.path}/confirm`, 
-      this.guard.verifyAccessToken, 
+      this.guard.verifyAccessToken,
+      this.guard.verifyRole(['user']), 
       this.shippingController.confirmShipping);
 
     this.router.post(`${this.path}/process-order`,

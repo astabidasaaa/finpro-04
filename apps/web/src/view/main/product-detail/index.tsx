@@ -105,19 +105,11 @@ export default function ProductDetailView({
         return;
       }
 
-      const finalDiscountedPrice = discountedPrice === productPrice ? null : discountedPrice;
-
-  
       const cartItem = {
-        productId: product.product.id,
-        name: product.product.name,
-        price: productPrice,        
-        discountedPrice: finalDiscountedPrice,          
+        productId: product.product.id,         
         quantity,
-        userId,
-        image: images[0]?.title,
-        buy,                        
-        get,                      
+        userId, 
+        storeId                    
       };
       addToCart(cartItem);
       toast({

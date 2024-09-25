@@ -21,14 +21,11 @@ import { getCookie } from 'cookies-next';
  
   import { Order } from '@/types/paymentTypes';
   import { Separator } from "@/components/ui/separator"
- 
-  import OrderItemsList from './OrderItemsList';
+import OrderItemsList from './OrderItemsList';
 import ShippingInfo from './ShippingInfo';
 import CustomerInfo from './CustomerInfo';
 import PaymentInfo from './PaymentInfo';
 import OrderActions from './OrderActions';
-
-  
 
 
 const OrderManagementDetailsView: React.FC = () => {
@@ -47,10 +44,12 @@ const OrderManagementDetailsView: React.FC = () => {
 
       try {
         const response = await axiosInstance().get(`/get-order/get-order-by-id`, {
-          params: { orderId: parseInt(orderId as string, 10), headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          }, },
+          params: { orderId: parseInt(orderId as string, 10), userId: userId
+            
+        },headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        } 
         });
         const fetchedOrder = response.data.data;
         if (fetchedOrder.vouchers && fetchedOrder.vouchers.length > 0) {
@@ -58,7 +57,6 @@ const OrderManagementDetailsView: React.FC = () => {
         }
         setOrder(fetchedOrder);
       } catch (error) {
-        console.error('Error fetching order details:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to fetch order details',

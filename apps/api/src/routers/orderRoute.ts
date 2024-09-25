@@ -22,7 +22,6 @@ export class OrderRoute implements Route {
 
     this.router.post(this.path, 
       this.guard.verifyAccessToken,
-      this.guard.verifyRole(['super admin']),
       this.orderController.createOrder);
 
     this.router.post(`${this.path}/cancel`, 

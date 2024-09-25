@@ -17,9 +17,9 @@ import { AxiosError } from 'axios';
 import DialogUseVoucher from './DialogUseVoucher';
 import { VoucherDetail } from '@/types/voucherType';
 import { Badge } from '@/components/ui/badge';
-import { getCartItems, updateCartForUser } from '@/utils/cartUtils';
 import { CartItem } from '@/types/cartType';
 import { getCookie } from 'cookies-next';
+
 
 type Props = {
   addresses: Address[] | null;
@@ -53,38 +53,74 @@ const CheckoutPageView = () => {
   const user = useAppSelector((state) => state.auth.user);
   const userId = user.id.toString();
 
-  useEffect(() => {
-    const fetchOrderDetailsFromLocalStorage = async () => {
-      setIsLoading(true);
-      try {
-        const storedCheckedItems = JSON.parse(localStorage.getItem('checkedCart') || '[]');
+  const fetchProductDetailsFromCheckedCart = async () => {
+    setIsLoading(true); 
+    try {
+      const storedCheckedItems = JSON.parse(localStorage.getItem('checkedCart') || '{}');
+      const userCheckedItems = storedCheckedItems[userId]; 
+  
+      if (Array.isArray(userCheckedItems) && userCheckedItems.length > 0) {
+        const productDetailsPromises = userCheckedItems.map(async (item: { productId: number; storeId: number; quantity: number }) => {
+          const productResult = await axiosInstance().get(
+            `${process.env.API_URL}/products/single-store?productId=${item.productId}&storeId=${item.storeId}`
+          );
+          const productData = productResult.data.data;
+          if (productData) {
+            let productPrice = productData.product.prices[0].price;
+            let discountedPrice = productPrice;
+            let buy = 0;
+            let get = 0;
+  
+            const discountProduct = productData.productDiscountPerStores;
+            const freeProduct = productData.freeProductPerStores;
+  
+            if (discountProduct && discountProduct.length > 0) {
+              if (discountProduct[0].discountType === 'FLAT') {
+                discountedPrice = productPrice - discountProduct[0].discountValue;
+              } else if (discountProduct[0].discountType === 'PERCENT') {
+                discountedPrice = (productPrice * (100 - discountProduct[0].discountValue)) / 100;
+              }
+            }
+  
+            if (freeProduct && freeProduct.length > 0) {
+              buy = freeProduct[0].buy;
+              get = freeProduct[0].get;
+            }
+  
 
-        if (Array.isArray(storedCheckedItems) && storedCheckedItems.length > 0) {
-
-          const mappedItems: OrderItem[] = storedCheckedItems.map((itemStr: string) => {
-            const item = JSON.parse(itemStr);
             return {
-              id: item.productId,
-              name: item.name || 'Unknown Name',
-              quantity: parseInt(item.quantity, 10) || 0,
-              price: parseFloat(item.price) || 0,
-              image: item.image || 'default.png',
-              discountedPrice: parseFloat(item.discountedPrice) || 0,
-              buy: item.buy || 0,
-              get: item.get || 0, 
+              id: item.productId.toString(), 
+              name: productData.product.name,
+              quantity: item.quantity, 
+              price: productPrice,
+              image: productData.product.images[0]?.title || 'default.png',
+              discountedPrice,
+              buy,
+              get,
+              storeId: item.storeId.toString(), 
             };
-          });
-
-          setOrderItems(mappedItems);
-        }
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOrderDetailsFromLocalStorage();
+          }
+  
+          return undefined;
+        });
+  
+        const products = await Promise.all(productDetailsPromises);
+        const validProducts = products.filter((product) => product !== undefined) as OrderItem[];
+        setOrderItems(validProducts);
+      } 
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to fetch cart items',
+        description: 'Please try again later.',
+      });
+    } finally {
+      setIsLoading(false); 
+    }
+  };
+  
+  useEffect(() => {
+    fetchProductDetailsFromCheckedCart();
   }, []);
 
   const updateItemQuantity = (itemId: string, newQuantity: number) => {
@@ -95,7 +131,6 @@ const CheckoutPageView = () => {
     );
   };
   
-
   const handleCheckout = async () => {
     setIsSubmitting(true);
 
@@ -103,7 +138,7 @@ const CheckoutPageView = () => {
       const updatedCartItems = orderItems
       .filter((item) => item.quantity > 0) 
       .map((item) => ({
-        productId: item.id,
+        productId: parseInt(item.id),
         qty: item.quantity,
         finalQty: calculateFinalQuantity(item),
       }));
@@ -162,20 +197,30 @@ const CheckoutPageView = () => {
           'Your order has been placed and you will be redirected to the payment page.',
       });
 
-const storedCheckedItems: CartItem[] = JSON.parse(localStorage.getItem('checkedCart') || '[]').map((item: string) => JSON.parse(item));
+      const storedCheckedItems: { [key: string]: CartItem[] } = JSON.parse(
+        localStorage.getItem('checkedCart') || '{}'
+      );
+  
+      const userCheckedItems = storedCheckedItems[userId] || [];
+  
+      const userCart: { [key: string]: CartItem[] } = JSON.parse(
+        localStorage.getItem('cart') || '{}'
+      );
+  
+      const currentUserCart = userCart[userId] || [];
+  
+      const filteredCart = currentUserCart.filter(
+        (cartItem: CartItem) =>
+          !userCheckedItems.some(
+            (checkedItem: CartItem) => checkedItem.productId === cartItem.productId
+          )
+      );
+  
+      userCart[userId] = filteredCart;
+      localStorage.setItem('cart', JSON.stringify(userCart));
 
-const userCart: CartItem[] = getCartItems(userId);
-
-const filteredCart = userCart.filter(
-  (cartItem: CartItem) => {
-    const isInCheckedCart = storedCheckedItems.some((checkedItem: CartItem) => checkedItem.productId === cartItem.productId);
-    return !isInCheckedCart; 
-  }
-);
-
-updateCartForUser(userId, filteredCart);
-
-localStorage.removeItem('checkedCart');
+      delete storedCheckedItems[userId];
+      localStorage.setItem('checkedCart', JSON.stringify(storedCheckedItems));
 
       const paymentPageUrl = `/pembayaran?totalPrice=${totalPrice}&orderId=${orderId}&userId=${userId}`;
 
@@ -195,7 +240,6 @@ localStorage.removeItem('checkedCart');
           description: 'Terjadi error. Tolong coba lagi.',
         });
       }
-      console.error('Error placing order:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -226,10 +270,6 @@ localStorage.removeItem('checkedCart');
         const nearestStoreData = storeResponse.data.data;
         setNearestStore(nearestStoreData); 
       } catch (error) {
-        console.error(
-          'Error fetching nearest store or checking inventory:',
-          error
-        );
         toast({
           variant: 'destructive',
           title: 'Error',
@@ -257,8 +297,6 @@ localStorage.removeItem('checkedCart');
     const storeDiscount = calculateStoreDiscount();
 
     const itemsTotalWithDiscount = originalTotalPrice - storeDiscount;
-    console.log('shipping amount', shipping?.amount)
-console.log('calculateReducedShipping', calculateReducedShippingCost())
     const shippingAmount = shipping?.amount || 0;
     const finalShippingAmount = selectedDeliveryVoucher
       ? calculateReducedShippingCost() 
@@ -270,10 +308,7 @@ console.log('calculateReducedShipping', calculateReducedShippingCost())
 
   const calculateFinalQuantity = (item: OrderItem) => {
     let finalQuantity = item.quantity;
-  
-
     if (item.buy !== undefined && item.get !== undefined && item.buy > 0 && item.get > 0) {
-
       const setsOfBuy = Math.floor(item.quantity / item.buy);
       finalQuantity += setsOfBuy * item.get; 
     }
@@ -364,7 +399,7 @@ console.log('calculateReducedShipping', calculateReducedShippingCost())
             className="object-cover object-center size-20 rounded-md"
           />
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-normal">{item.name}</p>
+            <p className="text-sm font-normal [overflow-wrap:anywhere]">{item.name}</p>
             <p className="text-sm font-semibold">
     {item.discountedPrice > 0 ? (
       <span className="line-through text-gray-500">{IDR.format(item.price)}</span>
@@ -503,7 +538,6 @@ console.log('calculateReducedShipping', calculateReducedShippingCost())
             >
               {isSubmitting ? 'Diproses...' : 'Pesan Sekarang'}
             </Button>
-            
           </div>
         </div>
       </div>

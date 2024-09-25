@@ -43,7 +43,7 @@ const UploadPaymentView = () => {
     try {
       await axiosInstance().post('/payments/upload-payment-proof', formData, {
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
       },);
@@ -51,12 +51,11 @@ const UploadPaymentView = () => {
       toast({
         variant: 'default',
         title: 'Upload successful',
-        description: 'Your payment proof has been uploaded successfully.',
+        description: 'Bukti pembayaran Anda berhasil di upload',
       });
 
       router.push('/order-list');
     } catch (error) {
-      console.error('Error uploading payment proof:', error);
       toast({
         variant: 'destructive',
         title: 'Upload failed',

@@ -24,6 +24,8 @@ const ProductSwiperSlide = ({ product }: { product: TProduct }) => {
   const freeProduct = product.inventories[0]?.freeProductPerStores?.[0];
   const user = useAppSelector((state) => state.auth.user);
   const router = useRouter();
+  const nearestStore = useAppSelector((state) => state.storeId);
+  const { storeId } = nearestStore;
 
   const discountedPrice = productDiscount
     ? productDiscount.discountType === 'PERCENT'
@@ -43,14 +45,9 @@ const ProductSwiperSlide = ({ product }: { product: TProduct }) => {
     }
     const cartItem = {
       productId: product.id,
-      name: product.name,
-      price: product.prices[0].price, 
-      discountedPrice: discountedPrice || null, 
+      storeId: storeId, 
       quantity: 1, 
       userId: user.id.toString(),
-      image: product.images[0]?.title,
-      buy, 
-      get, 
     };
 
     addToCart(cartItem); 
