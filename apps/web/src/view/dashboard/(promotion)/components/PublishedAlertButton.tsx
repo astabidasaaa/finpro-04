@@ -15,9 +15,9 @@ import axiosInstance from '@/lib/axiosInstance';
 import { State } from '@/types/productTypes';
 import { AxiosError } from 'axios';
 import { getCookie } from 'cookies-next';
-import { Trash2 } from 'lucide-react';
+import { Send } from 'lucide-react';
 
-export default function ArchiveAlertButton({
+export default function PublishAlertButton({
   promotion,
   type,
 }: {
@@ -26,11 +26,11 @@ export default function ArchiveAlertButton({
 }) {
   const token = getCookie('access-token');
 
-  async function handleDelete() {
+  async function handlePublish() {
     try {
       const response = await axiosInstance().patch(
         `/promotions/state/${type.toLowerCase()}/${promotion.id}`,
-        { state: State.ARCHIVED },
+        { state: State.PUBLISHED },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export default function ArchiveAlertButton({
       if (err instanceof AxiosError) {
         toast({
           variant: 'destructive',
-          title: 'Promosi tidak diarsip',
+          title: 'Promosi tidak diterbitkan',
           description: err.response?.data.message,
         });
       } else {
@@ -58,22 +58,23 @@ export default function ArchiveAlertButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="outline" className="h-8 w-8 p-0">
-          <Trash2 className="h-4 w-4" />
+          <Send className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Apakah kamu yakin untuk mengarsip promosi {promotion.name}?
+            Apakah kamu yakin untuk menerbitkan promosi {promotion.name}?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Tindakan ini tidak dapat dibatalkan. Ini akan membuat promosi anda
-            inaktif.
+            Tindakan ini akan membuat promosi anda berlaku.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Arsip</AlertDialogAction>
+          <AlertDialogAction onClick={handlePublish}>
+            Terbitkan
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

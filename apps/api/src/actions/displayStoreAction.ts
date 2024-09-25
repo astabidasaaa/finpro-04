@@ -15,6 +15,17 @@ class DisplayStoreAction {
     return stores;
   }
 
+  public async getDraftAndPublishStoreAction(): Promise<
+    {
+      id: number;
+      name: string;
+    }[]
+  > {
+    const stores = await storeQuery.getDraftAndPublishStore();
+
+    return stores;
+  }
+
   public async getStorebyStoreId(storeId: number) {
     const store = await storeQuery.findSingleStore(storeId);
     if (store === null) {

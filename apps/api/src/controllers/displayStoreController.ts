@@ -16,7 +16,26 @@ export class DisplayStoreController {
         message: 'Berhasil menampilkan seluruh toko',
         data: stores,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getAllDraftAndPublishStore(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const stores = await displayStoreAction.getDraftAndPublishStoreAction();
+
+      res.status(200).json({
+        message: 'Berhasil menampilkan seluruh toko draft dan publish',
+        data: stores,
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 
   public async getSingleStore(
@@ -35,7 +54,9 @@ export class DisplayStoreController {
         message: 'Berhasil menampilkan toko',
         data: store,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
   }
 
   public async getAdminStore(
@@ -54,7 +75,9 @@ export class DisplayStoreController {
         message: 'Berhasil menampilkan toko dari admin',
         data: store,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
   }
 
   public async nearestStoreId(

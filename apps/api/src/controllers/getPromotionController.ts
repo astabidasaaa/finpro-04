@@ -1,7 +1,6 @@
 import featuredPromotionAction from '@/actions/featuredPromotionAction';
 import getPromotionAction from '@/actions/getPromotionAction';
 import { User } from '@/types/express';
-import { $Enums } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 
 export class GetPromotionController {
@@ -95,10 +94,13 @@ export class GetPromotionController {
     next: NextFunction,
   ): Promise<void> {
     try {
+      const { id } = req.user as User;
       const storeId = parseInt(req.params.storeId);
 
-      const promotions =
-        await getPromotionAction.getActiveStorePromotionAction(storeId);
+      const promotions = await getPromotionAction.getActiveStorePromotionAction(
+        storeId,
+        id,
+      );
 
       res.status(200).json({
         message: 'Mengambil promosi aktif toko berhasil',

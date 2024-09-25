@@ -131,7 +131,6 @@ export default function CreatePromotionForm({
       } else {
         message = error.message;
       }
-      console.log(error);
 
       setTimeout(() => {
         toast({

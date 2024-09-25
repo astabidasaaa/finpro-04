@@ -28,6 +28,7 @@ import ArchiveAlertButton from './ArchivedAlertButton';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 import Link from 'next/link';
+import EditProductButton from './EditProductButton';
 
 export const columns: ColumnDef<ProductProps>[] = [
   {
@@ -98,11 +99,7 @@ export const columns: ColumnDef<ProductProps>[] = [
       return (
         <div className="flex space-x-2">
           <SeeDetailDialogButton product={product} />
-          <Link href={`/dashboard/product/edit/${product.id}`}>
-            <Button variant="outline" className="h-8 w-8 p-0">
-              <Edit className="h-4 w-4" />
-            </Button>
-          </Link>
+          <EditProductButton productId={product.id} />
           {(product.productState === State.DRAFT ||
             product.productState === State.PUBLISHED) && (
             <ArchiveAlertButton product={product} />
@@ -139,7 +136,7 @@ export default function ProductTable({ data }: { data: ProductProps[] }) {
 
   return (
     <div className="w-full rounded-md border">
-      <ScrollArea className="w-[calc(100vw_-_48px)] md:w-full max-w-full rounded-md overflow-auto">
+      <ScrollArea className="w-[calc(100vw_-_32px)] md:w-full max-w-full rounded-md overflow-auto">
         <Table className="">
           <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (

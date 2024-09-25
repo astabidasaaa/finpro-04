@@ -10,7 +10,6 @@ import { StoreProps } from '@/types/storeTypes';
 import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
 import {
-  InventoryProps,
   InventoryUpdateProps,
   InventoryUpdateType,
   SortTime,
@@ -105,7 +104,7 @@ export default function InventoryHistoryView() {
       }
 
       const storeResult = await axiosInstance().get(
-        `${process.env.API_URL}/stores`,
+        `${process.env.API_URL}/stores/admin`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -152,17 +151,17 @@ export default function InventoryHistoryView() {
       </div>
       <div className="w-full">
         <div className="space-y-4">
-          <div className="flex items-start gap-1 justify-between">
+          <div className="flex flex-row items-start gap-1 justify-between">
             <Input
               placeholder="Cari riwayat inventaris..."
-              className="min-w-40 md:max-w-[300px]"
+              className="max-w-[300px]"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
             <SelectOrderBy setOrderBy={setSortCol} />
           </div>
           <div className="flex flex-row gap-y-3 gap-x-1 justify-between">
-            <div className="min-w-[170px] md:max-w-[300px] w-full">
+            <div className="md:max-w-[300px] w-full">
               {user.role === UserType.SUPERADMIN ? (
                 <StoreFilter stores={stores} setStoreId={setStoreId} />
               ) : (

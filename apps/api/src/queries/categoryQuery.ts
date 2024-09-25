@@ -1,5 +1,6 @@
 import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { CategoryWithSubcategories } from '@/types/categoryType';
 import { HttpStatus } from '@/types/error';
 import { ProductCategory } from '@prisma/client';
 
@@ -35,11 +36,27 @@ class CategoryQuery {
     }
   }
 
-  public async getAllCategory(): Promise<ProductCategory[]> {
+  public async getAllCategory(): Promise<CategoryWithSubcategories[]> {
     try {
       const allCategory = await prisma.productCategory.findMany({
-        include: { subcategories: { select: { id: true, name: true } } },
+        orderBy: {
+          name: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+          subcategories: {
+            orderBy: {
+              name: 'asc',
+            },
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
       });
+
       return allCategory;
     } catch (err) {
       throw new HttpException(

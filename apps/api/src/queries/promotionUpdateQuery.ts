@@ -14,74 +14,74 @@ import {
 } from '@prisma/client';
 
 class PromotionUpdateQuery {
-  public async archiveNonProductPromotion(
+  public async updateNonProductPromotionState(
     promotionId: number,
+    state: $Enums.State,
   ): Promise<Promotion> {
     try {
-      const archivedPromotion = await prisma.promotion.update({
+      const updatedPromotion = await prisma.promotion.update({
         where: {
           id: promotionId,
         },
         data: {
-          promotionState: $Enums.State.ARCHIVED,
+          promotionState: state,
           updatedAt: new Date(),
-          finishedAt: new Date(),
         },
       });
 
-      return archivedPromotion;
+      return updatedPromotion;
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        'Tidak dapat mengarsip promosi',
+        'Tidak dapat mengubah status promosi',
       );
     }
   }
 
-  public async archiveFreeProductPromotion(
+  public async updateFreeProductPromotionState(
     promotionId: number,
+    state: $Enums.State,
   ): Promise<FreeProductPerStore> {
     try {
-      const archivedPromotion = await prisma.freeProductPerStore.update({
+      const updatedPromotion = await prisma.freeProductPerStore.update({
         where: {
           id: promotionId,
         },
         data: {
-          freeProductState: $Enums.State.ARCHIVED,
+          freeProductState: state,
           updatedAt: new Date(),
-          finishedAt: new Date(),
         },
       });
 
-      return archivedPromotion;
+      return updatedPromotion;
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        'Tidak dapat mengarsip promosi',
+        'Tidak dapat mengubah status promosi',
       );
     }
   }
 
-  public async archiveDiscountProductPromotion(
+  public async updateDiscountProductPromotionState(
     promotionId: number,
+    state: $Enums.State,
   ): Promise<ProductDiscountPerStore> {
     try {
-      const archivedPromotion = await prisma.productDiscountPerStore.update({
+      const updatedPromotion = await prisma.productDiscountPerStore.update({
         where: {
           id: promotionId,
         },
         data: {
-          productDiscountState: $Enums.State.ARCHIVED,
+          productDiscountState: state,
           updatedAt: new Date(),
-          finishedAt: new Date(),
         },
       });
 
-      return archivedPromotion;
+      return updatedPromotion;
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        'Tidak dapat mengarsip promosi',
+        'Tidak dapat mengubah status promosi',
       );
     }
   }

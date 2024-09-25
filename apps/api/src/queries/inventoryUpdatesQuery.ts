@@ -6,13 +6,24 @@ import {
   InventoryUpdateProps,
   SearchStoreInventoryUpdatesInput,
 } from '@/types/inventoryTypes';
+import { $Enums } from '@prisma/client';
 
 class InventoryUpdatesQuery {
   public async getAllInventoryUpdates(
     props: SearchAllInventoryUpdatesInput,
   ): Promise<{ inventoryUpdates: InventoryUpdateProps[]; totalCount: number }> {
     try {
-      const filters: any = { AND: [] };
+      const filters: any = {
+        AND: [
+          {
+            inventory: {
+              store: {
+                storeState: { not: $Enums.State.ARCHIVED },
+              },
+            },
+          },
+        ],
+      };
 
       if (props.storeId !== undefined && !isNaN(props.storeId)) {
         filters.AND.push({

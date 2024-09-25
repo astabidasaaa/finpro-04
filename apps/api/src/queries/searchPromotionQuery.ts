@@ -12,6 +12,7 @@ import {
   FreeProductPerStore,
   ProductDiscountPerStore,
 } from '@prisma/client';
+import storeQuery from './storeQuery';
 
 class SearchPromotionQuery {
   public async getGeneralPromotions(
@@ -46,26 +47,20 @@ class SearchPromotionQuery {
     }
   }
 
-  private async isStoreExist(storeId: number) {
-    const isStore = await prisma.store.findFirst({
-      where: { id: storeId },
-    });
-
-    if (isStore === undefined) {
-      throw new HttpException(
-        HttpStatus.BAD_REQUEST,
-        'Tidak terdapat toko dengan ID ini',
-      );
-    }
-  }
-
   public async getStorePromotions(
     props: SearchStorePromotion,
   ): Promise<{ promotions: Promotion[]; totalCount: number }> {
-    let filters: any = { scope: $Enums.PromotionScope.STORE };
+    let filters: any = {
+      scope: $Enums.PromotionScope.STORE,
+      store: {
+        storeState: {
+          not: $Enums.State.ARCHIVED,
+        },
+      },
+    };
 
     if (props.storeId !== undefined && !isNaN(props.storeId)) {
-      this.isStoreExist(props.storeId);
+      await storeQuery.isStoreExist(props.storeId);
       filters = { ...filters, storeId: props.storeId };
     }
 
@@ -105,7 +100,7 @@ class SearchPromotionQuery {
     const filters: any = { AND: [] };
 
     if (props.storeId !== undefined && !isNaN(props.storeId)) {
-      this.isStoreExist(props.storeId);
+      await storeQuery.isStoreExist(props.storeId);
 
       filters.AND.push({
         inventory: {
@@ -114,7 +109,6 @@ class SearchPromotionQuery {
       });
     }
 
-    console.log(props.promotionState);
     if (props.promotionState !== undefined) {
       filters.AND.push({ freeProductState: props.promotionState });
     }
@@ -175,7 +169,7 @@ class SearchPromotionQuery {
     const filters: any = { AND: [] };
 
     if (props.storeId !== undefined && !isNaN(props.storeId)) {
-      this.isStoreExist(props.storeId);
+      await storeQuery.isStoreExist(props.storeId);
 
       filters.AND.push({
         inventory: {

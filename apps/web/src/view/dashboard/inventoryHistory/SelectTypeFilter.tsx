@@ -37,7 +37,7 @@ export default function SelectFilterType({
           setFilterType(filter);
         }}
       >
-        <SelectTrigger className="w-[220px]">
+        <SelectTrigger className="max-w-[220px]">
           <SelectValue defaultChecked={true} placeholder={SortTime.TIMEDESC} />
         </SelectTrigger>
         <SelectContent>

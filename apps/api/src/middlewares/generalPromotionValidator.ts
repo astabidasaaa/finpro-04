@@ -73,7 +73,12 @@ const generalTypeValidators = [
 
 export const textFieldValidators = [
   body('name').trim().notEmpty().withMessage('Nama wajib diisi'),
-  body('description').trim().notEmpty().withMessage('Deskripsi wajib diisi'),
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('Deskripsi wajib diisi')
+    .isLength({ max: 190 })
+    .withMessage('Deskripsi tidak boleh lebih dari 190 karakter'),
 ];
 
 export const dateValidators = [
@@ -103,6 +108,11 @@ export const dateValidators = [
     })
     .withMessage(
       'Tanggal promosi berakhir sama atau lebih besar daripada tanggal promosi dimulai',
+    )
+    .bail()
+    .custom((value) => (new Date(value) <= new Date() ? false : true))
+    .withMessage(
+      'Tanggal promosi berakhir tidak boleh kurang daripada saat ini',
     ),
 ];
 

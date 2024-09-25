@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { State, Store } from '@prisma/client';
+import { $Enums, State, Store } from '@prisma/client';
 
 class StoreQuery {
   public async findSingleStore(storeId: number): Promise<Store | null> {
@@ -151,6 +151,44 @@ class StoreQuery {
     const stores = await prisma.store.findMany({
       where: {
         storeState: 'PUBLISHED',
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return stores;
+  }
+
+  public async isStoreExist(storeId: number) {
+    const isStore = await prisma.store.findFirst({
+      where: { id: storeId },
+    });
+
+    if (isStore === null) {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Tidak terdapat toko dengan ID ini',
+      );
+    } else if (
+      isStore !== null &&
+      isStore.storeState === $Enums.State.ARCHIVED
+    ) {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Tidak dapat memperbarui toko yang sudah diarsip',
+      );
+    }
+  }
+
+  public async getDraftAndPublishStore() {
+    const stores = await prisma.store.findMany({
+      where: {
+        OR: [
+          { storeState: $Enums.State.DRAFT },
+          { storeState: $Enums.State.PUBLISHED },
+        ],
       },
       select: {
         id: true,
