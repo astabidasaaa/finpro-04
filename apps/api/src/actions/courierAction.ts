@@ -1,4 +1,4 @@
-import { SHIPPING_CLIENT_KEY } from '@/config';
+import { SHIPPING_API_URL, SHIPPING_CLIENT_KEY } from '@/config';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import {
@@ -55,7 +55,7 @@ class CourierAction {
       });
     });
 
-    const res = await fetch('https://api.biteship.com/v1/rates/couriers', {
+    const res = await fetch(SHIPPING_API_URL, {
       method: 'POST',
       headers: {
         Authorization: SHIPPING_CLIENT_KEY,

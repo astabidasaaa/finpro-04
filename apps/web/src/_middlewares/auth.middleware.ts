@@ -32,7 +32,15 @@ export const login = ({
 
       return user.data.data.role;
     } catch (error) {
-      deleteCookie('access-token');
+      deleteCookie('access-token', {
+        domain: '.sigmart.shop',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'none',
+      });
+      dispatch(logoutState());
       throw error;
     }
   };
@@ -41,7 +49,14 @@ export const login = ({
 export const logout = () => {
   return async (dispatch: Dispatch) => {
     try {
-      deleteCookie('access-token');
+      deleteCookie('access-token', {
+        domain: '.sigmart.shop',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'none',
+      });
       dispatch(logoutState());
 
       return true;
@@ -65,7 +80,15 @@ export const loginSocial = ({ access_token }: { access_token: string }) => {
 
       return true;
     } catch (error) {
-      deleteCookie('access-token');
+      deleteCookie('access-token', {
+        domain: '.sigmart.shop',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'none',
+      });
+      dispatch(logoutState());
       throw error;
     }
   };

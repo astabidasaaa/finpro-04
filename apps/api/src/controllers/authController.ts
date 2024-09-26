@@ -56,9 +56,19 @@ export class AuthController {
 
       const accessToken = await authAction.loginCredentials(email, password);
 
-      res.status(200).cookie('access-token', accessToken).json({
-        message: 'Login berhasil',
-      });
+      res
+        .status(200)
+        .cookie('access-token', accessToken, {
+          domain: '.sigmart.shop',
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24,
+          secure: true,
+          httpOnly: false,
+          sameSite: 'none',
+        })
+        .json({
+          message: 'Login berhasil',
+        });
     } catch (error) {
       next(error);
     }
@@ -74,7 +84,14 @@ export class AuthController {
 
       const accessToken = await authAction.refreshAccessToken(email);
 
-      res.status(200).cookie('access-token', accessToken);
+      res.status(200).cookie('access-token', accessToken, {
+        domain: '.sigmart.shop',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'none',
+      });
     } catch (error) {
       next(error);
     }

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AxiosError } from 'axios';
 import { expiryChecker } from './lib/utils';
 import axiosInstance from './lib/axiosInstance';
-import { toast } from './components/ui/use-toast';
 
 export async function middleware(request: NextRequest) {
   const ACCESS_TOKEN = request.cookies.get('access-token')?.value || '';
@@ -22,7 +21,16 @@ export async function middleware(request: NextRequest) {
           },
         });
 
-        response.cookies.set('access-token', data.result.accessToken);
+        response.cookies.set({
+          name: 'access-token',
+          value: data.result.accessToken,
+          domain: '.sigmart.shop',
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24,
+          secure: true,
+          httpOnly: false,
+          sameSite: 'none',
+        });
       } catch (error: any) {
         let message = '';
         if (error instanceof AxiosError) {
@@ -31,7 +39,15 @@ export async function middleware(request: NextRequest) {
           message = error.message;
         }
 
-        response.cookies.delete('access-token');
+        response.cookies.delete({
+          name: 'access-token',
+          domain: '.sigmart.shop',
+          path: '/',
+          maxAge: 1000 * 60 * 60 * 24,
+          secure: true,
+          httpOnly: false,
+          sameSite: 'none',
+        });
       }
     }
   }
@@ -64,7 +80,15 @@ export async function middleware(request: NextRequest) {
       } else {
         message = error.message;
       }
-      response.cookies.delete('access-token');
+      response.cookies.delete({
+        name: 'access-token',
+        domain: '.sigmart.shop',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'none',
+      });
     }
   }
 

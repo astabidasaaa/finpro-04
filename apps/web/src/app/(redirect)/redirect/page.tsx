@@ -1,6 +1,7 @@
 'use client';
 
 import { loginSocial } from '@/_middlewares/auth.middleware';
+import Loading from '@/components/Loading';
 import { toast } from '@/components/ui/use-toast';
 import { useAppDispatch } from '@/lib/hooks';
 import { AxiosError } from 'axios';
@@ -18,7 +19,14 @@ const RedirectPage = () => {
 
   useEffect(() => {
     if (token) {
-      setCookie('access-token', token);
+      setCookie('access-token', token, {
+        domain: '.sigmart.shop',
+        path: '/',
+        maxAge: 1000 * 60 * 60 * 24,
+        secure: true,
+        httpOnly: false,
+        sameSite: 'none',
+      });
       loginFromSocial(token);
     }
 
@@ -60,7 +68,11 @@ const RedirectPage = () => {
     }
   };
 
-  return <></>;
+  return (
+    <>
+      <Loading />
+    </>
+  );
 };
 
 export default RedirectPage;
