@@ -40,6 +40,32 @@ class SubcategoryQuery {
     }
   }
 
+  public async getAllSubcategoryWithProductCount(): Promise<
+    ProductSubcategory[]
+  > {
+    try {
+      const allSubcategory = await prisma.productSubcategory.findMany({
+        orderBy: {
+          name: 'asc',
+        },
+        include: {
+          _count: {
+            select: {
+              products: true,
+            },
+          },
+        },
+      });
+
+      return allSubcategory;
+    } catch (err) {
+      throw new HttpException(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Tidak dapat memuat seluruh subkategori',
+      );
+    }
+  }
+
   public async getSubcategoryByName(
     name: string,
   ): Promise<ProductSubcategory | null> {

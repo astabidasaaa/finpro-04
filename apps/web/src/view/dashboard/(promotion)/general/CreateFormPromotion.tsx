@@ -116,7 +116,9 @@ export default function CreatePromotionForm({
           });
         }
 
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }, 1000);
     } catch (error: any) {
       let message = '';
@@ -296,10 +298,11 @@ export default function CreatePromotionForm({
                 control={form.control}
                 name="file"
                 render={({ field }) => (
-                  <FormItem className="gap-3 hidden">
+                  <FormItem className="gap-3">
                     <FormControl>
                       <Input
                         type="file"
+                        className="hidden"
                         ref={(e) => {
                           field.ref(e);
                           hiddenInputRef.current = e;

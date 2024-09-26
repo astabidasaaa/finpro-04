@@ -2,12 +2,6 @@
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from '@/components/ui/pagination';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import AdminTable from './AdminTable';
@@ -17,6 +11,7 @@ import StoreFilter from './StoreFilter';
 import { StoreProps } from '@/types/storeTypes';
 import { AddAdminButton } from './AddAdminButton';
 import { getCookie } from 'cookies-next';
+import Pagination from '@/components/dashboard/Pagination';
 
 export default function AdminManagementView() {
   const [users, setUsers] = useState<SearchedUser[]>([]);
@@ -27,11 +22,6 @@ export default function AdminManagementView() {
   const [storeId, setStoreId] = useState<number>();
   const [stores, setStores] = useState<StoreProps[]>([]);
   const [role, setRole] = useState<UserType>(UserType.STOREADMIN);
-  const totalPages = Math.ceil(total / pageSize);
-  const pages = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
-  }
   const router = useRouter();
   const [inputValue, setInputValue] = useState<string>('');
   const [keyword, setKeyword] = useState<string>('');
@@ -134,17 +124,12 @@ export default function AdminManagementView() {
         <div className="text-sm py-3">
           {users.length} dari {total} akun
         </div>
-        <Pagination>
-          <PaginationContent>
-            {pages.map((page, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink onClick={() => setPage(page)}>
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-          </PaginationContent>
-        </Pagination>
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          setPage={setPage}
+        />
       </div>
     </div>
   );

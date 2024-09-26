@@ -54,7 +54,6 @@ const RegisterFormAdmin = ({
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   stores: StoreProps[];
 }) => {
-  const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<string>('super admin');
   const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
   const token = getCookie('access-token');
@@ -108,8 +107,10 @@ const RegisterFormAdmin = ({
           });
         }
 
-        window.location.reload();
-      }, 1000);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }, 500);
     } catch (error: any) {
       let message = '';
       if (error instanceof AxiosError) {
@@ -126,7 +127,7 @@ const RegisterFormAdmin = ({
         });
 
         setSubmitLoading((prev) => false);
-      }, 1000);
+      }, 500);
     }
   };
 

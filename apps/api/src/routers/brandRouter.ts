@@ -20,6 +20,10 @@ export class BrandRouter implements Route {
   private initializeRoutes(): void {
     this.router.get(`${this.path}/`, this.brandController.getAllBrand);
     this.router.get(
+      `${this.path}/detail`,
+      this.brandController.getAllBrandDetail,
+    );
+    this.router.get(
       `${this.path}/:brandId`,
       this.brandController.getSingleBrand,
     );

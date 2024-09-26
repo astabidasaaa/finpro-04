@@ -2,17 +2,12 @@
 import { useEffect, useState } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from '@/components/ui/pagination';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import UserTable from './UserTable';
 import { SearchedUser } from '@/types/userType';
 import { getCookie } from 'cookies-next';
+import Pagination from '@/components/dashboard/Pagination';
 
 export default function UserManagementView() {
   const [users, setUsers] = useState<SearchedUser[]>([]);
@@ -20,11 +15,6 @@ export default function UserManagementView() {
   const [isMounted, setIsMounted] = useState(false);
   const pageSize = 15;
   const [page, setPage] = useState<number>(1);
-  const totalPages = Math.ceil(total / pageSize);
-  const pages = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
-  }
   const router = useRouter();
   const [inputValue, setInputValue] = useState<string>('');
   const [keyword, setKeyword] = useState<string>('');
@@ -107,17 +97,12 @@ export default function UserManagementView() {
         <div className="text-sm py-3">
           {users.length} dari {total} akun
         </div>
-        <Pagination>
-          <PaginationContent>
-            {pages.map((page, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink onClick={() => setPage(page)}>
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-          </PaginationContent>
-        </Pagination>
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          setPage={setPage}
+          total={total}
+        />
       </div>
     </div>
   );

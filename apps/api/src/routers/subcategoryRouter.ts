@@ -22,6 +22,10 @@ export class SubcategoryRouter implements Route {
       `${this.path}/`,
       this.subcategoryController.getAllSubcategory,
     );
+    this.router.get(
+      `${this.path}/detail`,
+      this.subcategoryController.getAllSubcategoryDetail,
+    );
     this.router.post(
       `${this.path}`,
       this.guard.verifyAccessToken,

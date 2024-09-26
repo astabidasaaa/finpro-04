@@ -103,8 +103,10 @@ const EditFormAdmin = ({
           });
         }
 
-        window.location.reload();
-      }, 1000);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }, 500);
     } catch (error: any) {
       let message = '';
       if (error instanceof AxiosError) {
@@ -121,7 +123,7 @@ const EditFormAdmin = ({
         });
 
         setSubmitLoading((prev) => false);
-      }, 1000);
+      }, 500);
     }
   };
 

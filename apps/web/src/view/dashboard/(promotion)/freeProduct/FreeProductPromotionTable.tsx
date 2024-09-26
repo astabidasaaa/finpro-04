@@ -29,7 +29,7 @@ export const columns: ColumnDef<FreeProductPromotionProps>[] = [
     cell: ({ row }) => {
       const { inventory } = row.original;
       return (
-        <div className="font-medium flex items-center">
+        <div className="font-medium flex items-center md:[overflow-wrap:anywhere]">
           {inventory.product.name}
         </div>
       );

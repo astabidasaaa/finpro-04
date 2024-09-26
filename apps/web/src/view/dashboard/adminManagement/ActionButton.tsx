@@ -1,19 +1,14 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
-import { BrandProps } from '@/types/brandTypes';
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import {
@@ -51,16 +46,21 @@ export function DialogDeleteAdmin({ data }: { data: SearchedUser }) {
       if (response.status == 200) {
         window.location.reload();
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
+    } catch (error: any) {
+      let message = '';
+      if (error instanceof AxiosError) {
+        message = error.response?.data.message;
+      } else {
+        message = error.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Akun tidak dihapus',
-          description: err.response?.data.message,
+          title: 'Akun gagal dihapus',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 

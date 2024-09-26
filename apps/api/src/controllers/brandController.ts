@@ -1,6 +1,7 @@
 import { User } from '@/types/express';
 import { Request, Response, NextFunction } from 'express';
 import brandAction from '@/actions/brandAction';
+import brandQuery from '@/queries/brandQuery';
 
 export class BrandController {
   public async createBrand(
@@ -38,6 +39,23 @@ export class BrandController {
   ): Promise<void> {
     try {
       const allBrand = await brandAction.getAllBrandAction();
+
+      res.status(200).json({
+        message: 'Seluruh brand berhasil dimuat',
+        data: allBrand,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getAllBrandDetail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const allBrand = await brandQuery.getAllBrandDetail();
 
       res.status(200).json({
         message: 'Seluruh brand berhasil dimuat',

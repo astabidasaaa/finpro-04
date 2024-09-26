@@ -105,7 +105,9 @@ export default function CreatePromotionForm({
           });
         }
 
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       }, 1000);
     } catch (error: any) {
       let message = '';

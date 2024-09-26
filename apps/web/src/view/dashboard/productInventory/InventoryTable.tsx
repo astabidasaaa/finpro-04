@@ -37,7 +37,9 @@ export const columns: ColumnDef<InventoryProps>[] = [
     cell: ({ row }) => {
       const { product } = row.original;
       return (
-        <div className="font-medium flex items-center">{product.name}</div>
+        <div className="font-medium flex items-center md:[overflow-wrap:anywhere]">
+          {product.name}
+        </div>
       );
     },
   },

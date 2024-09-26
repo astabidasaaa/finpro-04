@@ -7,13 +7,21 @@ import { AxiosError } from 'axios';
 import { BrandProps } from '@/types/brandTypes';
 import BrandTable from './BrandTable';
 
+export type BrandDetail = BrandProps & {
+  _count: {
+    products: number;
+  };
+};
+
 export default function BrandView() {
-  const [brands, setBrands] = useState<BrandProps[]>([]);
+  const [brands, setBrands] = useState<BrandDetail[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   async function fetchData() {
     try {
-      const result = await axiosInstance().get(`${process.env.API_URL}/brands`);
+      const result = await axiosInstance().get(
+        `${process.env.API_URL}/brands/detail`,
+      );
       setBrands(result.data.data);
       setIsMounted(true);
     } catch (err) {

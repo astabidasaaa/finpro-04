@@ -93,7 +93,9 @@ export default function SeeDetailDialogButton({
               <span>{promotion.quota}</span>
             </div>
             <div>
-              <h4 className="font-semibold">Deskripsi</h4>
+              <h4 className="font-semibold md:[overflow-wrap:anywhere]">
+                Deskripsi
+              </h4>
               <p>{promotion.description}</p>
             </div>
             <div className="flex items-center space-x-2">

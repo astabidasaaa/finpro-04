@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { UserType } from '@/types/userType';
 import { useAppSelector } from '@/lib/hooks';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function ProductListView() {
@@ -97,12 +97,12 @@ export default function ProductListView() {
         <h1 className="text-lg font-semibold md:text-2xl">Daftar Produk</h1>
       </div>
       <div className="w-full">
-        <div className="flex items-start justify-between py-4 pr-5">
+        <div className="flex items-start justify-between py-4">
           <Input
             placeholder="Cari produk..."
             className="max-w-sm"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)} // Update input state
+            onChange={(e) => setInputValue(e.target.value)}
           />
           {user.role === UserType.SUPERADMIN && (
             <Button
@@ -135,7 +135,7 @@ export default function ProductListView() {
             <div className="text-sm py-3">
               {products.length} dari {total} produk
             </div>
-            <PaginationInventory
+            <Pagination
               page={page}
               setPage={setPage}
               total={total}

@@ -43,7 +43,7 @@ export const columns: ColumnDef<InventoryUpdateProps>[] = [
     cell: ({ row }) => {
       const { inventory } = row.original;
       return (
-        <div className="font-medium flex items-center">
+        <div className="font-medium flex items-center md:[overflow-wrap:anywhere]">
           {inventory.product.name}
         </div>
       );
@@ -190,7 +190,7 @@ export default function InventoryTable({
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <ScrollArea className="w-[calc(100vw_-_32px)] md:w-full max-w-full rounded-md overflow-auto">
+        <ScrollArea className="w-[calc(100vw_-_32px)] md:w-[66vw] lg:w-full max-w-full rounded-md overflow-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

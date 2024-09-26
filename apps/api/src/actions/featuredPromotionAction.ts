@@ -24,6 +24,7 @@ class FeaturedPromotionAction {
         id: true,
         name: true,
         isFeatured: true,
+        source: true,
         banner: true,
         discountType: true,
         discountValue: true,

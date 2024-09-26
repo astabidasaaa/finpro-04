@@ -26,7 +26,7 @@ import { HighPriceFilter, LowPriceFilter } from './component/PriceFilters';
 import { useAppSelector } from '@/lib/hooks';
 import { TStore } from '@/types/storeTypes';
 import ProductNotFound from './component/ProductNotFound';
-import PaginationInventory from '@/components/dashboard/Pagination';
+import Pagination from '@/components/dashboard/Pagination';
 import { Label } from '@/components/ui/label';
 
 export default function SearchMainView() {
@@ -183,7 +183,7 @@ export default function SearchMainView() {
           <div className="text-xs text-center">
             Menampilkan {products.length} dari {total} produk
           </div>
-          <PaginationInventory
+          <Pagination
             page={page}
             setPage={setPage}
             total={total}
