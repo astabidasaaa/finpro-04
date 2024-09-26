@@ -8,6 +8,7 @@ class FeaturedPromotionAction {
       where: {
         promotionState: 'PUBLISHED',
         scope: 'GENERAL',
+        source: 'ALL_BRANCH',
         startedAt: {
           lte: new Date(),
         },
