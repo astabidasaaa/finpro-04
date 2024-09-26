@@ -525,7 +525,8 @@ export default function CreatePromotionForm({
               <FormItem className="grid gap-2">
                 <FormLabel>Promosi Unggulan?</FormLabel>
                 <FormDescription>
-                  Promosi unggulan akan ditampilkan pada landing page
+                  Promosi unggulan akan ditampilkan pada landing page jika jenis
+                  promosi adalah seluruh cabang
                 </FormDescription>
                 <FormControl>
                   <Switch

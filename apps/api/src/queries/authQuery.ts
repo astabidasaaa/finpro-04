@@ -55,6 +55,25 @@ class AuthQuery {
     return null;
   }
 
+  public async findUserIdAndIsPassword(id: number) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+      },
+    });
+
+    if (user?.password)
+      return { id: user.id, email: user.email, password: user.password };
+
+    return null;
+  }
+
   // check whether the referral code is already used. if used it will re-generate and re-checked the code until the unique code found then return the code
   public async generateUniqueReferralCode() {
     let code;

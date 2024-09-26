@@ -45,11 +45,11 @@ export class PasswordController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { email } = req.user as User;
+      const { id } = req.user as User;
 
       const { password, newPassword } = req.body;
 
-      await passwordAction.change(email, password, newPassword);
+      await passwordAction.change(id, password, newPassword);
 
       res.status(200).json({
         message: 'Password berhasil diubah',

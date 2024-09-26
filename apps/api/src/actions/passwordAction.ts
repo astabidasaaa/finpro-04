@@ -49,10 +49,10 @@ class PasswordAction {
     await passwordQuery.resetPasswordAndRemoveToken(user.id, hashedPassword);
   }
 
-  public async change(email: string, password: string, newPassword: string) {
-    const user = await authQuery.findUserByEmail(email);
+  public async change(id: number, password: string, newPassword: string) {
+    const user = await authQuery.findUserIdAndIsPassword(id);
 
-    if (!user || user.password === null) {
+    if (!user) {
       throw new HttpException(
         HttpStatus.NOT_FOUND,
         'Akun tidak ditemukan. Pastikan email Anda benar atau login menggunakan sosial',
@@ -69,7 +69,7 @@ class PasswordAction {
 
     const hashedPassword = await hashingPassword(newPassword);
 
-    await passwordQuery.changePassword(email, hashedPassword);
+    await passwordQuery.changePassword(user.email, hashedPassword);
   }
 
   public async add(email: string, password: string) {

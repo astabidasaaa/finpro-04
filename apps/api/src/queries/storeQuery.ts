@@ -27,7 +27,7 @@ class StoreQuery {
             id: true,
             name: true,
             products: {
-              take: 2,
+              take: 4,
               where: {
                 productState: {
                   equals: 'PUBLISHED',

@@ -1,4 +1,7 @@
 import verifyEmailAction from '@/actions/verifyEmailAction';
+import { HttpException } from '@/errors/httpException';
+import authQuery from '@/queries/authQuery';
+import { HttpStatus } from '@/types/error';
 import { User } from '@/types/express';
 import { NextFunction, Request, Response } from 'express';
 
@@ -9,9 +12,18 @@ export class VerifyEmailController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { email } = req.user as User;
+      const { id } = req.user as User;
 
-      await verifyEmailAction.verifyEmailRequest(email);
+      const userEmail = await authQuery.findUserIdAndIsPassword(id);
+
+      if (!userEmail) {
+        throw new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'Email tidak ditemukan',
+        );
+      }
+
+      await verifyEmailAction.verifyEmailRequest(userEmail.email);
 
       res.status(200).json({
         message: 'Permintaan verifikasi email berhasil',

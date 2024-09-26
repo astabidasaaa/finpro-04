@@ -39,7 +39,7 @@ const CartPageView = () => {
 
         if (productData) {
           let productPrice = productData.product.prices[0].price;
-          let discountedPrice = productPrice;
+          let discountedPrice = 0;
           let buy = 0;
           let get = 0;
 
@@ -257,18 +257,20 @@ const CartPageView = () => {
                   </p>
                   <p className="text-sm font-semibold">
                     {item.discountedPrice > 0 ? (
-                      <span className="line-through text-gray-500">
-                        {IDR.format(item.price)}
-                      </span>
+                      <>
+                        <span className="line-through text-muted-foreground/80">
+                          {IDR.format(item.price)}
+                        </span>
+                        <p className="text-lg font-semibold text-main-dark">
+                          {IDR.format(item.discountedPrice)}
+                        </p>
+                      </>
                     ) : (
-                      IDR.format(item.price)
+                      <p className="text-lg font-semibold text-main-dark">
+                        {IDR.format(item.price)}
+                      </p>
                     )}
                   </p>
-                  {item.discountedPrice > 0 && (
-                    <p className="text-lg font-semibold text-main-dark">
-                      {IDR.format(item.discountedPrice)}
-                    </p>
-                  )}
                   {item.buy !== undefined &&
                     item.get !== undefined &&
                     item.buy > 0 &&
