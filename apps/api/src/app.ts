@@ -1,63 +1,51 @@
-import express, {
-  json,
-  urlencoded,
-  Express,
-  Request,
-  Response,
-  NextFunction,
-  Router,
-} from 'express';
+import express, { urlencoded, Express, json } from 'express';
+import { FRONTEND_URL, PORT } from './config';
+import type { Route } from './types/express';
+import { ErrorHandler } from './middlewares/errorHandler';
+import path from 'path';
 import cors from 'cors';
-import { PORT } from './config';
-import { SampleRouter } from './routers/sample.router';
+import passport from 'passport';
+
+import './utils/passport';
 
 export default class App {
-  private app: Express;
+  private readonly app: Express;
 
-  constructor() {
+  constructor(routes: Array<Route>) {
     this.app = express();
     this.configure();
-    this.routes();
+    this.routes(routes);
     this.handleError();
   }
 
   private configure(): void {
-    this.app.use(cors());
+    this.app.use(
+      cors({
+        origin: FRONTEND_URL,
+        credentials: true,
+      }),
+    );
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));
+    this.app.use(
+      '/images',
+      express.static(path.join(path.dirname(__dirname), 'public')),
+    );
+    this.app.use(
+      '/uploads',
+      express.static(path.join(path.dirname(__dirname), 'src', 'uploads'))
+    );
+    this.app.use(passport.initialize());
   }
 
   private handleError(): void {
-    // not found
-    this.app.use((req: Request, res: Response, next: NextFunction) => {
-      if (req.path.includes('/api/')) {
-        res.status(404).send('Not found !');
-      } else {
-        next();
-      }
-    });
-
-    // error
-    this.app.use(
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/api/')) {
-          console.error('Error : ', err.stack);
-          res.status(500).send('Error !');
-        } else {
-          next();
-        }
-      },
-    );
+    this.app.use(ErrorHandler);
   }
 
-  private routes(): void {
-    const sampleRouter = new SampleRouter();
-
-    this.app.get('/api', (req: Request, res: Response) => {
-      res.send(`Hello, Purwadhika Student API!`);
+  private routes(routes: Array<Route>): void {
+    routes.forEach((route) => {
+      this.app.use('/api', route.router);
     });
-
-    this.app.use('/api/samples', sampleRouter.getRouter());
   }
 
   public start(): void {

@@ -1,0 +1,45 @@
+// Back-end Folder
+    File:
+    camelCase naming
+        •	app.ts: class App
+        •	index.ts: run App by inserting routes
+
+    Folder:
+        •	routers: define url routes (export default class definition)
+        •	controllers: destructure request, send response (export default class definition). format: res.status(xxx).json({message: 'message', data: result})
+        •	actions: business logic and validation before posting to prisma (export default instance class)
+        •	queries: prisma queries that return object for response body (export default instance class)
+        •	libs: code for customizing library (nodemailer, multer uploader, etc)
+        •	utils: store small, reusable helper functions or utility methods that can be used throughout the application (string manipulation, datetime, etc)
+        •	types: types/ interfaces storing
+        •	templates: html template for email or else
+        •	middlewares: middleware code outside defined router (auth, handler, validator, etc)
+
+// HTTP Exception
+    •	statusCode: The HTTP status code.
+    •	message: A brief description of the error.
+    •	error: A short string indicating the type of error (optional, but often useful).
+
+// Common HTTP Status Codes and Error Conventions
+    1.	400 Bad Request: The server cannot or will not process the request due to a client error (e.g., validation error).
+        o	Example:
+            throw new HttpException(
+            HttpStatus.BAD_REQUEST,
+            'Invalid input data',
+            'Bad Request' // optional
+            );
+
+    2.	401 Unauthorized: The client must authenticate itself to get the requested response.
+        o	Example:
+            throw new HttpException(
+            HttpStatus.UNAUTHORIZED,
+            'Authentication required',
+            'Unauthorized' // optional
+            )
+
+    3.	403 Forbidden: The client does not have access rights to the content.
+    4.	404 Not Found: The server cannot find the requested resource.
+    5.	409 Conflict: The request conflicts with the current state of the server (e.g., duplicate entries).
+    6.	413 Payload Too Large: the request entity is larger than the server is willing or able to process.
+    7.	500 Internal Server Error: The server encountered a condition that prevents it from fulfilling the request.
+    8.	503 Service Unavailable: The server is not ready to handle the request (e.g., server maintenance or overload).

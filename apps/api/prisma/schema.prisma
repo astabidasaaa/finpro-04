@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,12 +7,539 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  name      String
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id                       Int                       @id @default(autoincrement())
+  email                    String                    @unique
+  password                 String?
+  roleId                   Int
+  role                     Role                      @relation(fields: [roleId], references: [id])
+  referralCode             String                    @unique
+  referredById             Int?
+  referredBy               User?                     @relation("UserToUser", fields: [referredById], references: [id])
+  referredUsers            User[]                    @relation("UserToUser")
+  profile                  Profile?
+  storeId                  Int?
+  store                    Store?                    @relation("StoreAdmin", fields: [storeId], references: [id])
+  addresses                Address[]                 @relation("UserToAddress")
+  isVerified               Boolean                   @default(false)
+  verificationToken        String?
+  verificationTokenExpiry  DateTime?
+  resetPasswordToken       String?
+  resetPasswordTokenExpiry DateTime?
+  googleId                 String?
+  facebookId               String?
+  twitterId                String?
+  deletedAt                DateTime?
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @default(now())
+  productCategories        ProductCategory[]         @relation("CategoryCreator")
+  productSubcategories     ProductSubcategory[]      @relation("SubcategoryCreator")
+  products                 Product[]                 @relation("ProductCreator")
+  inventoryUpdates         InventoryUpdate[]         @relation("InventoryUpdateCreator")
+  mutationStatusUpdates    MutationStatusUpdate[]    @relation("MutationStatusUpdateCreator")
+  productDiscountPerStores ProductDiscountPerStore[] @relation("ProductDiscountCreator")
+  freeProductPerStores     FreeProductPerStore[]     @relation("FreeProductCreator")
+  vouchers                 Voucher[]                 @relation("CustomerToVoucher")
+  orders                   Order[]                   @relation("CustomerToOrder")
+  orderStatusUpdates       OrderStatusUpdate[]       @relation("OrderStatusUpdateCreator")
+  promotions               Promotion[]               @relation("PromotionCreator")
+  stores                   Store[]                   @relation("StoreCreator")
+  brands                   Brand[]                   @relation("BrandCreator")
 
-  @@map("samples") // if you want to use snake_case format
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  users User[]
+
+  @@map("roles")
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String   @default("")
+  address   String
+  zipCode   Int
+  latitude  String
+  longitude String
+  isMain    Boolean  @default(false)
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user   User    @relation("UserToAddress", fields: [userId], references: [id])
+  orders Order[] @relation("DeliveryAddressOfOrder")
+
+  @@map("addresses")
+}
+
+model Profile {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
+  avatar    String?
+  name      String?
+  dob       DateTime?
+  phone     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("profiles")
+}
+
+// Feature 2
+
+enum State {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+}
+
+model Store {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  creatorId  Int
+  storeState State    @default(DRAFT)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  creator       User                  @relation("StoreCreator", fields: [creatorId], references: [id])
+  admins        User[]                @relation("StoreAdmin")
+  inventories   Inventory[]           @relation("InventoryOfStore")
+  orders        Order[]               @relation("OrderOfStore")
+  mutationsFrom Mutation[]            @relation("MutationFromStore")
+  mutationsTo   Mutation[]            @relation("MutationToStore")
+  promotions    Promotion[]
+  addresses     StoreAddressHistory[]
+
+  @@map("stores")
+}
+
+model StoreAddressHistory {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  address   String
+  latitude  String
+  longitude String
+  deleted   Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  store  Store   @relation(fields: [storeId], references: [id])
+  orders Order[]
+
+  @@map("store_address_histories")
+}
+
+model ProductCategory {
+  id        Int      @id @default(autoincrement())
+  creatorId Int
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  creator       User                 @relation("CategoryCreator", fields: [creatorId], references: [id])
+  subcategories ProductSubcategory[]
+
+  @@map("product_categories")
+}
+
+model ProductSubcategory {
+  id                Int      @id @default(autoincrement())
+  creatorId         Int
+  name              String   @unique
+  productCategoryId Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now())
+
+  creator         User            @relation("SubcategoryCreator", fields: [creatorId], references: [id])
+  productCategory ProductCategory @relation(fields: [productCategoryId], references: [id])
+  products        Product[]
+
+  @@map("product_subcategories")
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  creatorId     Int
+  name          String   @unique
+  brandId       Int?
+  subcategoryId Int
+  description   String   @db.Text
+  productState  State    @default(DRAFT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  creator     User                  @relation("ProductCreator", fields: [creatorId], references: [id])
+  prices      ProductPriceHistory[]
+  images      ProductImage[]
+  inventories Inventory[]
+  brand       Brand?                @relation(fields: [brandId], references: [id])
+  subcategory ProductSubcategory    @relation(fields: [subcategoryId], references: [id])
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model ProductPriceHistory {
+  id        Int       @id @default(autoincrement())
+  productId Int
+  price     Float
+  startDate DateTime
+  endDate   DateTime?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_price_histories")
+}
+
+model Brand {
+  id          Int      @id @default(autoincrement())
+  creatorId   Int
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  creator  User      @relation("BrandCreator", fields: [creatorId], references: [id])
+  products Product[]
+
+  @@map("brands")
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  title     String
+  alt       String?
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+
+model Inventory {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  storeId   Int
+  stock     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product                  Product                   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store                    Store                     @relation("InventoryOfStore", fields: [storeId], references: [id], onDelete: Cascade)
+  updates                  InventoryUpdate[]
+  productDiscountPerStores ProductDiscountPerStore[]
+  freeProductPerStores     FreeProductPerStore[]
+
+  @@map("inventories")
+}
+
+model InventoryUpdate {
+  id          Int                   @id @default(autoincrement())
+  creatorId   Int
+  inventoryId Int
+  type        InventoryUpdateType
+  detail      InventoryUpdateDetail
+  description String?
+  stockChange Int
+  createdAt   DateTime              @default(now())
+
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
+  creator   User      @relation("InventoryUpdateCreator", fields: [creatorId], references: [id])
+
+  @@map("inventory_updates")
+}
+
+enum InventoryUpdateType {
+  ADD
+  REMOVE
+}
+
+enum InventoryUpdateDetail {
+  STOCK_IN
+  STOCK_OUT
+  ADJUSTMENT
+  DAMAGED
+  EXPIRATION
+  CANCELLED_ORDER
+}
+
+model Mutation {
+  id             Int            @id @default(autoincrement())
+  fromStoreId    Int
+  toStoreId      Int
+  mutationStatus MutationStatus
+  createdAt      DateTime       @default(now())
+
+  fromStore             Store                  @relation("MutationFromStore", fields: [fromStoreId], references: [id], onDelete: Cascade)
+  toStore               Store                  @relation("MutationToStore", fields: [toStoreId], references: [id], onDelete: Cascade)
+  mutationStatusUpdates MutationStatusUpdate[]
+
+  @@map("mutations")
+}
+
+enum MutationStatus {
+  REQUESTED
+  REJECTED
+  APPROVED
+  CANCELLED
+  DELIVERED
+  RECEIVED
+  FAILED
+}
+
+model MutationStatusUpdate {
+  id             Int            @id @default(autoincrement())
+  creatorId      Int
+  mutationId     Int
+  mutationStatus MutationStatus
+  description    String?
+  createdAt      DateTime       @default(now())
+
+  creator  User     @relation("MutationStatusUpdateCreator", fields: [creatorId], references: [id])
+  mutation Mutation @relation(fields: [mutationId], references: [id])
+
+  @@map("mutation_status_updates")
+}
+
+model ProductDiscountPerStore {
+  id                   Int          @id @default(autoincrement())
+  creatorId            Int
+  productDiscountState State        @default(DRAFT)
+  inventoryId          Int
+  discountType         DiscountType
+  discountValue        Float
+  startedAt            DateTime
+  finishedAt           DateTime
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @default(now())
+
+  creator    User        @relation("ProductDiscountCreator", fields: [creatorId], references: [id])
+  inventory  Inventory   @relation(fields: [inventoryId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("product_discounts_per_store")
+}
+
+model FreeProductPerStore {
+  id               Int      @id @default(autoincrement())
+  creatorId        Int
+  freeProductState State    @default(DRAFT)
+  inventoryId      Int
+  buy              Int
+  get              Int
+  startedAt        DateTime
+  finishedAt       DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+
+  creator    User        @relation("FreeProductCreator", fields: [creatorId], references: [id])
+  inventory  Inventory   @relation(fields: [inventoryId], references: [id])
+  orderItems OrderItem[]
+
+  @@map("free_products_per_store")
+}
+
+model Promotion {
+  id                   Int             @id @default(autoincrement())
+  creatorId            Int
+  promotionState       State           @default(DRAFT)
+  name                 String
+  scope                PromotionScope
+  source               PromotionSource
+  storeId              Int? // promotionScope = store
+  description          String
+  startedAt            DateTime
+  finishedAt           DateTime
+  quota                Int
+  promotionType        PromotionType
+  discountType         DiscountType
+  discountValue        Float
+  discountDurationSecs Int
+  banner               String?
+  isFeatured           Boolean         @default(false)
+  minPurchase          Float           @default(0)
+  maxDeduction         Float           @default(0)
+  afterMinPurchase     Float?
+  afterMinTransaction  Int?
+  vouchers             Voucher[]       @relation("VoucherOfPromotion")
+
+  store   Store? @relation(fields: [storeId], references: [id])
+  creator User   @relation("PromotionCreator", fields: [creatorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([promotionState, finishedAt])
+  @@map("promotions")
+}
+
+model Voucher {
+  id          Int           @id @default(autoincrement())
+  promotionId Int
+  customerId  Int
+  orderId     Int?
+  status      VoucherStatus @default(UNUSED)
+  expiredAt   DateTime
+
+  promotion Promotion @relation("VoucherOfPromotion", fields: [promotionId], references: [id])
+  customer  User      @relation("CustomerToVoucher", fields: [customerId], references: [id])
+  order     Order?    @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("vouchers")
+}
+
+enum PromotionScope {
+  GENERAL
+  STORE
+}
+
+enum PromotionSource {
+  REFEREE_BONUS // super admin (check availability when registering, limit by 1-backend check)
+  REFERRAL_BONUS // super admin (check availability when registering, limit by 1-backend check)
+  PER_BRANCH // store & super admin (must include storeId)
+  ALL_BRANCH // super admin (promotion that can be claim by all user)
+  AFTER_MIN_PURCHASE // super admin (promotion that require minimal purchase to generate voucher)
+  AFTER_MIN_TRANSACTION // super admin (promotion that require minimal transaction to generate voucher, limit to 1)
+}
+
+enum DiscountType {
+  PERCENT
+  FLAT
+}
+
+enum PromotionType {
+  DELIVERY
+  TRANSACTION
+}
+
+enum VoucherStatus {
+  UNUSED
+  USED
+  REVOKED
+}
+
+// Feature 3
+
+model Order {
+  id                Int         @id @default(autoincrement())
+  customerId        Int
+  storeId           Int
+  storeAddressId    Int
+  orderCode         String      @unique
+  price             Float
+  finalPrice        Float
+  paymentId         Int         @unique
+  shippingId        Int?        @unique
+  deliveryAddressId Int
+  orderStatus       OrderStatus @default(MENUNGGU_PEMBAYARAN)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @default(now())
+
+  vouchers           Voucher[] // update applied voucher status to USED and orderId. Upon cancelled request, update to REVOKED then UNUSED after the request complete (also make orderId to null).
+  customer           User                @relation("CustomerToOrder", fields: [customerId], references: [id])
+  store              Store               @relation("OrderOfStore", fields: [storeId], references: [id])
+  payment            Payment             @relation(fields: [paymentId], references: [id])
+  shipping           Shipping?           @relation(fields: [shippingId], references: [id])
+  storeAddress       StoreAddressHistory @relation(fields: [storeAddressId], references: [id])
+  deliveryAddress    Address             @relation("DeliveryAddressOfOrder", fields: [deliveryAddressId], references: [id])
+  orderItems         OrderItem[]         @relation("OrderItemsOfOrder")
+  orderStatusUpdates OrderStatusUpdate[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id                        Int      @id @default(autoincrement())
+  orderId                   Int
+  productId                 Int
+  qty                       Int // update inventory when order created or cancelled
+  price                     Float // search from active 'true' productPriceHistory
+  productDiscountPerStoreId Int?
+  freeProductPerStoreId     Int?
+  finalPrice                Float // calculate from discount relation
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now())
+
+  order                   Order                    @relation("OrderItemsOfOrder", fields: [orderId], references: [id])
+  product                 Product                  @relation(fields: [productId], references: [id])
+  productDiscountPerStore ProductDiscountPerStore? @relation(fields: [productDiscountPerStoreId], references: [id])
+  freeProductPerStore     FreeProductPerStore?     @relation(fields: [freeProductPerStoreId], references: [id])
+
+  @@map("order_items")
+}
+
+model OrderStatusUpdate {
+  id          Int         @id @default(autoincrement())
+  userId      Int?
+  orderId     Int
+  orderStatus OrderStatus
+  description String?
+  createdAt   DateTime    @default(now())
+
+  user  User? @relation("OrderStatusUpdateCreator", fields: [userId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("order_status_updates")
+}
+
+model Shipping {
+  id             Int      @id @default(autoincrement())
+  amount         Float
+  courier        String
+  trackingNumber String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+
+  order Order?
+
+  @@map("shippings")
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  paymentStatus  PaymentStatus @default(PENDING)
+  paymentGateway String
+  paymentDate    DateTime?
+  paymentProof   String?
+  transactionId  String?
+  amount         Float
+  additionalInfo Json
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now())
+
+  order Order?
+
+  @@map("payments")
+}
+
+enum OrderStatus {
+  MENUNGGU_PEMBAYARAN // oleh admin
+  MENUNGGU_KONFIRMASI_PEMBAYARAN // oleh admin
+  DIPROSES // oleh admin atau sistem
+  DIKIRIM // oleh admin
+  DIKONFIRMASI // oleh customer atau sistem setelah 7 hari
+  DIBATALKAN // oleh customer, admin, atau sistem setelah jam
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
