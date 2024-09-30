@@ -1,4 +1,4 @@
-import { User } from '@/types/express';
+import type { User } from '@/types/express';
 import { Request, Response, NextFunction } from 'express';
 import brandAction from '@/actions/brandAction';
 import brandQuery from '@/queries/brandQuery';

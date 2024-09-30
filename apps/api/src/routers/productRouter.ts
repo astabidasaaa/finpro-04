@@ -1,5 +1,5 @@
-import type { Route } from '@/types/express';
 import { Router } from 'express';
+import type { Route } from '@/types/express';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { ProductController } from '@/controllers/productController';
 import { uploader } from '@/libs/uploader';

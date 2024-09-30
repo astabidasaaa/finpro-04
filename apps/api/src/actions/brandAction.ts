@@ -1,27 +1,25 @@
 import { HttpException } from '@/errors/httpException';
-import brandQuery from '@/queries/brandQuery';
 import { HttpStatus } from '@/types/error';
 import type { CreateBrandInput, UpdateBrandInput } from '@/types/brandTypes';
-import { Brand } from '@prisma/client';
-import { capitalizeString } from '@/utils/stringManipulation';
+import type { Brand } from '@prisma/client';
+import brandQuery from '@/queries/brandQuery';
 
 class BrandAction {
   public async createBrandAction(props: CreateBrandInput): Promise<Brand> {
     const { name } = props;
-    const formattedName = capitalizeString(name);
 
-    await this.checkDuplicateBrandName(formattedName);
+    await this.checkDuplicateBrandName(name);
 
     const brand = await brandQuery.createBrand({
       ...props,
-      name: formattedName,
+      name,
     });
 
     return brand;
   }
 
   private async checkDuplicateBrandName(name: string): Promise<void> {
-    const duplicateBrand = await brandQuery.getBrandByName(name);
+    const duplicateBrand = await brandQuery.getBrandByCaseInsensitiveName(name);
     if (duplicateBrand !== null) {
       throw new HttpException(
         HttpStatus.CONFLICT,
@@ -62,10 +60,14 @@ class BrandAction {
     }
 
     if (name !== undefined) {
-      const formattedName = capitalizeString(name);
-      if (currentBrand.name !== formattedName) {
-        updateData.name = formattedName;
+      const checkNameWithCurrent = await brandQuery.isBrandNameSame(
+        currentBrand.id,
+        name,
+      );
+      if (!checkNameWithCurrent) {
+        await this.checkDuplicateBrandName(name);
       }
+      updateData.name = name;
     }
 
     if (
