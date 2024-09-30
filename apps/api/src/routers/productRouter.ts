@@ -1,8 +1,8 @@
+import type { Route } from '@/types/express';
+import { Router } from 'express';
+import { AuthMiddleware } from '@/middlewares/tokenHandler';
 import { ProductController } from '@/controllers/productController';
 import { uploader } from '@/libs/uploader';
-import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
-import { Router } from 'express';
 
 export class ProductRouter implements Route {
   readonly router: Router;
@@ -19,17 +19,15 @@ export class ProductRouter implements Route {
   }
 
   private initializeRoutes(): void {
-    // get all products with including filter and pagination
+    // get all products with filter, sort, and pagination for /search
     this.router.get(`${this.path}`, this.productController.getProducts);
-    // get all products in brief (name and id only)
-    this.router.get(
-      `${this.path}/list`,
-      this.productController.getProductsList,
-    );
     this.router.get(
       `${this.path}/single/:productId`,
-      this.productController.getProductSingle,
+      this.productController.getProduct,
     );
+    // get all products for dashboard product list
+    this.router.get(`${this.path}/list`, this.productController.getProductList);
+    // get all products in brief (name and id only)
     this.router.get(
       `${this.path}/all-brief`,
       this.productController.getAllProductBrief,
@@ -47,7 +45,7 @@ export class ProductRouter implements Route {
       uploader('PRODUCT', '/product').array('product', 8),
       this.productController.createProduct,
     );
-    // update product detail and state, price = new ProductPriceHistory (previous price became inactive), image min 1,
+    // update product detail and state, price = new ProductPriceHistory (previous price became inactive), image min 1
     this.router.patch(
       `${this.path}/:productId`,
       this.guard.verifyAccessToken,

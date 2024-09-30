@@ -1,5 +1,4 @@
 import { HttpException } from '@/errors/httpException';
-import productQuery from '@/queries/productQuery';
 import { HttpStatus } from '@/types/error';
 import type {
   UpdateProductInput,
@@ -10,7 +9,8 @@ import type {
   ProductDetailProps,
   ProductListInput,
 } from '@/types/productTypes';
-import { Product } from '@prisma/client';
+import type { Product } from '@prisma/client';
+import productQuery from '@/queries/productQuery';
 import productSearchQuery from '@/queries/productSearchQuery';
 import productDetailQuery from '@/queries/productDetailQuery';
 
@@ -60,9 +60,9 @@ class ProductAction {
   public async getProductsListAction(
     props: ProductListInput,
   ): Promise<{ products: Product[]; totalCount: number }> {
-    const listProduct = await productQuery.getProductsByState(props);
+    const productList = await productQuery.getProductsByState(props);
 
-    return listProduct;
+    return productList;
   }
 
   public async getSingleProductAction(

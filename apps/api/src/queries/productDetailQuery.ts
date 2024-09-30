@@ -1,5 +1,5 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import { ProductDetailProps } from '@/types/productTypes';
 
@@ -9,7 +9,7 @@ class ProductDetailQuery {
     storeId: number,
   ): Promise<ProductDetailProps | null> {
     try {
-      const inventoryProduct = await prisma.inventory.findFirst({
+      const productInStore = await prisma.inventory.findFirst({
         where: {
           productId,
           storeId,
@@ -52,7 +52,6 @@ class ProductDetailQuery {
               id: true,
               buy: true,
               get: true,
-              
             },
           },
           productDiscountPerStores: {
@@ -65,13 +64,12 @@ class ProductDetailQuery {
               id: true,
               discountType: true,
               discountValue: true,
-              
             },
           },
         },
       });
 
-      return inventoryProduct;
+      return productInStore;
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,

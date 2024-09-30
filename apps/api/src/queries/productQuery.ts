@@ -1,8 +1,8 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import { $Enums, Product } from '@prisma/client';
-import {
+import type {
   CreateProductInput,
   ProductListInput,
   ProductProps,
@@ -36,7 +36,7 @@ class ProductQuery {
   public async createProduct(props: CreateProductInput): Promise<Product> {
     const { price, images, ...inputWithoutPriceAndImages } = props;
     try {
-      const products = await prisma.$transaction(async (prisma) => {
+      const product = await prisma.$transaction(async (prisma) => {
         const stores = await prisma.store.findMany({
           select: {
             id: true,
@@ -67,7 +67,7 @@ class ProductQuery {
 
         return product;
       });
-      return products;
+      return product;
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -90,14 +90,14 @@ class ProductQuery {
   public async getProductByCaseInsensitiveName(
     name: string,
   ): Promise<Product | null> {
-    const product: Product[] = await prisma.$queryRaw`
+    const products: Product[] = await prisma.$queryRaw`
     SELECT * FROM products
     WHERE LOWER(name) LIKE LOWER(${`%${name}%`})
   `;
-    if (product.length === 0) {
+    if (products.length === 0) {
       return null;
     }
-    return product[0];
+    return products[0];
   }
 
   public async getProductDetailById(
@@ -287,6 +287,7 @@ class ProductQuery {
         data: {
           productState: 'ARCHIVED',
           updatedAt: new Date(),
+          creatorId,
         },
       });
 
@@ -294,7 +295,7 @@ class ProductQuery {
     } catch (err) {
       throw new HttpException(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        'Tidak dapat menghapus brand',
+        'Tidak dapat mengarsip produk',
       );
     }
   }

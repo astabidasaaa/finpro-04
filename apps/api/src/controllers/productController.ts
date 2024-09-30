@@ -1,9 +1,9 @@
-import productAction from '@/actions/productAction';
 import { HttpException } from '@/errors/httpException';
-import productQuery from '@/queries/productQuery';
 import { HttpStatus } from '@/types/error';
 import { User } from '@/types/express';
 import { Request, Response, NextFunction } from 'express';
+import productAction from '@/actions/productAction';
+import productQuery from '@/queries/productQuery';
 
 export class ProductController {
   public async getProducts(
@@ -45,7 +45,7 @@ export class ProductController {
     }
   }
 
-  public async getProductSingle(
+  public async getProduct(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -70,7 +70,7 @@ export class ProductController {
     }
   }
 
-  public async getProductsList(
+  public async getProductList(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -152,7 +152,7 @@ export class ProductController {
         }
       }
 
-      const products = await productAction.createProductAction({
+      const product = await productAction.createProductAction({
         name,
         brandId: parseInt(brandId),
         subcategoryId: parseInt(subcategoryId),
@@ -165,7 +165,7 @@ export class ProductController {
 
       res.status(200).json({
         message: 'Produk berhasil dibuat',
-        data: products,
+        data: product,
       });
     } catch (err) {
       next(err);
