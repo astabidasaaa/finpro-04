@@ -77,7 +77,7 @@ class ProductQuery {
   }
 
   public async isProductNameSame(id: number, name: string): Promise<boolean> {
-    const product = await this.getProductByName(name);
+    const product = await this.getProductByCaseInsensitiveName(name);
     if (product === null) {
       return false;
     }
@@ -87,7 +87,9 @@ class ProductQuery {
     return true;
   }
 
-  public async getProductByName(name: string): Promise<Product | null> {
+  public async getProductByCaseInsensitiveName(
+    name: string,
+  ): Promise<Product | null> {
     const product: Product[] = await prisma.$queryRaw`
     SELECT * FROM products
     WHERE LOWER(name) LIKE LOWER(${`%${name}%`})

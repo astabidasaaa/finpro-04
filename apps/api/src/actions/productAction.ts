@@ -38,7 +38,8 @@ class ProductAction {
   }
 
   private async checkDuplicateProductName(name: string): Promise<void> {
-    const duplicateProduct = await productQuery.getProductByName(name);
+    const duplicateProduct =
+      await productQuery.getProductByCaseInsensitiveName(name);
     if (duplicateProduct !== null) {
       throw new HttpException(
         HttpStatus.CONFLICT,
