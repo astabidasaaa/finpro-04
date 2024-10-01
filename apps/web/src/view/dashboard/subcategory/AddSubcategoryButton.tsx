@@ -62,21 +62,38 @@ export default function AddSubcategoryButton() {
       );
 
       setIsOpen(false);
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
-    } catch (err) {
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err: any) {
+      let message = '';
       if (err instanceof AxiosError) {
+        message = err.response?.data.message;
+      } else {
+        message = err.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Subkategori tidak dibuat',
-          description: err.response?.data.message,
+          title: 'Subkategori gagal dibuat',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
+
+  useEffect(() => {
+    setName('');
+    setParentCategoryId('');
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

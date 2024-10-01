@@ -45,6 +45,7 @@ export function DialogDeleteCategory({ data }: { data: CategoryProps }) {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.status === 200) {
         toast({
           variant: 'success',
@@ -55,16 +56,21 @@ export function DialogDeleteCategory({ data }: { data: CategoryProps }) {
       setTimeout(() => {
         window.location.reload();
       }, 500);
-    } catch (err) {
+    } catch (err: any) {
+      let message = '';
       if (err instanceof AxiosError) {
+        message = err.response?.data.message;
+      } else {
+        message = err.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Kategori tidak dihapus',
-          description: err.response?.data.message,
+          title: 'Kategori gagal dihapus',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 
