@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,9 +45,16 @@ export function DialogDeleteCategory({ data }: { data: CategoryProps }) {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (err) {
       if (err instanceof AxiosError) {
         toast({
@@ -117,9 +124,16 @@ export function DialogEditCategory({ data }: { data: CategoryProps }) {
       );
 
       setIsOpen(false);
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error: any) {
       let message = '';
       if (error instanceof AxiosError) {
@@ -137,6 +151,10 @@ export function DialogEditCategory({ data }: { data: CategoryProps }) {
       }, 300);
     }
   }
+
+  useEffect(() => {
+    setName(data.name);
+  }, [isOpen]);
 
   return (
     <>
