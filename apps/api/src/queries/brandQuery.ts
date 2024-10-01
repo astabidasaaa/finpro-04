@@ -80,7 +80,7 @@ class BrandQuery {
   ): Promise<Brand | null> {
     const brands: Brand[] = await prisma.$queryRaw`
     SELECT * FROM brands
-    WHERE LOWER(name) LIKE LOWER(${`%${name}%`})
+    WHERE LOWER(name) LIKE LOWER(${name})
   `;
     if (brands.length === 0) {
       return null;

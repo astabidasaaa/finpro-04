@@ -45,9 +45,16 @@ export function DialogDeleteBrand({ data }: { data: BrandProps }) {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error: any) {
       let message = '';
       if (error instanceof AxiosError) {
@@ -126,9 +133,16 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
       );
 
       setIsOpen(false);
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (err) {
       if (err instanceof AxiosError) {
         toast({
