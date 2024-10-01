@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { ProductDetailProps } from '@/types/productTypes';
+import type { ProductDetailProps } from '@/types/productTypes';
 
 class ProductDetailQuery {
   public async getProductByIdAndStoreId(

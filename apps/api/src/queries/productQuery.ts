@@ -92,7 +92,7 @@ class ProductQuery {
   ): Promise<Product | null> {
     const products: Product[] = await prisma.$queryRaw`
     SELECT * FROM products
-    WHERE LOWER(name) LIKE LOWER(${`%${name}%`})
+    WHERE LOWER(name) LIKE LOWER(${name})
   `;
     if (products.length === 0) {
       return null;

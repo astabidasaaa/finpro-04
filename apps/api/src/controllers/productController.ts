@@ -1,7 +1,7 @@
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import type { User } from '@/types/express';
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import productAction from '@/actions/productAction';
 import productQuery from '@/queries/productQuery';
 
