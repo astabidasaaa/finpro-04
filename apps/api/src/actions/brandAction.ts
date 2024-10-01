@@ -15,11 +15,11 @@ class BrandAction {
       );
     }
 
-    await this.checkDuplicateBrandName(name);
+    await this.checkDuplicateBrandName(name.trim());
 
     const brand = await brandQuery.createBrand({
       ...props,
-      name,
+      name: name.trim(),
     });
 
     return brand;
