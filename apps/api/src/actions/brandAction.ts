@@ -8,6 +8,13 @@ class BrandAction {
   public async createBrandAction(props: CreateBrandInput): Promise<Brand> {
     const { name } = props;
 
+    if (name.trim() === '') {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Nama brand tidak boleh kosong',
+      );
+    }
+
     await this.checkDuplicateBrandName(name);
 
     const brand = await brandQuery.createBrand({
@@ -60,14 +67,20 @@ class BrandAction {
     }
 
     if (name !== undefined) {
+      if (name.trim() === '') {
+        throw new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'Nama brand tidak boleh kosong. Brand tidak dapat diperbarui.',
+        );
+      }
       const checkNameWithCurrent = await brandQuery.isBrandNameSame(
         currentBrand.id,
-        name,
+        name.trim(),
       );
       if (!checkNameWithCurrent) {
-        await this.checkDuplicateBrandName(name);
+        await this.checkDuplicateBrandName(name.trim());
       }
-      updateData.name = name;
+      updateData.name = name.trim();
     }
 
     if (

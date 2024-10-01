@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { getCookie } from 'cookies-next';
@@ -60,6 +60,11 @@ export function AddBrandButton() {
       }, 300);
     }
   }
+
+  useEffect(() => {
+    setName('');
+    setDescription('');
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

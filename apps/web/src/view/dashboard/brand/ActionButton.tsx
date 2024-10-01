@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
 import { BrandProps } from '@/types/brandTypes';
 import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -141,6 +141,11 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
       }
     }
   }
+
+  useEffect(() => {
+    setName(data.name);
+    setDescription(data.description);
+  }, [isOpen]);
 
   return (
     <>
