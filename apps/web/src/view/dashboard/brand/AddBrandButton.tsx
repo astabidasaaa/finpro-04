@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { getCookie } from 'cookies-next';
+import { Textarea } from '@/components/ui/textarea';
 
 export function AddBrandButton() {
   const [name, setName] = useState<string>('');
@@ -25,6 +26,9 @@ export function AddBrandButton() {
 
   async function handleOnClick() {
     try {
+      if (description.trim().length > 190) {
+        throw new Error('Deskripsi harus kurang dari 190 karakter');
+      }
       const response = await axiosInstance().post(
         `/brands/`,
         {
@@ -105,7 +109,7 @@ export function AddBrandButton() {
             <Label htmlFor="description" className="text-right">
               Deskripsi
             </Label>
-            <Input
+            <Textarea
               id="username"
               defaultValue={description}
               className="col-span-3"

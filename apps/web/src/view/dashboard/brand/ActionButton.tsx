@@ -32,6 +32,7 @@ import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
 import { UserType } from '@/types/userType';
 import DisabledButton from '@/components/DisabledButton';
+import { Textarea } from '@/components/ui/textarea';
 
 export function DialogDeleteBrand({ data }: { data: BrandProps }) {
   const token = getCookie('access-token');
@@ -118,6 +119,9 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
 
   async function handleOnClick() {
     try {
+      if (description && description.trim().length > 190) {
+        throw new Error('Deskripsi harus kurang dari 190 karakter');
+      }
       const response = await axiosInstance().patch(
         `/brands/${data.id}`,
         {
@@ -143,16 +147,21 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
       setTimeout(() => {
         window.location.reload();
       }, 500);
-    } catch (err) {
+    } catch (err: any) {
+      let message = '';
       if (err instanceof AxiosError) {
+        message = err.response?.data.message;
+      } else {
+        message = err.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Perubahan tidak disimpan',
-          description: err.response?.data.message,
+          title: 'Brand gagal diperbarui',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 
@@ -195,7 +204,7 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
                 <Label htmlFor="description" className="text-right">
                   Deskripsi
                 </Label>
-                <Input
+                <Textarea
                   id="username"
                   defaultValue={data.description}
                   className="col-span-3"
