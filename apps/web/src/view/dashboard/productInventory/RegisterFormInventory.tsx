@@ -32,22 +32,7 @@ import { UpdateDetail, UpdateType } from '@/types/inventoryType';
 import { Textarea } from '@/components/ui/textarea';
 import { useAppSelector } from '@/lib/hooks';
 import { UserType } from '@/types/userType';
-
-const formSchema = z.object({
-  stockChange: z.number().positive('Perubahan stok harus lebih dari 0'),
-  description: z.string().trim().optional(),
-  updateType: z.enum([UpdateType.ADD, UpdateType.REMOVE]),
-  updateDetail: z.enum([
-    UpdateDetail.ADJUSTMENT,
-    UpdateDetail.CANCELLED_ORDER,
-    UpdateDetail.DAMAGED,
-    UpdateDetail.EXPIRATION,
-    UpdateDetail.STOCK_IN,
-    UpdateDetail.STOCK_OUT,
-  ]),
-  storeId: z.string(),
-  productId: z.string(),
-});
+import { formSchema } from './inventoryFormSchema';
 
 const RegisterFormInventory = ({
   setIsOpen,
@@ -58,7 +43,6 @@ const RegisterFormInventory = ({
   stores: StoreProps[];
   products: { id: number; name: string }[];
 }) => {
-  const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
   const [store, setStore] = useState<{ id: number; name: string }>();
   const [isSubmitLoading, setSubmitLoading] = useState<boolean>(false);
@@ -89,7 +73,7 @@ const RegisterFormInventory = ({
       updateType: UpdateType.ADD,
       updateDetail: UpdateDetail.STOCK_IN,
       description: '',
-      stockChange: undefined,
+      stockChange: '',
     },
   });
 
@@ -223,15 +207,7 @@ const RegisterFormInventory = ({
               <FormItem className="grid gap-2">
                 <FormLabel>Perubahan Stok</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
