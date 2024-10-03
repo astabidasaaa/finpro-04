@@ -9,6 +9,12 @@ export const formSchema = z.object({
   finishedAt: z.string().date(),
   discountType: z.enum([DiscountType.FLAT, DiscountType.PERCENT]),
   discountValue: z
-    .number()
-    .min(1, 'Kuota harus lebih besar atau sama dengan 1'),
+    .string()
+    .min(1, 'Nilai diskon tidak boleh kosong')
+    .refine((value) => Number(value) >= 1, {
+      message: 'Nilai diskon harus lebih besar dari 1',
+    })
+    .refine((value) => Number.isInteger(Number(value)), {
+      message: 'Nilai diskon harus berupa angka bulat',
+    }),
 });

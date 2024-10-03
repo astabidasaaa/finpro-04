@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AxiosError } from 'axios';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axiosInstance';
 import {
@@ -72,8 +72,8 @@ export default function CreatePromotionForm({
       productId: String(products[0].id),
       startedAt: '',
       finishedAt: '',
-      buy: undefined,
-      get: undefined,
+      buy: '',
+      get: '',
     },
   });
 
@@ -235,15 +235,7 @@ export default function CreatePromotionForm({
               <FormItem className="grid gap-2">
                 <FormLabel>Beli</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -256,15 +248,7 @@ export default function CreatePromotionForm({
               <FormItem className="grid gap-2">
                 <FormLabel>Gratis</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

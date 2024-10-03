@@ -38,19 +38,32 @@ export default function ArchiveAlertButton({
           },
         },
       );
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: 'Promosi berhasil diarsip',
+          description: response.data.message,
+        });
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error: any) {
+      let message = '';
+      if (error instanceof AxiosError) {
+        message = error.response?.data.message;
+      } else {
+        message = error.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Promosi tidak diarsip',
-          description: err.response?.data.message,
+          title: 'Produk tidak diarsip',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 
