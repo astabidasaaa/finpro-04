@@ -1,6 +1,6 @@
 import voucherAction from '@/actions/voucherAction';
-import { User } from '@/types/express';
-import { Request, Response, NextFunction } from 'express';
+import type { User } from '@/types/express';
+import type { Request, Response, NextFunction } from 'express';
 
 export class VoucherController {
   public async getVouchersUser(
@@ -11,11 +11,11 @@ export class VoucherController {
     try {
       const { id } = req.user as User;
 
-      const brand = await voucherAction.getVouchersUserAction(id);
+      const vouchers = await voucherAction.getVouchersUserAction(id);
 
       res.status(200).json({
         message: 'Kupon berhasil ditampilkan',
-        data: brand,
+        data: vouchers,
       });
     } catch (err) {
       next(err);
@@ -31,11 +31,14 @@ export class VoucherController {
       const { id } = req.user as User;
       const promotionId = parseInt(req.params.promotionId);
 
-      const brand = await voucherAction.createVoucher(promotionId, id);
+      const generatedVoucher = await voucherAction.createClaimableVoucher(
+        promotionId,
+        id,
+      );
 
       res.status(200).json({
         message: 'Kupon berhasil dibuat',
-        data: brand,
+        data: generatedVoucher,
       });
     } catch (err) {
       next(err);
