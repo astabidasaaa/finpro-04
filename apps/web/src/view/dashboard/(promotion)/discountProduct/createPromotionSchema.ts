@@ -12,7 +12,7 @@ export const formSchema = z.object({
     .string()
     .min(1, 'Nilai diskon tidak boleh kosong')
     .refine((value) => Number(value) >= 1, {
-      message: 'Nilai diskon harus lebih besar dari 1',
+      message: 'Nilai diskon harus lebih besar dari 0',
     })
     .refine((value) => Number.isInteger(Number(value)), {
       message: 'Nilai diskon harus berupa angka bulat',

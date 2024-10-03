@@ -164,15 +164,15 @@ export class CreatePromotionController {
           startedAt,
           finishedAt,
           inventoryId: inventory.id,
-          buy,
-          get,
+          buy: parseInt(buy),
+          get: parseInt(get),
           creatorId: id,
           role,
           storeId: parseInt(storeId),
         });
 
       res.status(200).json({
-        message: 'Promosi beli N gratis N pada toko berhasil dibuat',
+        message: `Promosi beli ${freeProductPromotion.buy} gratis ${freeProductPromotion.get} pada toko berhasil dibuat`,
         data: freeProductPromotion,
       });
     } catch (err) {
