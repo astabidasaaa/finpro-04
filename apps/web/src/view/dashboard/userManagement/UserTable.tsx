@@ -29,7 +29,7 @@ export const columns: ColumnDef<SearchedUser>[] = [
     header: () => <div className="text">Email</div>,
     cell: ({ row }) => {
       return (
-        <div className="font-normal flex items-center lg:[overflow-wrap:anywhere]">
+        <div className="font-normal flex items-center [overflow-wrap:anywhere]">
           {row.getValue('email')}
         </div>
       );
@@ -56,6 +56,15 @@ export const columns: ColumnDef<SearchedUser>[] = [
       if (profile !== null && profile.dob !== null) {
         date = moment(new Date(profile.dob)).format('ll');
       }
+      return <div className="flex items-center">{date}</div>;
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: () => <div className="text-left">Dibuat pada</div>,
+    cell: ({ row }) => {
+      const { createdAt } = row.original;
+      const date = moment(new Date(createdAt)).format('lll');
       return <div className="flex items-center">{date}</div>;
     },
   },

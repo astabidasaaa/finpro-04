@@ -1,9 +1,8 @@
 import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
 import { HttpStatus } from '@/types/error';
-import { CreateBrandInput, UpdateBrandInput } from '@/types/brandTypes';
-import { Brand, Role, User } from '@prisma/client';
-import {
+import { Role, User } from '@prisma/client';
+import type {
   CreateAdminInput,
   SearchedUser,
   SearchUsersInput,
@@ -48,6 +47,7 @@ class AdminQuery {
         where: filters,
         take: props.pageSize,
         skip: (props.page - 1) * props.pageSize,
+        orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           email: true,
@@ -69,6 +69,7 @@ class AdminQuery {
               id: true,
             },
           },
+          createdAt: true,
         },
       });
 
