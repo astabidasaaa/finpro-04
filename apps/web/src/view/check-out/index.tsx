@@ -307,6 +307,36 @@ const CheckoutPageView = () => {
     );
   };
 
+  useEffect(() => {
+    let vouchers: string[] = [];
+    if (selectedDeliveryVoucher) {
+      if (
+        calculateTotalPrice() < selectedDeliveryVoucher.promotion.minPurchase
+      ) {
+        setSelectedDeliveryVoucher(null);
+        vouchers.push('ongkos kirim');
+      }
+    }
+
+    if (selectedTransactionVoucher) {
+      if (
+        calculateTotalPrice() < selectedTransactionVoucher.promotion.minPurchase
+      ) {
+        setSelectedTransactionVoucher(null);
+        vouchers.push('transaksi');
+      }
+    }
+
+    if (vouchers.length > 0) {
+      const removeVouchers = vouchers.join(' dan ');
+      toast({
+        variant: 'default',
+        title: 'Kupon tidak dapat digunakan',
+        description: `Kupon ${removeVouchers} tidak memenuhi syarat minimal belanja`,
+      });
+    }
+  }, [calculateTotalPrice()]);
+
   const calculateTotalPriceWithShipping = () => {
     const originalTotalPrice = calculateTotalPrice();
 

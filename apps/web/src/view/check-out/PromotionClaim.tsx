@@ -2,6 +2,7 @@ import { DiscountType } from '@/types/productTypes';
 import { PromotionType } from '@/types/promotionType';
 import { Button } from '@/components/ui/button';
 import { PromotionDetail } from './DialogUseVoucher';
+import { IDR } from '@/lib/utils';
 
 export default function PromotionClaim({
   promotion,
@@ -14,12 +15,6 @@ export default function PromotionClaim({
   handleClaim: (value: number) => Promise<void>;
   userPromotionsId: number[];
 }) {
-  let IDR = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  });
-
   return (
     <>
       <div key={promotion.id} className="flex items-center space-x-5 mb-2">

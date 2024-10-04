@@ -2,20 +2,18 @@ import { RadioGroupItem } from '@/components/ui/radio-group';
 import { VoucherDetail } from '@/types/voucherType';
 import { Label } from '@/components/ui/label';
 import { DiscountType } from '@/types/productTypes';
+import { IDR } from '@/lib/utils';
 import moment from 'moment';
 
 export default function VoucherCardSelection({
   voucher,
   totalPrice,
+  handleItemClick,
 }: {
   voucher: VoucherDetail;
   totalPrice: number;
+  handleItemClick: (value: string) => void;
 }) {
-  let IDR = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  });
   return (
     <>
       <div key={voucher.id} className="flex items-center space-x-5 mb-2">
@@ -23,6 +21,7 @@ export default function VoucherCardSelection({
           value={voucher.id.toString()}
           id={voucher.id.toString()}
           disabled={totalPrice < voucher.promotion.minPurchase}
+          onClick={() => handleItemClick(voucher.id.toString())}
         />
         <div className="w-full h-full flex flex-col gap-y-3">
           <div>
