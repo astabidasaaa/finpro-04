@@ -3,7 +3,6 @@ import { OrderStatus} from '@prisma/client';
 import { HttpException } from '@/errors/httpException';
 import voucherAction from '@/actions/voucherAction';
 import promotionQuery from '@/queries/promotionQuery';
-import OrderAction from '@/actions/orderAction';
 
 export class OrderStatusService {
   public static async updateOrderStatus(
@@ -29,23 +28,6 @@ export class OrderStatusService {
 
         if (newStatus === 'DIKONFIRMASI') {
           await OrderStatusService.checkAndCreateVoucherForGeneralPromotions(orderId);
-        }
-
-        if (newStatus === 'MENUNGGU_PEMBAYARAN') {
-          const createdAt = statusUpdate.createdAt; 
-          const cancelTime = new Date(createdAt.getTime() + 3600000);
-
-          setTimeout(async () => {
-            const currentOrder = await prisma.order.findUnique({ where: { id: orderId } });
-            if (currentOrder?.orderStatus === 'MENUNGGU_PEMBAYARAN') {
-            
-              if (userId !== undefined) {
-                await OrderAction.cancelOrderAction(orderId, userId);
-              } else {
-                console.error(`User ID is undefined for order ID: ${orderId}`);
-              }
-            }
-          }, cancelTime.getTime() - Date.now()); 
         }
 
         return { updatedOrder, statusUpdate };
