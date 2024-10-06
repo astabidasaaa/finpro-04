@@ -36,7 +36,7 @@ export const findNearestStore = async (
 
       if (distance < minDistance) {
         minDistance = distance;
-        nearestStore = { storeId: store.id, storeAddressId: storeAddress.id, distance };
+        nearestStore = { storeId: store.id, storeAddressId: storeAddress.id, distance, name: store.name };
       }
     }
   }

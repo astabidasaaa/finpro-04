@@ -122,7 +122,7 @@ import { Order } from '@/types/paymentTypes';
     return (
         <div className="mt-6">
           {['MENUNGGU_PEMBAYARAN', 'DIPROSES'].includes(order.orderStatus) && (
-            <div className=" mb-2">
+            <div className=" mb-2 flex gap-2">
               <Button
                 variant="destructive"
                 onClick={cancelOrder}
@@ -131,6 +131,17 @@ import { Order } from '@/types/paymentTypes';
               >
                 Batalkan Pesanan
               </Button>
+              {order.orderStatus === 'DIPROSES' && (
+            <div className="text-xs md:text-lg">
+              <Button
+                onClick={() => updateOrderStatus('DIKIRIM')}
+                disabled={isLoading}
+                className='bg-green-400 text-xs md:text-lg'
+              >
+                Kirim Pesanan
+              </Button>
+            </div>
+          )}
             </div>
           )}
     
@@ -153,17 +164,7 @@ import { Order } from '@/types/paymentTypes';
             </div>
           )}
     
-          {order.orderStatus === 'DIPROSES' && (
-            <div className="text-xs md:text-lg">
-              <Button
-                onClick={() => updateOrderStatus('DIKIRIM')}
-                disabled={isLoading}
-                className='bg-green-400 text-xs md:text-lg'
-              >
-                Kirim Pesanan
-              </Button>
-            </div>
-          )}
+          
         </div>
       );
     };

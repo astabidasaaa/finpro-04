@@ -1,6 +1,7 @@
 export type NearestStore = {
   storeId: number;
   storeAddressId: number;
+  name: string;
 };
 
 export type OrderItem = {

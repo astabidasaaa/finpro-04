@@ -5,6 +5,7 @@ import { ErrorHandler } from './middlewares/errorHandler';
 import path from 'path';
 import cors from 'cors';
 import passport from 'passport';
+import { cancelPendingOrdersCron, confirmShippedOrdersCron } from './utils/cancelPendingOrdersCron';
 
 import './utils/passport';
 
@@ -16,6 +17,11 @@ export default class App {
     this.configure();
     this.routes(routes);
     this.handleError();
+  }
+
+  public initializeCrons(): void {
+    cancelPendingOrdersCron();  
+    confirmShippedOrdersCron(); 
   }
 
   private configure(): void {

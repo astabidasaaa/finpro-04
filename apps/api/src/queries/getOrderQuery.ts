@@ -156,10 +156,16 @@ class OrderQuery {
         };
 
         if (fromDate && toDate) {
+          const startOfDay = new Date(fromDate);
+          startOfDay.setHours(0, 0, 0, 0); 
+        
+          const endOfDay = new Date(toDate);
+          endOfDay.setHours(23, 59, 59, 999); 
+        
           whereCondition.createdAt = {
-            gte: fromDate,
-            lte: new Date(toDate.getTime() + 86400000), 
-  };
+            gte: startOfDay, 
+            lte: endOfDay,  
+          };
         }
         const take = pageSize || 10;
         const skip = page ? (page - 1) * take : 0;

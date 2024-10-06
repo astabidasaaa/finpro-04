@@ -53,6 +53,17 @@ const OrderPageView: React.FC = () => {
     }
   }, [customerId, dateRange, currentPage, debouncedSearchTerm, isFinishedOrders, isInProgressOrders]);
 
+  useEffect(() => {
+    if (dateRange) {
+      setCurrentPage(1); 
+      fetchOrders(); 
+    }
+  }, [dateRange]);
+
+  useEffect(() => {
+    setCurrentPage(1); 
+  }, [debouncedSearchTerm]);
+
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
@@ -64,8 +75,8 @@ const OrderPageView: React.FC = () => {
       };
 
       if (dateRange?.from && dateRange.to) {
-        params.from = dateRange.from.toISOString();
-        params.to = dateRange.to.toISOString();
+        params.from = dateRange.from;
+        params.to = dateRange.to;
       }
       let endpoint = '';
       if (isFinishedOrders) {
@@ -87,18 +98,11 @@ const OrderPageView: React.FC = () => {
       const fetchedOrders = response.data.data.orders || response.data.data; 
 
       setTotalPages(response.data.pagination.totalPages); 
-      if (!fetchedOrders.length) {
-        toast({
-          variant: 'destructive', 
-          title: 'No Orders Found',
-          description: 'There are no orders matching your criteria.',
-        });
-      }
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Failed to fetch orders',
-        description: 'Please try again later.',
+        title: 'Tidak ada order ditemukan',
+        description: 'Tidak ada order yang memenuhi kriteria Anda',
       });
     } finally {
       setIsLoading(false);
@@ -112,7 +116,6 @@ const OrderPageView: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); 
   };
 
   const handleViewAllOrders = () => {
@@ -216,11 +219,11 @@ const OrderPageView: React.FC = () => {
         </div>
       ) : (
         <div className="text-center">
-          <p className="text-lg text-gray-500">No orders found for this customer.</p>
+          <p className="text-lg text-gray-500">Tidak ada order ditemukan.</p>
         </div>
       )}
     </div>
   );
 };
 
-export default OrderPageView;
+export default OrderPageView; 

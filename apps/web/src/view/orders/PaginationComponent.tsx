@@ -26,8 +26,9 @@ const PaginationComponent: React.FC<PaginationProps> = ({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href="#"
-            onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+            href={currentPage === 1 ? undefined : "#"} 
+            onClick={currentPage === 1 ? undefined : () => onPageChange(Math.max(currentPage - 1, 1))}
+            className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}
           />
         </PaginationItem>
 
@@ -64,8 +65,9 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 
         <PaginationItem>
           <PaginationNext
-            href="#"
-            onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+            href={currentPage === totalPages ? undefined : "#"} 
+            onClick={currentPage === totalPages ? undefined : () => onPageChange(Math.min(currentPage + 1, totalPages))}
+            className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}
           />
         </PaginationItem>
       </PaginationContent>
