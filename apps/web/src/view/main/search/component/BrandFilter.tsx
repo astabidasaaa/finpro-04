@@ -10,11 +10,13 @@ import { Dispatch, SetStateAction } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function BrandFilter({
+  brandId,
   brands,
   setBrandId,
 }: {
+  brandId: string;
   brands: BrandProps[];
-  setBrandId: Dispatch<SetStateAction<number | undefined>>;
+  setBrandId: Dispatch<SetStateAction<string>>;
 }) {
   return (
     <>
@@ -24,13 +26,9 @@ export default function BrandFilter({
           <ScrollArea className="h-60 lg:h-56 py-2">
             <RadioGroup
               defaultChecked={true}
-              defaultValue="0"
+              value={brandId === '' ? '0' : brandId}
               onValueChange={(value) => {
-                let number: number | undefined = Number(value);
-                if (number === 0) {
-                  number = undefined;
-                }
-                setBrandId(number);
+                setBrandId(value === '0' ? '' : value);
               }}
             >
               <div

@@ -16,7 +16,7 @@ export default function SubcategoryFilter({
 }: {
   categoryId: string;
   categories: SubcategoryProps[];
-  setCategoryId: Dispatch<SetStateAction<number | undefined>>;
+  setCategoryId: Dispatch<SetStateAction<string>>;
 }) {
   return (
     <>
@@ -26,13 +26,9 @@ export default function SubcategoryFilter({
           <ScrollArea className="h-60 lg:h-56 py-2">
             <RadioGroup
               defaultChecked={true}
-              defaultValue={categoryId ? categoryId : '0'}
+              value={categoryId === '' ? '0' : categoryId}
               onValueChange={(value) => {
-                let number: number | undefined = Number(value);
-                if (number === 0) {
-                  number = undefined;
-                }
-                setCategoryId(number);
+                setCategoryId(value === '0' ? '' : value);
               }}
             >
               <div
