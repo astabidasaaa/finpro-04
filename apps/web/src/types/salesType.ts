@@ -19,6 +19,7 @@ export type SalesOverall = {
   deliveryRevenue: number;
   transactionCount: number;
   itemCount: number | null;
+  freeItems: number;
 };
 
 export type ProductAndCategoryReport = {

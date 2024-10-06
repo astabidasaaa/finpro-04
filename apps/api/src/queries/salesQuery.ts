@@ -61,6 +61,34 @@ class SalesQuery {
       },
     });
 
+    const freeItems = await prisma.orderItem.findMany({
+      where: {
+        order: filterOrder,
+        freeProductPerStoreId: {
+          not: null,
+        },
+      },
+      select: {
+        qty: true,
+        freeProductPerStore: {
+          select: {
+            buy: true,
+            get: true,
+          },
+        },
+      },
+    });
+
+    const totalFreeItem = freeItems.reduce((sum, item) => {
+      return (
+        sum +
+        (item.freeProductPerStore
+          ? item.freeProductPerStore.get *
+            Math.floor(item.qty / item.freeProductPerStore.buy)
+          : 0)
+      );
+    }, 0);
+
     return {
       cleanRevenue: totalPriceAndTransactionCount._sum.finalPrice,
       productRevenue: totalPriceAndTransactionCount._sum.price,
@@ -69,6 +97,7 @@ class SalesQuery {
       }, 0),
       transactionCount: totalPriceAndTransactionCount._count.price,
       itemCount: totalOrderItem._sum.qty,
+      freeItems: totalFreeItem,
     };
   }
 
