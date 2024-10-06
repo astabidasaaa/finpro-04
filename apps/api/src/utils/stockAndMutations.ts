@@ -34,7 +34,6 @@ export async function handleStockAndMutations(
       }
     }
   } catch (error) {
-    console.error('Failed to handle stock and mutations:', error);
     throw new Error('Failed to handle stock and mutations');
   }
 }

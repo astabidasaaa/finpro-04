@@ -96,7 +96,6 @@ export class OrderStatusService {
         }
       }
     } catch (err) {
-      console.error(err);
       throw new HttpException(500, 'Failed to check and create voucher for promotions');
     }
   }

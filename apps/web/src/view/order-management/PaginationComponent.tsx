@@ -24,8 +24,8 @@ const PaginationComponent: React.FC<PaginationComponentProps> = ({ currentPage, 
   return (
     <Pagination className="mt-5 flex justify-center">
       <PaginationPrevious
-        href={currentPage === 1 ? undefined : "#"} // Set href to null when disabled
-        onClick={currentPage === 1 ? undefined : () => handlePageChange(currentPage - 1)} // Disable onClick when on first page
+        href={currentPage === 1 ? undefined : "#"} 
+        onClick={currentPage === 1 ? undefined : () => handlePageChange(currentPage - 1)} 
         className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}
       >
         Previous
