@@ -4,23 +4,33 @@ import { Label } from '@/components/ui/label';
 import { DiscountType } from '@/types/productTypes';
 import { IDR } from '@/lib/utils';
 import moment from 'moment';
+import { NearestStore } from '@/types/orderTypes';
+import { Store } from 'lucide-react';
 
 export default function VoucherCardSelection({
   voucher,
   totalPrice,
   handleItemClick,
+  nearestStore,
 }: {
   voucher: VoucherDetail;
   totalPrice: number;
   handleItemClick: (value: string) => void;
+  nearestStore: NearestStore | null;
 }) {
+  const differentStore =
+    voucher.promotion.storeId !== null
+      ? voucher.promotion.storeId !== nearestStore?.storeId
+      : false;
   return (
     <>
       <div key={voucher.id} className="flex items-center space-x-5 mb-2">
         <RadioGroupItem
           value={voucher.id.toString()}
           id={voucher.id.toString()}
-          disabled={totalPrice < voucher.promotion.minPurchase}
+          disabled={
+            totalPrice < voucher.promotion.minPurchase || differentStore
+          }
           onClick={() => handleItemClick(voucher.id.toString())}
         />
         <div className="w-full h-full flex flex-col gap-y-3">
@@ -28,7 +38,8 @@ export default function VoucherCardSelection({
             <Label
               htmlFor={voucher.id.toString()}
               className={
-                totalPrice > voucher.promotion.minPurchase
+                totalPrice > voucher.promotion.minPurchase &&
+                differentStore === false
                   ? 'flex flex-col'
                   : 'flex flex-col text-muted-foreground'
               }
@@ -57,6 +68,12 @@ export default function VoucherCardSelection({
               {moment(voucher.expiredAt).format('ll')}
             </span>
           </div>
+          {voucher.promotion.storeId !== null && (
+            <div className="text-xs flex flex-row items-center">
+              <Store className="h-3 w-3 mr-1.5" />{' '}
+              {voucher.promotion.store.name}
+            </div>
+          )}
         </div>
       </div>
     </>

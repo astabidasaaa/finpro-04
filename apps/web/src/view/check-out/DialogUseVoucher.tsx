@@ -237,6 +237,7 @@ export default function DialogUseVoucher({
                       totalPrice={totalPrice}
                       key={voucher.id}
                       handleItemClick={handleDeliveryVoucherClick}
+                      nearestStore={nearestStore}
                     />
                   ))}
                 </RadioGroup>
@@ -260,6 +261,7 @@ export default function DialogUseVoucher({
                       totalPrice={totalPrice}
                       key={voucher.id}
                       handleItemClick={handleTransactionVoucherClick}
+                      nearestStore={nearestStore}
                     />
                   ))}
                 </RadioGroup>
