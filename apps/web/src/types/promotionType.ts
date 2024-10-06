@@ -161,4 +161,10 @@ export type TBanner = {
   finishedAt: Date;
   maxDeduction: number;
   minPurchase: number;
+  afterMinPurchase?: number;
+  afterMinTransaction?: number;
+  quota: number;
+  store?: {
+    name: string;
+  };
 };
