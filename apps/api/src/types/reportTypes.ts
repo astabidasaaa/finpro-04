@@ -79,4 +79,5 @@ export type ProductResult = {
   name: string;
   totalQty: number;
   totalPrice: number;
+  totalFree: number;
 };

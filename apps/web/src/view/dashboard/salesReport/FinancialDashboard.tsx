@@ -124,10 +124,12 @@ function MetricCardItems({
         <div className="text-2xl font-bold">
           {value.itemCount !== null ? value.itemCount : 'N/A'}
         </div>
-        <div className="text-xs mt-1.5">
-          Promosi Gratis Produk:{' '}
-          <span className="text-red-700">{value.freeItems} barang</span>
-        </div>
+        {value.itemCount !== null && (
+          <div className="text-xs mt-1.5">
+            Promosi Gratis Produk:{' '}
+            <span className="text-red-700">{value.freeItems} barang</span>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -156,20 +158,28 @@ function MetricCardOverall({
         <div className="text-2xl font-bold">
           {cleanRevenue > 0 ? IDR.format(cleanRevenue) : 'N/A'}
         </div>
-        <div className="text-xs mt-1.5">
-          Penjualan produk:{' '}
-          <span className="text-green-700">{IDR.format(productRevenue)}</span>
-        </div>
-        <div className="text-xs">
-          Ongkos kirim:{' '}
-          <span className="text-green-700">{IDR.format(deliveryRevenue)}</span>
-        </div>
-        <div className="text-xs">
-          Biaya promosi:{' '}
-          <span className="text-red-700">
-            {IDR.format(transactionPromotion)}
-          </span>
-        </div>
+        {value.cleanRevenue !== null && (
+          <>
+            <div className="text-xs mt-1.5">
+              Penjualan Produk:{' '}
+              <span className="text-green-700">
+                {IDR.format(productRevenue)}
+              </span>
+            </div>
+            <div className="text-xs">
+              Ongkos Kirim:{' '}
+              <span className="text-green-700">
+                {IDR.format(deliveryRevenue)}
+              </span>
+            </div>
+            <div className="text-xs">
+              Promosi Diskon Transaksi:{' '}
+              <span className="text-red-700">
+                {IDR.format(transactionPromotion)}
+              </span>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

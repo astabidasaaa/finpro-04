@@ -30,12 +30,18 @@ export const columns: ColumnDef<ProductAndCategoryReport>[] = [
   },
   {
     accessorKey: 'totalQty',
-    header: () => <div className="text">Jumlah Barang</div>,
-    cell: ({ row }) => (
-      <div className="font-normal flex items-center">
-        {row.getValue('totalQty')}
-      </div>
-    ),
+    header: () => <div className="text">Jumlah Beli (Jumlah Gratis)</div>,
+    cell: ({ row }) => {
+      const { totalFree, totalQty } = row.original;
+      return (
+        <div className="font-normal flex items-center">
+          {totalQty}
+          {totalFree > 0 && (
+            <span className="text-muted-foreground ml-1">({totalFree})</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'totalPrice',
