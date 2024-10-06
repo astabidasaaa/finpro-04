@@ -1,4 +1,3 @@
-import { User } from '@/types/express';
 import { Request, Response, NextFunction } from 'express';
 import adminAction from '@/actions/adminAction';
 import passwordAction from '@/actions/passwordAction';

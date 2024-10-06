@@ -1,5 +1,5 @@
 import prisma from '@/prisma';
-import {
+import type {
   AllStoreCategoryPerMonth,
   AllStoreOverallPerMonth,
   OverallProps,
@@ -61,6 +61,34 @@ class SalesQuery {
       },
     });
 
+    const freeItems = await prisma.orderItem.findMany({
+      where: {
+        order: filterOrder,
+        freeProductPerStoreId: {
+          not: null,
+        },
+      },
+      select: {
+        qty: true,
+        freeProductPerStore: {
+          select: {
+            buy: true,
+            get: true,
+          },
+        },
+      },
+    });
+
+    const totalFreeItem = freeItems.reduce((sum, item) => {
+      return (
+        sum +
+        (item.freeProductPerStore
+          ? item.freeProductPerStore.get *
+            Math.floor(item.qty / item.freeProductPerStore.buy)
+          : 0)
+      );
+    }, 0);
+
     return {
       cleanRevenue: totalPriceAndTransactionCount._sum.finalPrice,
       productRevenue: totalPriceAndTransactionCount._sum.price,
@@ -69,6 +97,7 @@ class SalesQuery {
       }, 0),
       transactionCount: totalPriceAndTransactionCount._count.price,
       itemCount: totalOrderItem._sum.qty,
+      freeItems: totalFreeItem,
     };
   }
 
@@ -114,24 +143,40 @@ class SalesQuery {
         qty: true,
         productId: true,
         finalPrice: true,
+        freeProductPerStore: {
+          select: {
+            buy: true,
+            get: true,
+          },
+        },
       },
     });
 
     const productMap = new Map<number, ProductResult>();
 
-    products.forEach(({ qty, finalPrice, productId, product }) => {
-      if (productMap.has(productId)) {
-        const existingProduct = productMap.get(productId)!;
-        existingProduct.totalQty += qty;
-        existingProduct.totalPrice += finalPrice * qty;
-      } else {
-        productMap.set(productId, {
-          name: product.name,
-          totalQty: qty,
-          totalPrice: finalPrice * qty,
-        });
-      }
-    });
+    products.forEach(
+      ({ qty, finalPrice, productId, product, freeProductPerStore }) => {
+        if (productMap.has(productId)) {
+          const existingProduct = productMap.get(productId)!;
+          existingProduct.totalQty += qty;
+          existingProduct.totalPrice += finalPrice * qty;
+          existingProduct.totalFree += freeProductPerStore
+            ? freeProductPerStore.get *
+              Math.floor(qty / freeProductPerStore.buy)
+            : 0;
+        } else {
+          productMap.set(productId, {
+            name: product.name,
+            totalQty: qty,
+            totalPrice: finalPrice * qty,
+            totalFree: freeProductPerStore
+              ? freeProductPerStore.get *
+                Math.floor(qty / freeProductPerStore.buy)
+              : 0,
+          });
+        }
+      },
+    );
 
     const distinctProducts = Array.from(productMap.values());
     const resultSortedProducts = this.orderArray(distinctProducts, orderBy);
@@ -191,22 +236,35 @@ class SalesQuery {
         },
         qty: true,
         finalPrice: true,
+        freeProductPerStore: {
+          select: {
+            buy: true,
+            get: true,
+          },
+        },
       },
     });
 
     const categoryMap = new Map<number, ProductResult>();
 
-    categories.forEach(({ qty, finalPrice, product }) => {
+    categories.forEach(({ qty, finalPrice, product, freeProductPerStore }) => {
       const categoryId = product.subcategory.productCategory.id;
       if (categoryMap.has(categoryId)) {
         const existingCategory = categoryMap.get(categoryId)!;
         existingCategory.totalQty += qty;
         existingCategory.totalPrice += finalPrice * qty;
+        existingCategory.totalFree += freeProductPerStore
+          ? freeProductPerStore.get * Math.floor(qty / freeProductPerStore.buy)
+          : 0;
       } else {
         categoryMap.set(categoryId, {
           name: product.subcategory.productCategory.name,
           totalQty: qty,
           totalPrice: finalPrice * qty,
+          totalFree: freeProductPerStore
+            ? freeProductPerStore.get *
+              Math.floor(qty / freeProductPerStore.buy)
+            : 0,
         });
       }
     });

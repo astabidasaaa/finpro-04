@@ -1,8 +1,8 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { CreateBrandInput, UpdateBrandInput } from '@/types/brandTypes';
-import { Brand } from '@prisma/client';
+import type { CreateBrandInput, UpdateBrandInput } from '@/types/brandTypes';
+import type { Brand } from '@prisma/client';
 
 class BrandQuery {
   public async createBrand(props: CreateBrandInput): Promise<Brand> {
@@ -64,14 +64,28 @@ class BrandQuery {
     }
   }
 
-  public async getBrandByName(name: string): Promise<Brand | null> {
-    const brand = await prisma.brand.findFirst({
-      where: {
-        name,
-      },
-    });
+  public async isBrandNameSame(id: number, name: string): Promise<boolean> {
+    const brand = await this.getBrandByCaseInsensitiveName(name);
+    if (brand === null) {
+      return false;
+    }
+    if (brand.id !== id) {
+      return false;
+    }
+    return true;
+  }
 
-    return brand;
+  public async getBrandByCaseInsensitiveName(
+    name: string,
+  ): Promise<Brand | null> {
+    const brands: Brand[] = await prisma.$queryRaw`
+    SELECT * FROM brands
+    WHERE LOWER(name) LIKE LOWER(${name})
+  `;
+    if (brands.length === 0) {
+      return null;
+    }
+    return brands[0];
   }
 
   public async getBrandById(brandId: number): Promise<

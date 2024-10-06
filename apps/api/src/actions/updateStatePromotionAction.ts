@@ -3,9 +3,9 @@ import promotionQuery from '@/queries/promotionQuery';
 import { HttpStatus } from '@/types/error';
 import {
   $Enums,
-  FreeProductPerStore,
-  ProductDiscountPerStore,
-  Promotion,
+  type FreeProductPerStore,
+  type ProductDiscountPerStore,
+  type Promotion,
 } from '@prisma/client';
 import createPromotionAction from './createPromotionAction';
 import promotionUpdateQuery from '@/queries/promotionUpdateQuery';

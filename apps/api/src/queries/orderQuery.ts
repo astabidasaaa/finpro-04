@@ -10,46 +10,57 @@ import { updateInventoryStock } from '@/utils/updateInventoryStock';
 class OrderQuery {
     
   
-    public async cancelOrderTransaction(order: any, userId: number) {
-      try {
-        return await prisma.$transaction(async (prisma) => {
-          const orderItems = await prisma.orderItem.findMany({
-            where: { orderId: order.id },
-          });
-
-          for (const item of orderItems) {
-            const inventoryUpdate = await updateInventoryStock(
-              order.storeId,
-              item.productId,
-              item.qty,
-              order.id,
-              order.customerId
-            );
+  public async cancelOrderTransaction(order: any, userId: number) {
+    try {
+      return await prisma.$transaction(async (prisma) => {
+        const orderItems = await prisma.orderItem.findMany({
+          where: { orderId: order.id },
+          include: {
+            freeProductPerStore: true,  
+          },
+        });
   
-            if (!inventoryUpdate) {
-              throw new HttpException(400, `Failed to restore stock for product ID: ${item.productId}`);
-            }
+        for (const item of orderItems) {
+          let quantityToRestore = item.qty;
+  
+          if (item.freeProductPerStore) {
+            const { buy, get } = item.freeProductPerStore;
+            const multiplier = Math.floor(item.qty / buy); 
+            quantityToRestore += multiplier * get; 
           }
   
-
-          await prisma.payment.update({
-            where: { id: order.paymentId },
-            data: { paymentStatus: PaymentStatus.FAILED },
-          });
-  
-          const orderStatusResult = await OrderStatusService.updateOrderStatus(
+          const inventoryUpdate = await updateInventoryStock(
+            order.storeId,
+            item.productId,
+            quantityToRestore, 
             order.id,
-            OrderStatus.DIBATALKAN,
-            userId,
-            'Order cancelled and status updated to DIBATALKAN'
+            order.customerId
           );
   
-          return orderStatusResult;
+          if (!inventoryUpdate) {
+            throw new HttpException(400, `Failed to restore stock for product ID: ${item.productId}`);
+          }
+        }
+  
+        await prisma.payment.update({
+          where: { id: order.paymentId },
+          data: { paymentStatus: PaymentStatus.FAILED },
         });
-      } catch (err) {
-        throw new HttpException(500, 'Failed to cancel order');
-      }
+  
+        const orderStatusResult = await OrderStatusService.updateOrderStatus(
+          order.id,
+          OrderStatus.DIBATALKAN,
+          userId,
+          'Order cancelled and status updated to DIBATALKAN'
+        );
+  
+        return orderStatusResult;
+      });
+    } catch (err) {
+      throw new HttpException(500, 'Failed to cancel order');
     }
+  }
+  
     public async getUserById(userId: number) {
       try {
         return await prisma.$transaction(async (prisma) => {

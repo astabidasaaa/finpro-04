@@ -1,10 +1,9 @@
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import type { ProductCategory } from '@prisma/client';
+import type { CategoryWithSubcategories } from '@/types/categoryType';
 import categoryQuery from '@/queries/categoryQuery';
 import subcategoryAction from './subcategoryAction';
-import { capitalizeString } from '@/utils/stringManipulation';
-import { CategoryWithSubcategories } from '@/types/categoryType';
 
 class CategoryAction {
   public async createCategoryAction(
@@ -12,29 +11,34 @@ class CategoryAction {
     name: string,
     subcategories: string[],
   ): Promise<ProductCategory> {
-    const formattedName = capitalizeString(name);
+    if (name.trim() === '') {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Nama kategori tidak boleh kosong',
+      );
+    }
 
-    await this.checkDuplicateCategoryName(formattedName);
+    await this.checkDuplicateCategoryName(name.trim());
 
-    const formattedSubcategories = await Promise.all(
+    const checkSubcategories = await Promise.all(
       subcategories.map(async (subcategory) => {
-        const formattedSubcategory = capitalizeString(subcategory);
         await subcategoryAction.checkDuplicateSubcategoryName(subcategory);
-        return formattedSubcategory;
+        return subcategory;
       }),
     );
 
     const category = await categoryQuery.createCategory(
       creatorId,
-      formattedName,
-      formattedSubcategories,
+      name.trim(),
+      checkSubcategories,
     );
 
     return category;
   }
 
   private async checkDuplicateCategoryName(name: string): Promise<void> {
-    const duplicateCategory = await categoryQuery.getCategoryByName(name);
+    const duplicateCategory =
+      await categoryQuery.getCategoryByCaseInsensitiveName(name);
     if (duplicateCategory !== null) {
       throw new HttpException(
         HttpStatus.CONFLICT,
@@ -82,19 +86,26 @@ class CategoryAction {
       );
     }
 
-    if (name == undefined) {
+    if (name == undefined || name.trim() === '') {
       throw new HttpException(
         HttpStatus.BAD_REQUEST,
-        'Kategori tidak dapat diperbarui',
+        'Nama kategori tidak boleh kosong. Kategori tidak dapat diperbarui.',
       );
     }
 
-    const formattedName = capitalizeString(name);
-    await this.checkDuplicateCategoryName(formattedName);
+    const checkNameWithCurrent = await categoryQuery.isCategoryNameSame(
+      currentCategory.id,
+      name.trim(),
+    );
+
+    if (!checkNameWithCurrent) {
+      await this.checkDuplicateCategoryName(name.trim());
+    }
+
     const updatedCategory = await categoryQuery.updateCategoryByCategoryId(
       creatorId,
       categoryId,
-      formattedName,
+      name.trim(),
     );
 
     return updatedCategory;

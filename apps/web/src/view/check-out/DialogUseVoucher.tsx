@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -155,11 +156,29 @@ export default function DialogUseVoucher({
 
   useEffect(() => {
     fetchData();
+    setTempDeliveryVoucherId(selectedDeliveryVoucherId);
+    setTempTransactionVoucherId(selectedTransactionVoucherId);
   }, [isOpen, claimCount]);
 
   if (!isMounted) {
     return null;
   }
+
+  const handleDeliveryVoucherClick = (value: string) => {
+    if (tempDeliveryVoucherId?.toString() === value) {
+      setTempDeliveryVoucherId(undefined);
+    } else {
+      setTempDeliveryVoucherId(parseInt(value));
+    }
+  };
+
+  const handleTransactionVoucherClick = (value: string) => {
+    if (tempTransactionVoucherId?.toString() === value) {
+      setTempTransactionVoucherId(undefined);
+    } else {
+      setTempTransactionVoucherId(parseInt(value));
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -177,43 +196,47 @@ export default function DialogUseVoucher({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Pilih Kupon</DialogTitle>
+          <DialogDescription>
+            Anda dapat menggunakan kupon yang tersedia.
+          </DialogDescription>
         </DialogHeader>
         <ScrollArea className="mt-4 max-h-[60vh] pr-4">
           <div className="space-y-6">
             {nearestStore !== null && (
               <div>
-                <div className="text-md font-medium text-muted-foreground">
-                  Klaim Kupon Toko
-                </div>
+                <div className="text-md font-bold">Klaim Kupon Toko</div>
                 <Separator className="mt-2 mb-4 h-[1.5px] bg-main-dark" />
-                {storePromotions.map((promotion) => (
-                  <PromotionClaim
-                    promotion={promotion}
-                    totalPrice={totalPrice}
-                    handleClaim={handleClaim}
-                    userPromotionsId={userPromotionsId}
-                    key={promotion.id}
-                  />
-                ))}
+                {storePromotions.length > 0 ? (
+                  storePromotions.map((promotion) => (
+                    <PromotionClaim
+                      promotion={promotion}
+                      totalPrice={totalPrice}
+                      handleClaim={handleClaim}
+                      userPromotionsId={userPromotionsId}
+                      key={promotion.id}
+                    />
+                  ))
+                ) : (
+                  <div className="text-xs italic">
+                    Promosi toko tidak tersedia
+                  </div>
+                )}
               </div>
             )}
             <div>
-              <div className="text-md font-medium text-muted-foreground">
-                Diskon Ongkir
-              </div>
+              <div className="text-md font-bold">Diskon Ongkir</div>
               <Separator className="mt-2 mb-4 h-[1.5px] bg-main-dark" />
               {deliveryVouchers.length > 0 ? (
-                <RadioGroup
-                  value={tempDeliveryVoucherId?.toString() || ''}
-                  onValueChange={(value) =>
-                    setTempDeliveryVoucherId(parseInt(value))
-                  }
-                >
+                <RadioGroup value={tempDeliveryVoucherId?.toString() || ''}>
+                  <div className="text-xs italic -mt-2">
+                    Anda hanya bisa memilih 1 kupon ongkir
+                  </div>
                   {deliveryVouchers.map((voucher) => (
                     <VoucherCardSelection
                       voucher={voucher}
                       totalPrice={totalPrice}
                       key={voucher.id}
+                      handleItemClick={handleDeliveryVoucherClick}
                     />
                   ))}
                 </RadioGroup>
@@ -224,22 +247,19 @@ export default function DialogUseVoucher({
               )}
             </div>
             <div>
-              <div className="text-md font-medium text-muted-foreground">
-                Diskon Transaksi
-              </div>
+              <div className="text-md font-bold">Diskon Transaksi</div>
               <Separator className="mt-2 mb-4 h-[1.5px] bg-main-dark" />
               {transactionVouchers.length > 0 ? (
-                <RadioGroup
-                  value={tempTransactionVoucherId?.toString() || ''}
-                  onValueChange={(value) =>
-                    setTempTransactionVoucherId(parseInt(value))
-                  }
-                >
+                <RadioGroup value={tempTransactionVoucherId?.toString() || ''}>
+                  <div className="text-xs italic -mt-2">
+                    Anda hanya bisa memilih 1 kupon transaksi
+                  </div>
                   {transactionVouchers.map((voucher) => (
                     <VoucherCardSelection
                       voucher={voucher}
                       totalPrice={totalPrice}
                       key={voucher.id}
+                      handleItemClick={handleTransactionVoucherClick}
                     />
                   ))}
                 </RadioGroup>

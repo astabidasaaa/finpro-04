@@ -7,6 +7,22 @@ export const formSchema = z.object({
   promotionState: z.enum([State.DRAFT, State.PUBLISHED]),
   startedAt: z.string().date(),
   finishedAt: z.string().date(),
-  buy: z.number().min(1, 'Jumlah beli harus lebih besar atau sama dengan 1'),
-  get: z.number().min(1, 'Jumlah gratis harus lebih besar atau sama dengan 1'),
+  buy: z
+    .string()
+    .min(1, 'Jumlah beli tidak boleh kosong')
+    .refine((value) => Number(value) >= 1, {
+      message: 'Jumlah beli harus sama atau lebih besar daripada 1',
+    })
+    .refine((value) => Number.isInteger(Number(value)), {
+      message: 'Jumlah beli harus berupa angka bulat',
+    }),
+  get: z
+    .string()
+    .min(1, 'Jumlah gratis tidak boleh kosong')
+    .refine((value) => Number(value) >= 1, {
+      message: 'Jumlah gratis harus sama atau lebih besar daripada 1',
+    })
+    .refine((value) => Number.isInteger(Number(value)), {
+      message: 'Jumlah gratis harus berupa angka bulat',
+    }),
 });

@@ -59,7 +59,7 @@ const UploadPaymentView = () => {
       toast({
         variant: 'destructive',
         title: 'Upload failed',
-        description: 'There was an error uploading your payment proof. Please try again.',
+        description: 'Pastikan file dalam bentuk .jpg, .jpeg, .png. dan tidak melebihi 1MB',
       });
     } finally {
       setIsSubmitting(false);

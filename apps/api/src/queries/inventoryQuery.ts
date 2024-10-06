@@ -1,13 +1,13 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import {
+import type {
   CreateInventoryChangeInput,
   InventoryProps,
   SearchAllInventoryInput,
   SearchStoreInventoryInput,
 } from '@/types/inventoryTypes';
-import { $Enums, Inventory, InventoryUpdate } from '@prisma/client';
+import { $Enums, type Inventory, type InventoryUpdate } from '@prisma/client';
 
 class InventoryQuery {
   public async getInventoryByInventoryId(

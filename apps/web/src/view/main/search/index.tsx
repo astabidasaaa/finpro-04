@@ -37,20 +37,21 @@ export default function SearchMainView() {
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
   const subcategoryHeaderId = searchParams.get('subcategoryId') || '';
-
+  const [text, setText] = useState(keyword);
   const [store, setStore] = useState<TStore>();
   const [products, setProducts] = useState<ProductProps[]>([]);
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryProps[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [isMounted, setIsMounted] = useState(false);
-  const [brandId, setBrandId] = useState<number>();
-  const [subcategoryId, setCategoryId] = useState<number>();
+  const [brandId, setBrandId] = useState<string>('');
+  const [subcategoryId, setCategoryId] = useState<string>(
+    searchParams.get('subcategoryId') || '',
+  );
   const [lowPrice, setLowPrice] = useState<number>();
   const [highPrice, setHighPrice] = useState<number>();
   const [orderBy, setOrderBy] = useState<string>('nameAsc');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const [page, setPage] = useState<number>(1);
   const pageSize = 12;
 
@@ -68,13 +69,14 @@ export default function SearchMainView() {
       };
 
       Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && value !== '') {
           params.set(key, value.toString());
         } else {
           params.delete(key);
         }
       });
       routerNav.push(`/search?${params.toString()}`);
+      setPage(1);
 
       const result = await axiosInstance().get(
         `${process.env.API_URL}/products?${params.toString()}&sortCol=${orderBy}&storeId=${storeId}&pageSize=${pageSize}`,
@@ -93,8 +95,30 @@ export default function SearchMainView() {
 
   async function fetchData() {
     try {
+      const params = new URLSearchParams(searchParams as any);
+      const filters = {
+        brandId: brandId,
+        subcategoryId: subcategoryId,
+        startPrice: lowPrice,
+        endPrice: highPrice,
+        keyword: keyword,
+      };
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') {
+          params.set(key, value.toString());
+        } else {
+          params.delete(key);
+        }
+      });
+
+      if (keyword !== text) {
+        setPage(1);
+        setText(keyword);
+      }
+
       const result = await axiosInstance().get(
-        `${process.env.API_URL}/products?${searchParams.toString()}&sortCol=${orderBy}&storeId=${storeId}&page=${page}&pageSize=${pageSize}`,
+        `${process.env.API_URL}/products?${params.toString()}&sortCol=${orderBy}&storeId=${storeId}&page=${page}&pageSize=${pageSize}`,
       );
       const brandResult = await axiosInstance().get(
         `${process.env.API_URL}/brands`,
@@ -122,8 +146,12 @@ export default function SearchMainView() {
   }
 
   useEffect(() => {
+    setCategoryId(subcategoryHeaderId);
+  }, []);
+
+  useEffect(() => {
     fetchData();
-  }, [orderBy, page, keyword, subcategoryHeaderId]);
+  }, [orderBy, page, keyword]);
 
   if (!isMounted) {
     return null;
@@ -134,12 +162,16 @@ export default function SearchMainView() {
       <div className="hidden lg:block">
         <div className="col-span-1 p-4 bg-muted/30 rounded-lg shadow-sm">
           <SubcategoryFilter
-            categoryId={subcategoryHeaderId}
+            categoryId={subcategoryId}
             categories={subcategories}
             setCategoryId={setCategoryId}
           />
           <Separator className="my-4" />
-          <BrandFilter brands={brands} setBrandId={setBrandId} />
+          <BrandFilter
+            brandId={brandId}
+            brands={brands}
+            setBrandId={setBrandId}
+          />
           <Separator className="my-4" />
           <div className="flex flex-col gap-2 w-full">
             <Label className="font-bold">Harga</Label>
@@ -205,11 +237,15 @@ export default function SearchMainView() {
             </SheetHeader>
             <div className="grid grid-cols-2 gap-2 pt-4">
               <SubcategoryFilter
-                categoryId={subcategoryHeaderId}
+                categoryId={subcategoryId}
                 categories={subcategories}
                 setCategoryId={setCategoryId}
               />
-              <BrandFilter brands={brands} setBrandId={setBrandId} />
+              <BrandFilter
+                brandId={brandId}
+                brands={brands}
+                setBrandId={setBrandId}
+              />
             </div>
             <Separator className="my-4" />
             <div className="flex flex-col gap-2 w-full">

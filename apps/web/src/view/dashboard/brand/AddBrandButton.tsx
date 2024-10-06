@@ -12,10 +12,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
 import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { getCookie } from 'cookies-next';
+import { Textarea } from '@/components/ui/textarea';
 
 export function AddBrandButton() {
   const [name, setName] = useState<string>('');
@@ -25,6 +26,9 @@ export function AddBrandButton() {
 
   async function handleOnClick() {
     try {
+      if (description.trim().length > 190) {
+        throw new Error('Deskripsi harus kurang dari 190 karakter');
+      }
       const response = await axiosInstance().post(
         `/brands/`,
         {
@@ -40,9 +44,16 @@ export function AddBrandButton() {
       );
 
       setIsOpen(false);
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error: any) {
       let message = '';
       if (error instanceof AxiosError) {
@@ -60,6 +71,11 @@ export function AddBrandButton() {
       }, 300);
     }
   }
+
+  useEffect(() => {
+    setName('');
+    setDescription('');
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -93,7 +109,7 @@ export function AddBrandButton() {
             <Label htmlFor="description" className="text-right">
               Deskripsi
             </Label>
-            <Input
+            <Textarea
               id="username"
               defaultValue={description}
               className="col-span-3"

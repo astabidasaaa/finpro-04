@@ -45,6 +45,7 @@ function main() {
     new SalesRouter(),
   ]);
   app.start();
+  app.initializeCrons();
 }
 
 main();

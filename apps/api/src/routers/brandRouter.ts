@@ -1,7 +1,7 @@
+import { Router } from 'express';
+import type { Route } from '@/types/express';
 import { BrandController } from '@/controllers/brandController';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
-import { Router } from 'express';
 
 export class BrandRouter implements Route {
   readonly router: Router;

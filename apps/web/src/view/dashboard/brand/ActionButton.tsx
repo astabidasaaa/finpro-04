@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import axiosInstance from '@/lib/axiosInstance';
 import { BrandProps } from '@/types/brandTypes';
 import { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,7 @@ import { getCookie } from 'cookies-next';
 import { useAppSelector } from '@/lib/hooks';
 import { UserType } from '@/types/userType';
 import DisabledButton from '@/components/DisabledButton';
+import { Textarea } from '@/components/ui/textarea';
 
 export function DialogDeleteBrand({ data }: { data: BrandProps }) {
   const token = getCookie('access-token');
@@ -45,9 +46,16 @@ export function DialogDeleteBrand({ data }: { data: BrandProps }) {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error: any) {
       let message = '';
       if (error instanceof AxiosError) {
@@ -111,6 +119,9 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
 
   async function handleOnClick() {
     try {
+      if (description && description.trim().length > 190) {
+        throw new Error('Deskripsi harus kurang dari 190 karakter');
+      }
       const response = await axiosInstance().patch(
         `/brands/${data.id}`,
         {
@@ -126,21 +137,38 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
       );
 
       setIsOpen(false);
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
-    } catch (err) {
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err: any) {
+      let message = '';
       if (err instanceof AxiosError) {
+        message = err.response?.data.message;
+      } else {
+        message = err.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Perubahan tidak disimpan',
-          description: err.response?.data.message,
+          title: 'Brand gagal diperbarui',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
+
+  useEffect(() => {
+    setName(data.name);
+    setDescription(data.description);
+  }, [isOpen]);
 
   return (
     <>
@@ -176,7 +204,7 @@ export function DialogEditBrand({ data }: { data: BrandProps }) {
                 <Label htmlFor="description" className="text-right">
                   Deskripsi
                 </Label>
-                <Input
+                <Textarea
                   id="username"
                   defaultValue={data.description}
                   className="col-span-3"

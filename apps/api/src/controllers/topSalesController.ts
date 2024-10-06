@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { User } from '@/types/express';
+import type { Request, Response, NextFunction } from 'express';
+import type { User } from '@/types/express';
 import salesAction from '@/actions/salesAction';
 
 export default class TopSalesController {

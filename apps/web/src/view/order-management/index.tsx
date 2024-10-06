@@ -142,8 +142,14 @@ const OrderManagementView = () => {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
+    fetchAllOrders(1, selectedStoreId);
+  }, [selectedStoreId, debouncedSearchTerm]);
+
+
+  useEffect(() => {
     fetchAllOrders(currentPage, selectedStoreId);
-  }, [selectedStoreId, currentPage, debouncedSearchTerm]);
+  }, [currentPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
