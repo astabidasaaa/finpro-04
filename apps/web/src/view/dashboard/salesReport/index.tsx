@@ -21,11 +21,12 @@ import {
   fetchStore,
 } from './fetchSales';
 import ProductSalesDashboard from './ProductSales';
+import { generateYearsArray } from '@/utils/generateYears';
 
 export default function SalesReportView() {
   const { user } = useAppSelector((state) => state.auth);
   const [isMounted, setIsMounted] = useState(false);
-  const [years, setYears] = useState<number[]>([2024]);
+  const years = generateYearsArray(2024);
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth() + 1,
   );
