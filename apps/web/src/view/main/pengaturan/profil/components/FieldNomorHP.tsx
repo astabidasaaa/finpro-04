@@ -34,7 +34,7 @@ const formSchema = z.object({
   phone: z
     .string()
     .transform((value) => value.replace(/\s+/g, ''))
-    .refine((value) => /^\+?\d{6,15}$/.test(value), {
+    .refine((value) => /^\+?\d{8,15}$/.test(value), {
       message: 'Nomor HP hanya dapat berisi angka dan tanda + pada awal nomor',
     }),
 });

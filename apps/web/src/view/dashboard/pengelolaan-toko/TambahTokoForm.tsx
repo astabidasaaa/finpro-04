@@ -93,8 +93,12 @@ const TambahTokoForm = ({ refetch, open, setOpen, defaultToko }: Props) => {
 
   useEffect(() => {
     if (mapPin?.lat && mapPin?.lng) {
-      form.setValue('storeAddress.latitude', mapPin.lat.toString());
-      form.setValue('storeAddress.longitude', mapPin.lng.toString());
+      form.setValue('storeAddress.latitude', mapPin.lat.toString(), {
+        shouldDirty: true,
+      });
+      form.setValue('storeAddress.longitude', mapPin.lng.toString(), {
+        shouldDirty: true,
+      });
 
       form.trigger('storeAddress.latitude');
       form.trigger('storeAddress.longitude');
@@ -120,16 +124,11 @@ const TambahTokoForm = ({ refetch, open, setOpen, defaultToko }: Props) => {
         }
 
         if (dirtyFields.storeAddress) {
-          dirtyValues.storeAddress = {};
-          if (dirtyFields.storeAddress.address) {
-            dirtyValues.storeAddress.address = values.storeAddress.address;
-          }
-          if (dirtyFields.storeAddress.latitude) {
-            dirtyValues.storeAddress.latitude = values.storeAddress.latitude;
-          }
-          if (dirtyFields.storeAddress.longitude) {
-            dirtyValues.storeAddress.longitude = values.storeAddress.longitude;
-          }
+          dirtyValues.storeAddress = {
+            address: values.storeAddress.address,
+            latitude: values.storeAddress.latitude,
+            longitude: values.storeAddress.longitude,
+          };
         }
 
         if (dirtyFields.storeAdmins) {
@@ -379,7 +378,11 @@ const TambahTokoForm = ({ refetch, open, setOpen, defaultToko }: Props) => {
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" disabled={isSubmitLoading} className="min-w-36">
+          <Button
+            type="submit"
+            disabled={isSubmitLoading}
+            className="min-w-36 bg-main-dark hover:bg-main-dark/80"
+          >
             {isSubmitLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (

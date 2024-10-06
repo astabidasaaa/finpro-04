@@ -32,8 +32,11 @@ export const validateUserUpdate = [
   body('phone')
     .trim()
     .optional()
-    .isMobilePhone('any')
-    .withMessage('Format nomor HP tidak sesuai'),
+    .customSanitizer((value) => value.replace(/\s+/g, ''))
+    .matches(/^\+?\d{8,15}$/)
+    .withMessage(
+      'Nomor HP hanya dapat berisi angka dan tanda + pada awal nomor',
+    ),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -117,7 +120,6 @@ export const validateAddressUpdate = [
     .optional()
     .isLength({ min: 1, max: 32 })
     .withMessage('Longitude berisi maksimal 32 angka'),
-
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

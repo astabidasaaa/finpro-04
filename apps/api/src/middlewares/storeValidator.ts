@@ -69,29 +69,24 @@ export const validateStoreUpdate = [
     .optional()
     .isIn(['ARCHIVED', 'DRAFT', 'PUBLISHED'])
     .withMessage('Status toko tidak sesuai'),
-  body('storeAddress')
+  body('storeAddress.address')
     .optional()
-    .isObject()
-    .withMessage('Alamat toko harus berupa objek')
-    .custom((storeAddress) => {
-      if (
-        typeof storeAddress.address !== 'string' ||
-        typeof storeAddress.latitude !== 'string' ||
-        typeof storeAddress.longitude !== 'string'
-      ) {
-        throw new Error('Alamat toko tidak valid');
-      }
-      if (
-        storeAddress.address.length > 100 ||
-        storeAddress.latitude.length > 32 ||
-        storeAddress.longitude.length > 32
-      ) {
-        throw new Error(
-          'Alamat maksimal 100 karakter, latitude dan longitude maksimal 32 karakter',
-        );
-      }
-      return true;
-    }),
+    .isString()
+    .withMessage('Alamat harus berupa string')
+    .isLength({ max: 100 })
+    .withMessage('Alamat maksimal 100 karakter'),
+  body('storeAddress.latitude')
+    .optional()
+    .isString()
+    .withMessage('Latitude harus berupa string')
+    .isLength({ max: 32 })
+    .withMessage('Latitude maksimal 32 karakter'),
+  body('storeAddress.longitude')
+    .optional()
+    .isString()
+    .withMessage('Longitude harus berupa string')
+    .isLength({ max: 32 })
+    .withMessage('Longitude maksimal 32 karakter'),
   body('storeAdmins')
     .optional()
     .isArray()
