@@ -8,7 +8,9 @@ class FeaturedPromotionAction {
       where: {
         promotionState: 'PUBLISHED',
         scope: 'GENERAL',
-        source: 'ALL_BRANCH',
+        quota: {
+          gt: 0,
+        },
         startedAt: {
           lte: new Date(),
         },
@@ -36,6 +38,14 @@ class FeaturedPromotionAction {
         description: true,
         maxDeduction: true,
         minPurchase: true,
+        quota: true,
+        store: {
+          select: {
+            name: true,
+          },
+        },
+        afterMinPurchase: true,
+        afterMinTransaction: true,
       },
     });
 

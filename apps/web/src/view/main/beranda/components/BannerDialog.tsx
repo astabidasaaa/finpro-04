@@ -92,10 +92,10 @@ const BannerDialog = ({ promotion }: { promotion: TBanner }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] overflow-hidden">
         <DialogHeader>
-          <div className="w-max -ml-6 -mt-3 mb-4 px-6 py-2 rounded-r-sm bg-main-dark text-[10px] text-background font-bold tracking-wide">
+          <div className="w-max -ml-6 -mt-3 mb-4 px-6 py-2 rounded-r-sm bg-main-dark text-left text-[10px] text-background font-bold tracking-wide">
             PROMOSI
           </div>
-          <div className="w-full h-full !mt-0 !mb-3">
+          <div className="w-full h-full !mt-0 !mb-3 rounded-sm overflow-hidden">
             <Image
               src={`${process.env.PROMOTION_API_URL}/${promotion.banner}`}
               alt={promotion.name}
@@ -105,10 +105,10 @@ const BannerDialog = ({ promotion }: { promotion: TBanner }) => {
               priority
             />
           </div>
-          <DialogTitle className="[overflow-wrap:anywhere]">
+          <DialogTitle className="[overflow-wrap:anywhere] text-pretty">
             {promotion.name}
           </DialogTitle>
-          <DialogDescription className="[overflow-wrap:anywhere]">
+          <DialogDescription className="[overflow-wrap:anywhere] text-pretty">
             {promotion.description}
           </DialogDescription>
         </DialogHeader>
@@ -124,14 +124,35 @@ const BannerDialog = ({ promotion }: { promotion: TBanner }) => {
             {promotion.discountType === DiscountType.PERCENT && '%'}
           </span>
           {promotion.maxDeduction > 0 && (
-            <span className="text-muted-foreground/80 text-[10px] sm:text-xs">
+            <span className="text-muted-foreground/80 text-xs">
               s.d. Rp{promotion.maxDeduction / 1000}rb
             </span>
           )}
-
+          {promotion.source === 'REFEREE_BONUS' && (
+            <span className="text-muted-foreground/80 text-xs">
+              Berlaku bagi pemberi referral
+            </span>
+          )}
+          {promotion.source === 'REFERRAL_BONUS' && (
+            <span className="text-muted-foreground/80 text-xs">
+              Berlaku bagi pengguna referral
+            </span>
+          )}
           {promotion.minPurchase > 0 && (
-            <span className="text-muted-foreground/80 text-[10px] sm:text-xs">
+            <span className="text-muted-foreground/80 text-xs">
               Min. Belanja Rp{promotion.minPurchase / 1000}rb
+            </span>
+          )}
+          {promotion.afterMinPurchase && (
+            <span className="text-muted-foreground/80 text-xs text-pretty">
+              Dapat diklaim setelah pembelanjaan mencapai Rp
+              {promotion.afterMinPurchase / 1000}rb
+            </span>
+          )}
+          {promotion.afterMinTransaction && (
+            <span className="text-muted-foreground/80 text-xs">
+              Dapat digunakan setelah {promotion.afterMinTransaction} kali
+              transaksi
             </span>
           )}
           <span className="text-muted-foreground/80 text-xs">
@@ -141,7 +162,8 @@ const BannerDialog = ({ promotion }: { promotion: TBanner }) => {
             </span>
           </span>
         </div>
-        {promotion.source === 'ALL_BRANCH' && (
+        {(promotion.source === 'ALL_BRANCH' ||
+          promotion.source === 'PER_BRANCH') && (
           <DialogFooter>
             <Button
               type="button"
