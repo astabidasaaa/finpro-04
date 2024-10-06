@@ -85,6 +85,7 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
             variant="destructive"
             onClick={cancelOrder}
             disabled={isLoading}
+            className='text-xs md:text-lg'
           >
             Batalkan Pesanan
           </Button>
@@ -96,6 +97,7 @@ const OrderActions: React.FC<{ order: Order; userId: string; orderId: string; }>
           <Button
             onClick={confirmShipping}
             disabled={isLoading}
+            className='text-xs md:text-lg bg-green-400'
           >
             Konfirmasi Pengiriman
           </Button>
