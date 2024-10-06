@@ -357,7 +357,8 @@ export default function CreatePromotionForm({
                   </span>
                   <div className="text-xs text-muted-foreground mt-1 font-normal">
                     Maksimal potongan dalam rupiah jika kupon memiliki tipe
-                    diskon 'PERSEN'. Kosongi jika tipe diskon adalah 'FLAT'
+                    diskon &apos;PERSEN&apos;. Kosongi jika tipe diskon adalah
+                    &apos;FLAT&apos;
                   </div>
                 </FormLabel>
                 <FormControl>
