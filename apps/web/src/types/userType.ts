@@ -33,6 +33,7 @@ export type SearchedUser = {
     id: number;
     name: string;
   } | null;
+  createdAt: Date;
 };
 
 export enum UserType {

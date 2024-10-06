@@ -220,7 +220,7 @@ export default function ProductDetailView({
                     size="icon"
                     onClick={decreaseQuantity}
                     className="h-max w-max p-1"
-                    disabled={quantity <= 1}
+                    disabled={quantity <= 1 || product.stock <= 0}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -228,11 +228,13 @@ export default function ProductDetailView({
                     value={quantity}
                     onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                     className="w-12 h-max p-0 text-center border-none"
+                    disabled={product.stock <= 0}
                   />
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={increaseQuantity}
+                    disabled={product.stock <= 0}
                     className="h-max w-max p-1"
                   >
                     <Plus className="h-4 w-4" />
@@ -251,9 +253,16 @@ export default function ProductDetailView({
               <Button
                 className="w-full bg-main-dark hover:bg-main-dark/80"
                 onClick={handleAddToCart}
+                disabled={product.stock <= 0}
               >
-                <Plus className="size-4 mr-2" />
-                Keranjang
+                {product.stock > 0 ? (
+                  <>
+                    <Plus className="size-4 mr-2" />
+                    Keranjang
+                  </>
+                ) : (
+                  <>Stok kosong</>
+                )}
               </Button>
             </div>
             <Separator />

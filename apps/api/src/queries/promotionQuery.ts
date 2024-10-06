@@ -1,17 +1,16 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import {
+import type {
   CreateDiscountProductPromotionInput,
   CreateFreeProductPromotionInput,
   CreatePromotionInput,
-  SearchGeneralPromotion,
 } from '@/types/promotionTypes';
 import {
   $Enums,
-  FreeProductPerStore,
-  ProductDiscountPerStore,
-  Promotion,
+  type FreeProductPerStore,
+  type ProductDiscountPerStore,
+  type Promotion,
 } from '@prisma/client';
 
 class PromotionQuery {

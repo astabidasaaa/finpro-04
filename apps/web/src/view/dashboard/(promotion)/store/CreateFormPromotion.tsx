@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AxiosError } from 'axios';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import axiosInstance from '@/lib/axiosInstance';
 import {
@@ -39,6 +39,7 @@ import { formSchema } from './createPromotionSchema';
 import { StoreProps } from '@/types/storeTypes';
 import { useAppSelector } from '@/lib/hooks';
 import { UserType } from '@/types/userType';
+import FormSeparator from '../components/FormSeparator';
 
 export default function CreatePromotionForm({
   setIsOpen,
@@ -78,13 +79,13 @@ export default function CreatePromotionForm({
       description: '',
       startedAt: '',
       finishedAt: '',
-      quota: undefined,
+      quota: '10',
       promotionType: PromotionType.TRANSACTION,
       discountType: DiscountType.PERCENT,
-      discountValue: undefined,
+      discountValue: '',
       discountDurationSecs: 60 * 60 * 24,
-      minPurchase: undefined,
-      maxDeduction: undefined,
+      minPurchase: '',
+      maxDeduction: '',
     },
   });
 
@@ -93,9 +94,15 @@ export default function CreatePromotionForm({
 
     const storeId = store !== undefined ? store.id : values.storeId;
     try {
+      const transformedValues = Object.fromEntries(
+        Object.entries(values).map(([key, value]) => {
+          return [key, value === '' ? undefined : value];
+        }),
+      );
+
       const res = await axiosInstance().post(
         '/promotions/store',
-        { ...values, storeId: storeId },
+        { ...transformedValues, storeId: storeId },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -151,6 +158,7 @@ export default function CreatePromotionForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid gap-4 pl-1 pr-2"
         >
+          <FormSeparator text="PROMOSI" />
           {user.role === UserType.SUPERADMIN && (
             <FormField
               control={form.control}
@@ -185,7 +193,7 @@ export default function CreatePromotionForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input placeholder="Nama promosi" {...field} />
                 </FormControl>
@@ -239,26 +247,19 @@ export default function CreatePromotionForm({
               <FormItem className="grid gap-2">
                 <FormLabel>Kuota Kupon</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          <FormSeparator text="KUPON" />
           <FormField
             control={form.control}
             name="promotionType"
             render={({ field }: { field: any }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Tipe Promosi</FormLabel>
+                <FormLabel>Tipe Kupon</FormLabel>
                 <Select
                   defaultValue={field.value}
                   onValueChange={field.onChange}
@@ -314,15 +315,7 @@ export default function CreatePromotionForm({
               <FormItem className="grid gap-2">
                 <FormLabel>Nilai Diskon</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -333,17 +326,19 @@ export default function CreatePromotionForm({
             name="minPurchase"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Minimal pembelian</FormLabel>
+                <FormLabel>
+                  Minimal pembelian
+                  <span className="text-muted-foreground text-xs font-light">
+                    {' '}
+                    (opsional)
+                  </span>
+                  <div className="text-xs text-muted-foreground mt-1 font-normal">
+                    Minimal total belanja dalam rupiah sebagai syarat kupon
+                    dapat digunakan
+                  </div>
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -354,17 +349,20 @@ export default function CreatePromotionForm({
             name="maxDeduction"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel>Maksimal potongan</FormLabel>
+                <FormLabel>
+                  Maksimal potongan
+                  <span className="text-muted-foreground text-xs font-light">
+                    {' '}
+                    (opsional)
+                  </span>
+                  <div className="text-xs text-muted-foreground mt-1 font-normal">
+                    Maksimal potongan dalam rupiah jika kupon memiliki tipe
+                    diskon &apos;PERSEN&apos;. Kosongi jika tipe diskon adalah
+                    &apos;FLAT&apos;
+                  </div>
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

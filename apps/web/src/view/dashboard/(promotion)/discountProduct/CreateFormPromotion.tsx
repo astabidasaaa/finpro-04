@@ -74,7 +74,7 @@ export default function CreatePromotionForm({
       startedAt: '',
       finishedAt: '',
       discountType: DiscountType.PERCENT,
-      discountValue: undefined,
+      discountValue: '10',
     },
   });
 
@@ -262,15 +262,7 @@ export default function CreatePromotionForm({
               <FormItem className="grid gap-2">
                 <FormLabel>Nilai Diskon</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    onChange={(e) => {
-                      field.onChange(
-                        e.target.value ? parseInt(e.target.value) : undefined,
-                      );
-                    }}
-                  />
+                  <Input {...field} type="number" min="1" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

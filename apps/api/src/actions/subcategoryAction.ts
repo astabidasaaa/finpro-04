@@ -1,9 +1,8 @@
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { ProductSubcategory } from '@prisma/client';
+import type { ProductSubcategory } from '@prisma/client';
+import type { UpdateSubcategoryInput } from '@/types/subcategoryTypes';
 import subcategoryQuery from '@/queries/subcategoryQuery';
-import { UpdateSubcategoryInput } from '@/types/subcategoryTypes';
-import { capitalizeString } from '@/utils/stringManipulation';
 
 class SubcategoryAction {
   public async createSubcategoryAction(
@@ -11,13 +10,22 @@ class SubcategoryAction {
     name: string,
     parentCategoryId: number,
   ): Promise<ProductSubcategory> {
-    const formattedName = capitalizeString(name);
+    if (name.trim() === '') {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Nama subkategori tidak boleh kosong',
+      );
+    }
 
-    await this.checkDuplicateSubcategoryName(formattedName);
+    if (Number.isNaN(parentCategoryId)) {
+      throw new HttpException(HttpStatus.BAD_REQUEST, 'Kategori harus dipilih');
+    }
+
+    await this.checkDuplicateSubcategoryName(name.trim());
 
     const subcategory = await subcategoryQuery.createSubcategory(
       creatorId,
-      formattedName,
+      name.trim(),
       parentCategoryId,
     );
 
@@ -26,7 +34,7 @@ class SubcategoryAction {
 
   public async checkDuplicateSubcategoryName(name: string): Promise<void> {
     const duplicateSubcategory =
-      await subcategoryQuery.getSubcategoryByName(name);
+      await subcategoryQuery.getSubcategoryByCaseInsensitiveName(name);
     if (duplicateSubcategory !== null) {
       throw new HttpException(
         HttpStatus.CONFLICT,
@@ -66,16 +74,32 @@ class SubcategoryAction {
     const updateData: any = {};
 
     if (name !== undefined) {
-      const formattedName = capitalizeString(name);
-      if (currentSubcategory.name !== formattedName) {
-        updateData.name = formattedName;
+      if (name.trim() === '') {
+        throw new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'Nama subkategori tidak boleh kosong. Subkategori tidak dapat diperbarui.',
+        );
       }
+      const checkNameWithCurrent = await subcategoryQuery.isSubcategoryNameSame(
+        currentSubcategory.id,
+        name.trim(),
+      );
+      if (!checkNameWithCurrent) {
+        await this.checkDuplicateSubcategoryName(name.trim());
+      }
+      updateData.name = name.trim();
     }
 
     if (
       parentCategoryId !== undefined &&
-      parentCategoryId != currentSubcategory.productCategoryId
+      parentCategoryId !== currentSubcategory.productCategoryId
     ) {
+      if (Number.isNaN(parentCategoryId)) {
+        throw new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'Kategori harus dipilih',
+        );
+      }
       updateData.parentCategoryId = parentCategoryId;
     }
 

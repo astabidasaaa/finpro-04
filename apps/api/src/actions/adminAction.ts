@@ -1,12 +1,14 @@
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { Brand, User } from '@prisma/client';
+import prisma from '@/prisma';
+import { User } from '@prisma/client';
 import { capitalizeString } from '@/utils/stringManipulation';
 import {
-  CreateAdminInput,
-  SearchedUser,
-  SearchUsersInput,
-  UpdateAdminInput,
+  AdminRole,
+  type CreateAdminInput,
+  type SearchedUser,
+  type SearchUsersInput,
+  type UpdateAdminInput,
 } from '@/types/adminTypes';
 import authQuery from '@/queries/authQuery';
 import { hashingPassword } from '@/utils/password';
@@ -108,6 +110,22 @@ class AdminAction {
         HttpStatus.NOT_FOUND,
         'Tidak dapat menghapus admin ini karena admin tidak ditemukan',
       );
+    }
+
+    if (admin.role.name === AdminRole.SUPERADMIN) {
+      const activeSuperAdminCount = await prisma.user.count({
+        where: {
+          deletedAt: null,
+          role: { name: AdminRole.SUPERADMIN },
+        },
+      });
+
+      if (activeSuperAdminCount === 1) {
+        throw new HttpException(
+          HttpStatus.NOT_FOUND,
+          'Tidak dapat menghapus super admin karena SIGMART harus memiliki minimal 1 super admin',
+        );
+      }
     }
 
     const deletedEmail = `${admin.email}-${admin.id}-deleted`;

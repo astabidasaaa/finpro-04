@@ -20,15 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { CartItem } from '@/types/cartType';
 import { getCookie } from 'cookies-next';
 
-
-type Props = {
-  addresses: Address[] | null;
-  setAddresses: React.Dispatch<React.SetStateAction<Address[] | null>>;
-  selectedAddressId: string;
-  setSelectedAddressId: React.Dispatch<React.SetStateAction<string>>;
-  setNearestStore: React.Dispatch<React.SetStateAction<any>>; 
-  nearestStore: any; 
-};
 const CheckoutPageView = () => {
   const token = getCookie('access-token');
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -48,7 +39,6 @@ const CheckoutPageView = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   
- 
   const router = useRouter();
   const user = useAppSelector((state) => state.auth.user);
   const userId = user.id.toString();
@@ -89,7 +79,6 @@ const CheckoutPageView = () => {
               get = freeProduct[0].get;
             }
   
-
             return {
               id: item.productId.toString(), 
               name: productData.product.name,
@@ -294,7 +283,6 @@ const CheckoutPageView = () => {
     fetchNearestStoreOnLoad();
   }, [selectedAddressId]);
   
-
   const calculateTotalPrice = () => {
     return orderItems.reduce(
       (total, item) => total + (item.discountedPrice > 0 ? item.discountedPrice : item.price) * item.quantity,
@@ -302,6 +290,35 @@ const CheckoutPageView = () => {
     );
   };
 
+  useEffect(() => {
+    let vouchers: string[] = [];
+    if (selectedDeliveryVoucher) {
+      if (
+        calculateTotalPrice() < selectedDeliveryVoucher.promotion.minPurchase
+      ) {
+        setSelectedDeliveryVoucher(null);
+        vouchers.push('ongkos kirim');
+      }
+    }
+
+    if (selectedTransactionVoucher) {
+      if (
+        calculateTotalPrice() < selectedTransactionVoucher.promotion.minPurchase
+      ) {
+        setSelectedTransactionVoucher(null);
+        vouchers.push('transaksi');
+      }
+    }
+
+    if (vouchers.length > 0) {
+      const removeVouchers = vouchers.join(' dan ');
+      toast({
+        variant: 'default',
+        title: 'Kupon tidak dapat digunakan',
+        description: `Kupon ${removeVouchers} tidak memenuhi syarat minimal belanja`,
+      });
+    }
+  }, [calculateTotalPrice()]);
 
   const calculateTotalPriceWithShipping = () => {
     const originalTotalPrice = calculateTotalPrice();
@@ -352,7 +369,6 @@ const CheckoutPageView = () => {
     return reducedShippingCost;
   };
   
-
   const calculateStoreDiscount = () => {
     if (!selectedTransactionVoucher) return 0;
 
@@ -372,8 +388,6 @@ const CheckoutPageView = () => {
 
     return Math.max(discount, 0);
 };
-
-  
 
   let IDR = new Intl.NumberFormat('id-ID', {
     style: 'currency',

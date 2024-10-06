@@ -1,27 +1,32 @@
 import { HttpException } from '@/errors/httpException';
-import brandQuery from '@/queries/brandQuery';
 import { HttpStatus } from '@/types/error';
 import type { CreateBrandInput, UpdateBrandInput } from '@/types/brandTypes';
-import { Brand } from '@prisma/client';
-import { capitalizeString } from '@/utils/stringManipulation';
+import type { Brand } from '@prisma/client';
+import brandQuery from '@/queries/brandQuery';
 
 class BrandAction {
   public async createBrandAction(props: CreateBrandInput): Promise<Brand> {
     const { name } = props;
-    const formattedName = capitalizeString(name);
 
-    await this.checkDuplicateBrandName(formattedName);
+    if (name.trim() === '') {
+      throw new HttpException(
+        HttpStatus.BAD_REQUEST,
+        'Nama brand tidak boleh kosong',
+      );
+    }
+
+    await this.checkDuplicateBrandName(name.trim());
 
     const brand = await brandQuery.createBrand({
       ...props,
-      name: formattedName,
+      name: name.trim(),
     });
 
     return brand;
   }
 
   private async checkDuplicateBrandName(name: string): Promise<void> {
-    const duplicateBrand = await brandQuery.getBrandByName(name);
+    const duplicateBrand = await brandQuery.getBrandByCaseInsensitiveName(name);
     if (duplicateBrand !== null) {
       throw new HttpException(
         HttpStatus.CONFLICT,
@@ -62,10 +67,20 @@ class BrandAction {
     }
 
     if (name !== undefined) {
-      const formattedName = capitalizeString(name);
-      if (currentBrand.name !== formattedName) {
-        updateData.name = formattedName;
+      if (name.trim() === '') {
+        throw new HttpException(
+          HttpStatus.BAD_REQUEST,
+          'Nama brand tidak boleh kosong. Brand tidak dapat diperbarui.',
+        );
       }
+      const checkNameWithCurrent = await brandQuery.isBrandNameSame(
+        currentBrand.id,
+        name.trim(),
+      );
+      if (!checkNameWithCurrent) {
+        await this.checkDuplicateBrandName(name.trim());
+      }
+      updateData.name = name.trim();
     }
 
     if (

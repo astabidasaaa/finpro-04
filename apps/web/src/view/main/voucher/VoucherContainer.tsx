@@ -38,10 +38,16 @@ const VoucherContainer = () => {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-8">
-      {data.map(
-        (voucher: VoucherProps & { promotion: NonProductPromotionProps }) => (
-          <VoucherCard key={voucher.id} voucher={voucher} />
-        ),
+      {data.length > 0 ? (
+        data.map(
+          (voucher: VoucherProps & { promotion: NonProductPromotionProps }) => (
+            <VoucherCard key={voucher.id} voucher={voucher} />
+          ),
+        )
+      ) : (
+        <div className="col-span-full -mt-3 text-muted-foreground text-sm italic">
+          Anda belum memiliki kupon
+        </div>
       )}
     </div>
   );

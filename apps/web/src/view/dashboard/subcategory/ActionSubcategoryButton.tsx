@@ -57,19 +57,31 @@ export function DialogDeleteCategory({ data }: { data: SubcategoryProps }) {
           },
         },
       );
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
-    } catch (err) {
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (err: any) {
+      let message = '';
       if (err instanceof AxiosError) {
+        message = err.response?.data.message;
+      } else {
+        message = err.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
-          title: 'Subkategori tidak dihapus',
-          description: err.response?.data.message,
+          title: 'Subkategori gagal dihapus',
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 
@@ -129,6 +141,11 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    setName(data.name);
+    setParentCategoryId(data.productCategoryId.toString());
+  }, [isOpen]);
+
   async function handleOnClick() {
     try {
       const response = await axiosInstance().patch(
@@ -146,19 +163,31 @@ export function DialogEditSubcategory({ data }: { data: SubcategoryProps }) {
       );
 
       setIsOpen(false);
-      if (response.status == 200) {
-        window.location.reload();
+      if (response.status === 200) {
+        toast({
+          variant: 'success',
+          title: response.data.message,
+        });
       }
-    } catch (err) {
-      if (err instanceof AxiosError) {
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error: any) {
+      let message = '';
+      if (error instanceof AxiosError) {
+        message = error.response?.data.message;
+      } else {
+        message = error.message;
+      }
+
+      setTimeout(() => {
         toast({
           variant: 'destructive',
           title: 'Perubahan tidak disimpan',
-          description: err.response?.data.message,
+          description: message,
         });
-      } else {
-        alert(err);
-      }
+      }, 300);
     }
   }
 

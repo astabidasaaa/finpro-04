@@ -42,9 +42,9 @@ const MobileCategoryMenuContent = ({ category }: { category: TCategory }) => {
                   onClick={() => setOpen((prev) => false)}
                   asChild
                 >
-                  <Link href={`/search?subcategoryId=${subcategory.id}`}>
+                  <a href={`/search?subcategoryId=${subcategory.id}`}>
                     {subcategory.name}
-                  </Link>
+                  </a>
                 </Button>
               );
             })}

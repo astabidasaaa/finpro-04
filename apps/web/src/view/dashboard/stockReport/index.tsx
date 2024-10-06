@@ -15,6 +15,7 @@ import { ProductStockChange } from '@/types/salesType';
 import SelectOrderBy from '../salesReport/SelectOrderBy';
 import SelectYear from '../salesReport/SelectYear';
 import SelectMonth from '../salesReport/SelectMonth';
+import { generateYearsArray } from '@/utils/generateYears';
 
 export const StockReportContext = createContext({
   selectedMonth: 0,
@@ -30,7 +31,7 @@ export default function StockReportView() {
   const [total, setTotal] = useState<number>(0);
   const [isMounted, setIsMounted] = useState(false);
   const pageSize = 10;
-  const [years, setYears] = useState<number[]>([2024]);
+  const years = generateYearsArray(2024);
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth() + 1,
   );

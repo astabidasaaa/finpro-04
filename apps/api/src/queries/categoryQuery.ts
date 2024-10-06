@@ -1,8 +1,8 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
-import { CategoryWithSubcategories } from '@/types/categoryType';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { ProductCategory } from '@prisma/client';
+import type { CategoryWithSubcategories } from '@/types/categoryType';
+import type { ProductCategory } from '@prisma/client';
 
 class CategoryQuery {
   public async createCategory(
@@ -66,16 +66,28 @@ class CategoryQuery {
     }
   }
 
-  public async getCategoryByName(
+  public async isCategoryNameSame(id: number, name: string): Promise<boolean> {
+    const category = await this.getCategoryByCaseInsensitiveName(name);
+    if (category === null) {
+      return false;
+    }
+    if (category.id !== id) {
+      return false;
+    }
+    return true;
+  }
+
+  public async getCategoryByCaseInsensitiveName(
     name: string,
   ): Promise<ProductCategory | null> {
-    const category = await prisma.productCategory.findFirst({
-      where: {
-        name,
-      },
-    });
-
-    return category;
+    const categories: ProductCategory[] = await prisma.$queryRaw`
+    SELECT * FROM product_categories
+    WHERE LOWER(name) LIKE LOWER(${name})
+  `;
+    if (categories.length === 0) {
+      return null;
+    }
+    return categories[0];
   }
 
   public async getCategoryById(categoryId: number): Promise<

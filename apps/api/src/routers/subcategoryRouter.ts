@@ -1,7 +1,7 @@
+import { Router } from 'express';
+import type { Route } from '@/types/express';
 import { SubcategoryController } from '@/controllers/subcategoryController';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
-import { Router } from 'express';
 
 export class SubcategoryRouter implements Route {
   readonly router: Router;

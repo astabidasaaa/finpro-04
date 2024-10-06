@@ -72,10 +72,12 @@ export type OverallProps = {
   deliveryRevenue: number;
   transactionCount: number;
   itemCount: number | null;
+  freeItems: number;
 };
 
 export type ProductResult = {
   name: string;
   totalQty: number;
   totalPrice: number;
+  totalFree: number;
 };

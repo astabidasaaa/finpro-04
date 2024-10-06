@@ -23,6 +23,7 @@ const HeaderCategoryAndSearch = () => {
   }
 
   function handleNoString() {
+    setText('');
     setTimeout(() => {
       router.push(`/search?`);
     }, 500);

@@ -1,3 +1,5 @@
+import { Router } from 'express';
+import type { Route } from '@/types/express';
 import { AdminController } from '@/controllers/adminController';
 import {
   validateAdminCreation,
@@ -5,8 +7,6 @@ import {
   validateChangeAdminPassword,
 } from '@/middlewares/adminValidator';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
-import { Router } from 'express';
 
 export class AdminRouter implements Route {
   readonly router: Router;
@@ -31,7 +31,7 @@ export class AdminRouter implements Route {
       this.adminController.createAdmin,
     );
 
-    // pagination and filter to show all admin
+    // pagination and filter to show users
     this.router.get(
       `${this.path}/users`,
       this.guard.verifyAccessToken,
