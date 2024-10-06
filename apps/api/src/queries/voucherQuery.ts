@@ -16,7 +16,15 @@ class VoucherQuery {
         },
       },
       include: {
-        promotion: true,
+        promotion: {
+          include: {
+            store: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
     return vouchers;

@@ -4,8 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '@/lib/axiosInstance';
 import Loading from '@/components/Loading';
 import Error from '@/app/error';
-import { NonProductPromotionProps } from '@/types/promotionType';
-import { VoucherProps } from '@/types/voucherType';
+import { VoucherDetail } from '@/types/voucherType';
 import VoucherCard from './VoucherCard';
 
 const VoucherContainer = () => {
@@ -39,11 +38,9 @@ const VoucherContainer = () => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-8">
       {data.length > 0 ? (
-        data.map(
-          (voucher: VoucherProps & { promotion: NonProductPromotionProps }) => (
-            <VoucherCard key={voucher.id} voucher={voucher} />
-          ),
-        )
+        data.map((voucher: VoucherDetail) => (
+          <VoucherCard key={voucher.id} voucher={voucher} />
+        ))
       ) : (
         <div className="col-span-full -mt-3 text-muted-foreground text-sm italic">
           Anda belum memiliki kupon

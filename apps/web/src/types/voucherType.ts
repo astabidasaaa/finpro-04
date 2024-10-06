@@ -17,5 +17,5 @@ export enum VoucherStatus {
 }
 
 export type VoucherDetail = VoucherProps & {
-  promotion: NonProductPromotionProps;
+  promotion: NonProductPromotionProps & { store: { name: string } };
 };
