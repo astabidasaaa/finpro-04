@@ -1,5 +1,5 @@
 import express, { urlencoded, Express, json } from 'express';
-import { FRONTEND_URL, PORT } from './config';
+import { FRONTEND_URL, FRONTEND_URL_ALIAS, PORT } from './config';
 import type { Route } from './types/express';
 import { ErrorHandler } from './middlewares/errorHandler';
 import path from 'path';
@@ -27,7 +27,7 @@ export default class App {
   private configure(): void {
     this.app.use(
       cors({
-        origin: FRONTEND_URL,
+        origin: [FRONTEND_URL, FRONTEND_URL_ALIAS],
         credentials: true,
       }),
     );
@@ -39,7 +39,7 @@ export default class App {
     );
     this.app.use(
       '/uploads',
-      express.static(path.join(path.dirname(__dirname), 'src', 'uploads'))
+      express.static(path.join(path.dirname(__dirname), 'src', 'uploads')),
     );
     this.app.use(passport.initialize());
   }
