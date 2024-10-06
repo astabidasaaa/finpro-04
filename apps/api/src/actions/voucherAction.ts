@@ -1,6 +1,6 @@
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { $Enums, Voucher } from '@prisma/client';
+import { $Enums, type Voucher } from '@prisma/client';
 import promotionQuery from '@/queries/promotionQuery';
 import voucherQuery from '@/queries/voucherQuery';
 

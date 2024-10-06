@@ -2,8 +2,8 @@ import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
 import {
-  SearchedProduct,
-  SearchProductInput,
+  type SearchedProduct,
+  type SearchProductInput,
   Sort,
 } from '@/types/productTypes';
 import { $Enums } from '@prisma/client';

@@ -2,7 +2,7 @@ import { InventoryController } from '@/controllers/inventoryController';
 import { InventoryReportController } from '@/controllers/inventoryReportController';
 import { validateInventoryChangeCreation } from '@/middlewares/addInventoryChangeValidator';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
+import type { Route } from '@/types/express';
 import { Router } from 'express';
 
 export class InventoryRouter implements Route {

@@ -1,29 +1,29 @@
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import inventoryQuery from '@/queries/inventoryQuery';
 import {
-  CreateInventoryChangeInput,
-  InventoryProps,
-  InventoryUpdateProps,
-  ProductInventoryChange,
-  ProductStockChange,
-  SearchAllInventoryInput,
-  SearchAllInventoryUpdatesInput,
-  SearchStoreInventoryInput,
-  SearchStoreInventoryUpdatesInput,
+  type CreateInventoryChangeInput,
+  type InventoryProps,
+  type InventoryUpdateProps,
+  type ProductInventoryChange,
+  type ProductStockChange,
+  type SearchAllInventoryInput,
+  type SearchAllInventoryUpdatesInput,
+  type SearchStoreInventoryInput,
+  type SearchStoreInventoryUpdatesInput,
   UpdateDetailDesc,
   UpdateTypeDesc,
 } from '@/types/inventoryTypes';
-import productQuery from '@/queries/productQuery';
-import { $Enums, InventoryUpdate } from '@prisma/client';
-import inventoryUpdatesQuery from '@/queries/inventoryUpdatesQuery';
-import createPromotionAction from './createPromotionAction';
-import {
+import type {
   SearchAllStoreProductPerMonth,
   SearchPerStoreProductPerMonth,
 } from '@/types/reportTypes';
+import { $Enums, type InventoryUpdate } from '@prisma/client';
+import productQuery from '@/queries/productQuery';
+import inventoryUpdatesQuery from '@/queries/inventoryUpdatesQuery';
+import inventoryQuery from '@/queries/inventoryQuery';
 import inventoryReportQuery from '@/queries/inventoryReportQuery';
 import storeQuery from '@/queries/storeQuery';
+import createPromotionAction from './createPromotionAction';
 
 class InventoryAction {
   public async getAllInventoryAction(props: SearchAllInventoryInput): Promise<{

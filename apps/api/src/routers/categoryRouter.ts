@@ -1,6 +1,6 @@
 import { CategoryController } from '@/controllers/categoryController';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
+import type { Route } from '@/types/express';
 import { Router } from 'express';
 
 export class CategoryRouter implements Route {

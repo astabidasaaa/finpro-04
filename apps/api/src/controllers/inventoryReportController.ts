@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import { User } from '@/types/express';
-import inventoryAction from '@/actions/inventoryAction';
-import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
+import type { Request, Response, NextFunction } from 'express';
+import type { User } from '@/types/express';
+import inventoryAction from '@/actions/inventoryAction';
+import prisma from '@/prisma';
 
 export class InventoryReportController {
   public async getAllStoreProductStockPerMonth(

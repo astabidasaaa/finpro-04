@@ -1,7 +1,7 @@
-import { HttpException } from '@/errors/httpException';
 import prisma from '@/prisma';
+import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import {
+import type {
   SearchAllInventoryUpdatesInput,
   InventoryUpdateProps,
   SearchStoreInventoryUpdatesInput,

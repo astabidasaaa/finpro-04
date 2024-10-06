@@ -1,7 +1,7 @@
+import type { User } from '@/types/express';
+import type { NextFunction, Request, Response } from 'express';
 import featuredPromotionAction from '@/actions/featuredPromotionAction';
 import getPromotionAction from '@/actions/getPromotionAction';
-import { User } from '@/types/express';
-import { NextFunction, Request, Response } from 'express';
 
 export class GetPromotionController {
   public async getFeaturedPromotions(

@@ -1,7 +1,7 @@
 import { SalesController } from '@/controllers/salesController';
 import TopSalesController from '@/controllers/topSalesController';
 import { AuthMiddleware } from '@/middlewares/tokenHandler';
-import { Route } from '@/types/express';
+import type { Route } from '@/types/express';
 import { Router } from 'express';
 
 export class SalesRouter implements Route {

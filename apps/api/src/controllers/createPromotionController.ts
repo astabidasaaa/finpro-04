@@ -1,11 +1,11 @@
-import createPromotionAction from '@/actions/createPromotionAction';
+import { HttpStatus } from '@/types/error';
 import { HttpException } from '@/errors/httpException';
+import type { User } from '@/types/express';
+import type { NextFunction, Request, Response } from 'express';
+import { $Enums } from '@prisma/client';
+import createPromotionAction from '@/actions/createPromotionAction';
 import inventoryQuery from '@/queries/inventoryQuery';
 import productQuery from '@/queries/productQuery';
-import { HttpStatus } from '@/types/error';
-import { User } from '@/types/express';
-import { $Enums } from '@prisma/client';
-import { NextFunction, Request, Response } from 'express';
 
 export class CreatePromotionController {
   public async createGeneralPromotion(

@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { HttpException } from '@/errors/httpException';
 import { HttpStatus } from '@/types/error';
-import { $Enums, Promotion, Voucher } from '@prisma/client';
+import { $Enums, type Promotion, type Voucher } from '@prisma/client';
 
 class VoucherQuery {
   public async getVouchersByUserId(

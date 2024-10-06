@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
-import { SearchAllStoreProductPerMonth } from '@/types/reportTypes';
-import { $Enums, InventoryUpdate } from '@prisma/client';
-import {
+import type { SearchAllStoreProductPerMonth } from '@/types/reportTypes';
+import { $Enums, type InventoryUpdate } from '@prisma/client';
+import type {
   ProductInventoryChange,
   ProductStockChange,
 } from '@/types/inventoryTypes';

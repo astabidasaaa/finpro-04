@@ -1,6 +1,6 @@
-import voucherAction from '@/actions/voucherAction';
 import type { User } from '@/types/express';
 import type { Request, Response, NextFunction } from 'express';
+import voucherAction from '@/actions/voucherAction';
 
 export class VoucherController {
   public async getVouchersUser(

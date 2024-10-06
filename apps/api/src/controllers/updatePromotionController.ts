@@ -1,9 +1,9 @@
+import type { User } from '@/types/express';
+import { $Enums } from '@prisma/client';
+import type { NextFunction, Request, Response } from 'express';
 import updatePromotionAction from '@/actions/updatePromotionAction';
 import updateStatePromotionAction from '@/actions/updateStatePromotionAction';
 import inventoryQuery from '@/queries/inventoryQuery';
-import { User } from '@/types/express';
-import { $Enums } from '@prisma/client';
-import { NextFunction, Request, Response } from 'express';
 
 export default class UpdatePromotionController {
   public async updateNonProductPromotionState(
