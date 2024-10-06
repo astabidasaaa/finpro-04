@@ -15,6 +15,31 @@ export const metadata: Metadata = {
     default: 'Sigmart',
   },
   description: 'Belanja terus tanpa putus',
+  openGraph: {
+    title: 'Sigmart - Belanja terus tanpa putus',
+    description:
+      'Nikmati pengalaman belanja yang menyenangkan hanya di Sigmart.',
+    url: 'https://sigmart.shop',
+    siteName: 'Sigmart',
+    images: [
+      {
+        url: `https://sigmart.shop/sigmart-banner.png`,
+        width: 1280,
+        height: 426,
+        alt: 'Sigmart - Belanja terus tanpa putus',
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sigmart - Belanja terus tanpa putus',
+    description:
+      'Nikmati pengalaman belanja yang menyenangkan hanya di Sigmart.',
+    images: ['https://sigmart.shop/sigmart-banner.png'],
+  },
+  keywords: ['Sigmart', 'belanja online', 'toko online', 'ecommerce'],
 };
 
 export default function RootLayout({
@@ -23,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body className={inter.className}>
         <ReactQueryProvider>
           <StoreProvider>
