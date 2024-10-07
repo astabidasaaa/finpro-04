@@ -27,6 +27,13 @@ export const buildOrderSearchQuery = (search?: string): Prisma.OrderWhereInput =
         },
       },
       {
+        customer: {
+          email: {
+            contains: search
+          }
+        }
+      },
+      {
         orderStatus: matchingStatuses.length > 0 ? { in: matchingStatuses } : undefined,
       },
       {

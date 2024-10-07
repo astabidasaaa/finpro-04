@@ -75,8 +75,8 @@ const OrderPageView: React.FC = () => {
       };
 
       if (dateRange?.from && dateRange.to) {
-        params.from = dateRange.from;
-        params.to = dateRange.to;
+        params.from = new Date(dateRange.from).toISOString();  
+        params.to = new Date(dateRange.to).toISOString();      
       }
       let endpoint = '';
       if (isFinishedOrders) {

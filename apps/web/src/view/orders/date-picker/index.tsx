@@ -26,8 +26,22 @@ export function DatePickerWithRange({
 }: DatePickerWithRangeProps) {
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
 
+
+  const convertToUTC = (date: Date) => {
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  };
+
+
   React.useEffect(() => {
-    onSelect(date);
+    if (date) {
+      const adjustedDateRange: DateRange = {
+        from: date.from ? convertToUTC(date.from) : undefined,
+        to: date.to ? convertToUTC(date.to) : undefined,
+      };
+      onSelect(adjustedDateRange);
+    } else {
+      onSelect(undefined); 
+    }
   }, [date, onSelect]);
 
   return (
