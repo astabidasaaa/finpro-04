@@ -53,6 +53,7 @@ class InventoryReportQuery {
           select: {
             type: true,
             stockChange: true,
+            createdAt: true,
           },
         },
       },
@@ -75,13 +76,35 @@ class InventoryReportQuery {
         };
       }
 
-      updates.forEach((update) => {
-        if (update.type === $Enums.InventoryUpdateType.ADD) {
-          acc[id].totalAdd += update.stockChange;
-        } else if (update.type === $Enums.InventoryUpdateType.REMOVE) {
-          acc[id].totalRemove += update.stockChange;
-        }
-      });
+      let calculatedStock = inventory.stock;
+
+      // Loop through updates in reverse chronological order
+      updates
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .forEach((update) => {
+          const updateMonth = update.createdAt.getMonth();
+
+          // If the update is **after** the target month, roll back the stock
+          if (updateMonth > month - 1) {
+            if (update.type === $Enums.InventoryUpdateType.ADD) {
+              calculatedStock -= update.stockChange;
+            } else if (update.type === $Enums.InventoryUpdateType.REMOVE) {
+              calculatedStock += update.stockChange;
+            }
+          } else if (updateMonth === month - 1) {
+            // If the update is **in** the target month, track total ADD/REMOVE
+            if (update.type === $Enums.InventoryUpdateType.ADD) {
+              acc[id].totalAdd += update.stockChange;
+            } else if (update.type === $Enums.InventoryUpdateType.REMOVE) {
+              acc[id].totalRemove += update.stockChange;
+            }
+          } else {
+            // If the update is in a **previous month**, stop processing
+            return false;
+          }
+        });
+
+      acc[id].lastStock = calculatedStock;
 
       return acc;
     }, {});
