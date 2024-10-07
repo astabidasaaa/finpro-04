@@ -42,7 +42,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders }) => {
           orders.map((order: any) => (
             <TableRow key={order.id}>
               <TableCell>
-                <div className="font-medium">{order.customer?.profile?.name || 'Unknown Customer'}</div>
+                <div className="font-medium">{order.customer?.profile?.name || order.customer?.email}</div>
               </TableCell>
               <TableCell className="hidden md:table-cell">
                 <Badge

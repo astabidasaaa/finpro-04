@@ -23,15 +23,16 @@ class CountOrderQuery {
       };
   
       if (fromDate && toDate) {
+
         const startOfDay = new Date(fromDate);
-        startOfDay.setHours(0, 0, 0, 0); 
-      
+        startOfDay.setUTCHours(0, 0, 0, 0); 
+
         const endOfDay = new Date(toDate);
-        endOfDay.setHours(23, 59, 59, 999); 
-      
+        endOfDay.setUTCHours(23, 59, 59, 999); 
+
         whereCondition.createdAt = {
-          gte: startOfDay, 
-          lte: endOfDay,   
+          gte: startOfDay,
+          lte: endOfDay,
         };
       }
   
@@ -61,15 +62,16 @@ class CountOrderQuery {
         ...buildOrderSearchQuery(search),
       };
       if (fromDate && toDate) {
+
         const startOfDay = new Date(fromDate);
-        startOfDay.setHours(0, 0, 0, 0); 
-      
+        startOfDay.setUTCHours(0, 0, 0, 0); 
+
         const endOfDay = new Date(toDate);
-        endOfDay.setHours(23, 59, 59, 999); 
-      
+        endOfDay.setUTCHours(23, 59, 59, 999); 
+
         whereCondition.createdAt = {
-          gte: startOfDay, 
-          lte: endOfDay,   
+          gte: startOfDay,
+          lte: endOfDay,
         };
       }
   
@@ -105,15 +107,16 @@ class CountOrderQuery {
       };
 
       if (fromDate && toDate) {
+
         const startOfDay = new Date(fromDate);
-        startOfDay.setHours(0, 0, 0, 0); 
-      
+        startOfDay.setUTCHours(0, 0, 0, 0); 
+
         const endOfDay = new Date(toDate);
-        endOfDay.setHours(23, 59, 59, 999); 
-      
+        endOfDay.setUTCHours(23, 59, 59, 999); 
+
         whereCondition.createdAt = {
-          gte: startOfDay, 
-          lte: endOfDay,   
+          gte: startOfDay,
+          lte: endOfDay,
         };
       }
   
