@@ -84,13 +84,9 @@ export class AuthController {
 
       const accessToken = await authAction.refreshAccessToken(email);
 
-      res.status(200).cookie('access-token', accessToken, {
-        domain: '.sigmart.shop',
-        path: '/',
-        maxAge: 1000 * 60 * 60 * 24,
-        secure: true,
-        httpOnly: false,
-        sameSite: 'none',
+      res.status(200).json({
+        message: 'Token refreshed',
+        accessToken,
       });
     } catch (error) {
       next(error);

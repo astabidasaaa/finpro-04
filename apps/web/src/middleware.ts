@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
 
         response.cookies.set({
           name: 'access-token',
-          value: data.result.accessToken,
+          value: data.accessToken,
           domain: '.sigmart.shop',
           path: '/',
           maxAge: 1000 * 60 * 60 * 24,
@@ -32,13 +32,6 @@ export async function middleware(request: NextRequest) {
           sameSite: 'none',
         });
       } catch (error: any) {
-        let message = '';
-        if (error instanceof AxiosError) {
-          message = error.response?.data.message;
-        } else {
-          message = error.message;
-        }
-
         response.cookies.delete({
           name: 'access-token',
           domain: '.sigmart.shop',
@@ -74,12 +67,6 @@ export async function middleware(request: NextRequest) {
       userState.role = data.data.role;
       userState.isVerified = data.data.isVerified;
     } catch (error: any) {
-      let message = '';
-      if (error instanceof AxiosError) {
-        message = error.response?.data.message;
-      } else {
-        message = error.message;
-      }
       response.cookies.delete({
         name: 'access-token',
         domain: '.sigmart.shop',
